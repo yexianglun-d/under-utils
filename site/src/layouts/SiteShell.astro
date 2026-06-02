@@ -15,6 +15,9 @@ const {
 };
 
 const pageTitle = title === 'Under-Utils' ? title : `${title} | Under-Utils`;
+const siteUrl = Astro.site ?? new URL('https://under-utils.howied.me');
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const socialImageUrl = new URL('/social-preview.png', siteUrl).toString();
 ---
 
 <!doctype html>
@@ -24,7 +27,21 @@ const pageTitle = title === 'Under-Utils' ? title : `${title} | Under-Utils`;
     <meta name="viewport" content="width=1180, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#f8fafc" />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Under-Utils" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
     <title>{pageTitle}</title>
   </head>
   <body class={bodyClass}>

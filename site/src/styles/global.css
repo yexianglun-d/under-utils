@@ -369,6 +369,14 @@ input {
   letter-spacing: 0;
 }
 
+.hero__lead {
+  max-width: 720px;
+  margin: 22px 0 0;
+  color: var(--color-primary);
+  font-size: 19px;
+  line-height: 1.75;
+}
+
 .hero__stack {
   display: flex;
   flex-wrap: wrap;
@@ -558,6 +566,34 @@ input {
 
 .section-heading p {
   margin: 0;
+  color: var(--color-primary);
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.scenario-item {
+  display: grid;
+  min-height: 152px;
+  align-content: start;
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.72));
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.06);
+}
+
+.scenario-item strong {
+  color: var(--color-foreground);
+  font-family: var(--font-heading);
+  font-size: 18px;
+}
+
+.scenario-item span {
   color: var(--color-primary);
 }
 

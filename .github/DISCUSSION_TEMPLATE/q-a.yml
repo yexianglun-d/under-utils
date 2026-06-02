@@ -1,0 +1,40 @@
+title: "[Q&A] "
+labels:
+  - question
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for installation, configuration, examples, or module usage questions.
+        If you found a reproducible bug, please open a Bug issue instead.
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: Which module or starter is involved?
+      placeholder: under-utils-spring-starter
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Stable version, snapshot branch, or commit hash.
+      placeholder: 1.0.2
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe what you want to do, what you tried, and where you are blocked.
+      placeholder: I want to enable Redis-backed repeat-submit protection...
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Add minimal configuration, code, logs, or links. Do not include secrets.
+    validations:
+      required: false

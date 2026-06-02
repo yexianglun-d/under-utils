@@ -3,7 +3,7 @@
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](#requirements)
 [![Maven](https://img.shields.io/badge/Maven-3.9%2B-C71A36.svg)](#requirements)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.x-6DB33F.svg)](#requirements)
-[![CI](https://github.com/yexianglun-d/java-tool-box/actions/workflows/ci.yml/badge.svg)](https://github.com/yexianglun-d/java-tool-box/actions/workflows/ci.yml)
+[![CI](https://github.com/yexianglun-d/under-utils/actions/workflows/ci.yml/badge.svg)](https://github.com/yexianglun-d/under-utils/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.yexianglun-d/under-utils-starter.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.yexianglun-d/under-utils-starter)
 [![Website](https://img.shields.io/badge/Website-under--utils.howied.me-2563eb.svg)](https://under-utils.howied.me/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -19,6 +19,12 @@ This project is not a replacement for Hutool, Apache Commons, or Guava. New feat
 Current stable version: `1.0.2`. The `main` branch is currently in the `1.0.3-SNAPSHOT` development cycle.
 
 Maven coordinates use the GitHub namespace `io.github.yexianglun-d`. Java packages remain under `com.undernine.utils` throughout `1.x` to avoid a package-level breaking change for published public APIs.
+
+## Typical Use Cases
+
+- Rate limiting, repeat-submit protection, and request context should not be scattered across controllers, AOP code, and task executors. Under-Utils centralizes key resolution, failure semantics, and local/Redis store switching.
+- Redis cache-aside, logical-expire caches, distributed locks, and cache metrics are easy to rewrite inconsistently. Under-Utils templates collect TTL, null-value handling, jitter, rebuild locks, and observation boundaries.
+- Third-party OpenAPI and OpenAI-compatible model calls often need token refresh, signing, idempotency headers, error decoding, retry behavior, and sensitive-data masking behind one reusable client boundary.
 
 ## Project Scope
 
@@ -133,8 +139,8 @@ For Spring Boot projects that want a configured default `AiClient`, add the stan
 Local development:
 
 ```bash
-git clone https://github.com/yexianglun-d/java-tool-box.git
-cd java-tool-box
+git clone https://github.com/yexianglun-d/under-utils.git
+cd under-utils
 mvn test
 ```
 
@@ -305,6 +311,8 @@ The release process is documented in [docs/RELEASE.md](docs/RELEASE.md).
 Before proposing a new feature, read [CONTRIBUTING.md](CONTRIBUTING.md). The key question is whether the feature is a reusable engineering pattern rather than application code, framework-provided behavior, or functionality already covered by mature utility libraries.
 
 Public API changes follow [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md). Patch and minor releases should remain source-compatible unless there is a clear security or correctness exception.
+
+Community entry points are listed in [docs/COMMUNITY.md](docs/COMMUNITY.md). Usage questions should start in GitHub Discussions; approachable tasks use the `good first issue`, `help wanted`, or `roadmap` labels.
 
 ## License
 

@@ -26,11 +26,18 @@ const installCode = `<dependencyManagement>
 </dependencies>`;
 ---
 
-<SiteShell current="home">
+<SiteShell
+  current="home"
+  description="Under-Utils 将 Spring Boot 业务系统里反复出现的上下文传播、限流防重、Redis 缓存、OpenAPI 客户端治理和 AI Client 封装为可测试、可替换、可发布的工程模式组件。"
+>
   <section class="site-section hero">
     <div class="hero__copy">
       <div class="eyebrow"><Icon name="spark" size={16} /> Java 21 / Spring Boot 3.1.x</div>
       <h1>Under-Utils</h1>
+      <p class="hero__lead">
+        把业务系统里反复手写的上下文传播、限流防重、缓存重建、OpenAPI 调用和 AI Client
+        收口成可测试、可替换、可发布的 Spring Boot 组件。
+      </p>
       <div class="hero__stack" aria-label="核心模块">
         <span>Context</span>
         <span>RateLimit</span>
@@ -48,6 +55,10 @@ const installCode = `<dependencyManagement>
           <Icon name="api" size={17} />
           API
         </a>
+        <a class="button" href="https://github.com/yexianglun-d/under-utils" target="_blank" rel="noopener noreferrer">
+          <Icon name="github" size={17} />
+          GitHub
+        </a>
       </div>
       <div class="hero__meta" aria-label="项目版本和运行要求">
         <span class="pill pill--success"><Icon name="check" size={14} /> stable {version.stable}</span>
@@ -57,6 +68,29 @@ const installCode = `<dependencyManagement>
       </div>
     </div>
     <CodeBlock label="推荐安装：BOM + Spring Starter" language="xml" code={installCode} />
+  </section>
+
+  <section class="section-band">
+    <div class="site-section">
+      <div class="section-heading">
+        <h2>先接入这些场景</h2>
+        <p>从真实业务系统里最容易写散、最需要统一失败语义的横切能力开始。</p>
+      </div>
+      <div class="scenario-grid">
+        <div class="scenario-item">
+          <strong>接口保护</strong>
+          <span>统一限流、防重复提交、操作 key 和请求上下文传播。</span>
+        </div>
+        <div class="scenario-item">
+          <strong>Redis 缓存</strong>
+          <span>收口 TTL、空值缓存、抖动、重建锁、逻辑过期和观测指标。</span>
+        </div>
+        <div class="scenario-item">
+          <strong>外部调用</strong>
+          <span>封装 OpenAPI token 刷新、签名、幂等 header、错误解码和 AI Client。</span>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="section-band">

@@ -1,0 +1,38 @@
+title: "[Idea] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to incubate reusable engineering-pattern ideas before opening a feature issue.
+        Under-Utils does not accept one-off application workflows or small helpers already covered by mature libraries.
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Repeated Scenario
+      description: What repeated infrastructure or workflow problem should be extracted?
+      placeholder: Multiple services keep rewriting the same cache rebuild behavior...
+    validations:
+      required: true
+  - type: textarea
+    id: fit
+    attributes:
+      label: Why It Fits Under-Utils
+      description: Explain why JDK, Spring, Hutool, Apache Commons, Guava, or existing Under-Utils modules do not already cover it.
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Boundary
+      description: What should be included, and what must stay in the business application?
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Possible API
+      description: Sketch the smallest readable API, configuration key, or sample usage.
+    validations:
+      required: false

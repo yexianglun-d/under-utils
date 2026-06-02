@@ -1,1 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
+contact_links:
+  - name: 使用问题 / Q&A
+    url: https://github.com/yexianglun-d/under-utils/discussions/categories/q-a
+    about: 安装、配置、示例工程或具体模块用法问题，优先在 Discussions 里讨论。
+  - name: 新场景孵化 / Ideas
+    url: https://github.com/yexianglun-d/under-utils/discussions/categories/ideas
+    about: 还不确定是否适合进入 public API 的工程模式想法，先在 Ideas 里收集边界。
+  - name: 路线图 / Roadmap
+    url: https://github.com/yexianglun-d/under-utils/blob/main/ROADMAP.md
+    about: 查看当前演进方向和可参与的模块边界。

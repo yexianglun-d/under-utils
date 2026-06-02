@@ -32,7 +32,8 @@
 
 - 持续维护 API Review，配置 key、异常语义和 starter 默认行为发生变化时同步记录。
 - 继续收缩 `under-utils-core` 历史工具方法的扩张倾向。
-- 为 `1.0.2` 准备发布验证、GitHub Release Notes 和 Central Portal 提交。
+- 维护 GitHub Discussions、`good first issue`、`help wanted` 和 `roadmap` 入口，把使用问题、功能孵化和确定任务分开。
+- 为 `1.0.3` 准备 AI 命名客户端、文档索引和 GitHub Release Notes。
 - 为 `2.0.0` 记录 Redis/Spring SPI 拆分方案，并按 [JSON_MODULE_MIGRATION.md](docs/JSON_MODULE_MIGRATION.md) 评估 core JSON 迁移。
 
 ## 后续方向

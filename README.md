@@ -3,7 +3,7 @@
 [![Java](https://img.shields.io/badge/Java-21-blue.svg)](#环境要求)
 [![Maven](https://img.shields.io/badge/Maven-3.9%2B-C71A36.svg)](#环境要求)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1.x-6DB33F.svg)](#环境要求)
-[![CI](https://github.com/yexianglun-d/java-tool-box/actions/workflows/ci.yml/badge.svg)](https://github.com/yexianglun-d/java-tool-box/actions/workflows/ci.yml)
+[![CI](https://github.com/yexianglun-d/under-utils/actions/workflows/ci.yml/badge.svg)](https://github.com/yexianglun-d/under-utils/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.yexianglun-d/under-utils-starter.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.yexianglun-d/under-utils-starter)
 [![官网](https://img.shields.io/badge/%E5%AE%98%E7%BD%91-under--utils.howied.me-2563eb.svg)](https://under-utils.howied.me/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -20,6 +20,12 @@ Under-Utils 是一组面向 Java 21 / Spring Boot 项目的工程模式工具包
 
 Maven 坐标使用 GitHub namespace `io.github.yexianglun-d`。Java 包名在 `1.x` 内继续保持
 `com.undernine.utils`，这是为了避免已发布 public API 发生包名级破坏性迁移。
+
+## 典型场景
+
+- 接口限流、防重复提交和操作上下文不想散落在 Controller、AOP 和线程池配置里，希望统一 key 解析、失败语义和本地/Redis 存储切换。
+- Redis cache-aside、逻辑过期缓存、分布式锁和缓存指标反复手写，希望以模板方式收口 TTL、空值、抖动、重建锁和观测边界。
+- 调用第三方 OpenAPI 或 OpenAI-compatible 模型服务时，希望统一 token 刷新、签名、幂等 header、错误解码、重试和敏感信息脱敏。
 
 ## 项目边界
 
@@ -136,8 +142,8 @@ Spring Boot 项目需要按配置创建默认 `AiClient` 时，引入独立 AI s
 本地开发：
 
 ```bash
-git clone https://github.com/yexianglun-d/java-tool-box.git
-cd java-tool-box
+git clone https://github.com/yexianglun-d/under-utils.git
+cd under-utils
 mvn test
 ```
 
@@ -288,6 +294,8 @@ mvn -Papi-compat \
 提交新能力前请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。核心判断是：这个能力是否属于可复用工程模式，而不是应用代码、框架已有能力或成熟工具库已有能力。
 
 public API 变更遵循 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。除非有明确的安全或正确性例外，patch 和 minor 版本应保持源码兼容。
+
+社区参与入口见 [docs/COMMUNITY.md](docs/COMMUNITY.md)。使用问题优先发起 GitHub Discussions；可接手任务会使用 `good first issue`、`help wanted` 或 `roadmap` 标签。
 
 ## 许可证
 

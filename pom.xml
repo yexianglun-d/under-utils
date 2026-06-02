@@ -12,7 +12,7 @@
 
     <name>Under-Utils</name>
     <description>Java 工程模式工具包 - 封装复杂、重复、跨项目复用的基础设施与业务流程能力</description>
-    <url>https://github.com/yexianglun-d/java-tool-box</url>
+    <url>https://github.com/yexianglun-d/under-utils</url>
     <inceptionYear>2026</inceptionYear>
 
     <licenses>
@@ -32,20 +32,20 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/yexianglun-d/java-tool-box.git</connection>
-        <developerConnection>scm:git:https://github.com/yexianglun-d/java-tool-box.git</developerConnection>
-        <url>https://github.com/yexianglun-d/java-tool-box</url>
+        <connection>scm:git:https://github.com/yexianglun-d/under-utils.git</connection>
+        <developerConnection>scm:git:https://github.com/yexianglun-d/under-utils.git</developerConnection>
+        <url>https://github.com/yexianglun-d/under-utils</url>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/yexianglun-d/java-tool-box/issues</url>
+        <url>https://github.com/yexianglun-d/under-utils/issues</url>
     </issueManagement>
 
     <ciManagement>
         <system>GitHub Actions</system>
-        <url>https://github.com/yexianglun-d/java-tool-box/actions</url>
+        <url>https://github.com/yexianglun-d/under-utils/actions</url>
     </ciManagement>
 
     <properties>

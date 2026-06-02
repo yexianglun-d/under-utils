@@ -57,10 +57,10 @@ function resolveMarkdownHref(href: string) {
   }
 
   if (normalized.endsWith('.md')) {
-    return `https://github.com/yexianglun-d/java-tool-box/blob/main/${normalized}${hash ? `#${hash}` : ''}`;
+    return `https://github.com/yexianglun-d/under-utils/blob/main/${normalized}${hash ? `#${hash}` : ''}`;
   }
 
-  return `https://github.com/yexianglun-d/java-tool-box/blob/main/${normalized}${hash ? `#${hash}` : ''}`;
+  return `https://github.com/yexianglun-d/under-utils/blob/main/${normalized}${hash ? `#${hash}` : ''}`;
 }
 
 function escapeHtml(value: string) {

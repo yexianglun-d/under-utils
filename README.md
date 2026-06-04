@@ -16,7 +16,7 @@ Under-Utils 是一组面向 Java 21 / Spring Boot 项目的工程模式工具包
 
 这个项目不定位为 Hutool、Apache Commons 或 Guava 的替代品。新增能力应解决可复用的工程问题，并且有明确行为可以测试，例如请求上下文传播、限流、防重复提交、Redis 分布式锁、缓存重建、OpenAPI 客户端治理、AI 模型基础调用、安全分页、审计填充和导入任务流程。
 
-当前稳定版本：`1.0.3`。
+当前稳定版本：`1.0.3`。`main` 分支当前为 `1.0.4-SNAPSHOT` 开发周期。
 
 Maven 坐标使用 GitHub namespace `io.github.yexianglun-d`。Java 包名在 `1.x` 内继续保持
 `com.undernine.utils`，这是为了避免已发布 public API 发生包名级破坏性迁移。
@@ -285,13 +285,13 @@ public API 兼容性检查：
 
 ```bash
 mvn -Papi-compat \
-  -pl under-utils-core,under-utils-http,under-utils-spring,under-utils-redis,under-utils-mybatis,under-utils-biz \
+  -pl under-utils-core,under-utils-http,under-utils-ai,under-utils-ai-starter,under-utils-spring,under-utils-redis,under-utils-mybatis,under-utils-biz \
   -am \
   -DskipTests \
   verify
 ```
 
-`api-compat` profile 会把当前构件和 `1.0.1` 已发布构件做 public API 对比。默认覆盖稳定运行时模块；starter 拆分属于模块边界迁移，当前通过自动装配测试和文档记录维护兼容性。
+`api-compat` profile 会把当前构件和最近一个已发布稳定版本做 public API 对比。默认覆盖稳定运行时模块和已发布 starter 的 public API；涉及自动装配行为的变更仍需要结合自动装配测试和文档记录维护兼容性。
 
 发布流程见 [docs/RELEASE.md](docs/RELEASE.md)。
 

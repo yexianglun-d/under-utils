@@ -16,7 +16,7 @@ Under-Utils is an engineering-pattern utility toolkit for Java 21 and Spring Boo
 
 This project is not a replacement for Hutool, Apache Commons, or Guava. New features should solve reusable engineering problems with testable behavior, such as request-context propagation, rate limiting, repeat-submit protection, Redis distributed locks, cache rebuild patterns, OpenAPI client governance, basic AI model calls, safe pagination, audit filling, and import task workflows.
 
-Current stable version: `1.0.3`.
+Current stable version: `1.0.3`. The `main` branch is currently in the `1.0.4-SNAPSHOT` development cycle.
 
 Maven coordinates use the GitHub namespace `io.github.yexianglun-d`. Java packages remain under `com.undernine.utils` throughout `1.x` to avoid a package-level breaking change for published public APIs.
 
@@ -296,13 +296,13 @@ Public API compatibility check:
 
 ```bash
 mvn -Papi-compat \
-  -pl under-utils-core,under-utils-http,under-utils-spring,under-utils-redis,under-utils-mybatis,under-utils-biz \
+  -pl under-utils-core,under-utils-http,under-utils-ai,under-utils-ai-starter,under-utils-spring,under-utils-redis,under-utils-mybatis,under-utils-biz \
   -am \
   -DskipTests \
   verify
 ```
 
-The `api-compat` profile compares current artifacts with published `1.0.1` artifacts. It covers stable runtime modules by default. Starter splitting is treated as a module-boundary migration and is guarded by autoconfiguration tests and documentation.
+The `api-compat` profile compares current artifacts with the latest published stable version. It covers stable runtime modules and the public API of published starters by default. Changes that affect autoconfiguration behavior still need autoconfiguration tests and documentation.
 
 The release process is documented in [docs/RELEASE.md](docs/RELEASE.md).
 

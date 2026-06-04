@@ -5,7 +5,7 @@
     "sourceFileCount": 142,
     "artifactCount": 11,
     "typeCount": 142,
-    "memberCount": 942,
+    "memberCount": 943,
     "artifacts": [
       {"artifact": "under-utils-ai", "module": "ai", "typeCount": 19},
       {"artifact": "under-utils-ai-starter", "module": "ai-starter", "typeCount": 2},
@@ -1254,6 +1254,13 @@
           "kind": "method",
           "signature": "public AiClient aiClient(AiClientRegistry aiClientRegistry)",
           "status": "stable",
+          "summary": "创建默认 AI client。"
+        },
+        {
+          "name": "aiClient",
+          "kind": "method",
+          "signature": "public AiClient aiClient(UnderUtilsAiProperties properties, ObjectProvider<AiClientProvider> aiClientProviders)",
+          "status": "deprecated",
           "summary": "创建默认 AI client。"
         },
         {

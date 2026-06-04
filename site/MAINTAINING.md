@@ -80,8 +80,10 @@
 
 ## 更新命令
 
+官网构建要求 Node.js `>=22.12.0`。如果系统默认 Node 版本较低，需要先切换到符合要求的 Node 运行时。
+
 ```bash
-cd /Users/deng/Desktop/project/my/java-tool-box/site
+cd /Users/deng/Desktop/Java开发工具包/java-tool-box/site
 npm run build
 ```
 
@@ -97,7 +99,7 @@ astro build
 本地预览：
 
 ```bash
-cd /Users/deng/Desktop/project/my/java-tool-box/site
+cd /Users/deng/Desktop/Java开发工具包/java-tool-box/site
 ./node_modules/.bin/astro dev --host 127.0.0.1 --port 4323
 ```
 

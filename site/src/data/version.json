@@ -1,6 +1,6 @@
 {
-  "stable": "1.0.2",
-  "snapshot": "1.0.3-SNAPSHOT",
+  "stable": "1.0.3",
+  "snapshot": "1.0.3",
   "java": "21",
   "springBoot": "3.1.x",
   "maven": "3.9+"

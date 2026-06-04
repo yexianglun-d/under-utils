@@ -10,7 +10,7 @@ AI 大模型基础调用封装模块，提供 OpenAI-compatible 文本对话客�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-ai</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -122,7 +122,7 @@ ChatRequest request = ChatRequest.builder()
 
 ## 多客户端注册表
 
-该能力位于当前 `1.0.3-SNAPSHOT` 开发周期，正式发布后再使用对应稳定版本坐标。
+该能力自 `1.0.3` 起可在稳定版本坐标中使用。
 
 同一个应用需要同时接入多个模型服务时，可以使用 `AiClientRegistry` 按名称路由：
 

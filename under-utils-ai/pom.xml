@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.github.yexianglun-d</groupId>
         <artifactId>under-utils</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.3</version>
     </parent>
 
     <artifactId>under-utils-ai</artifactId>
@@ -18,7 +18,7 @@
 
     <properties>
         <!-- 新增模块没有 1.0.1 基线构件，发布后再纳入 public API 兼容检查。 -->
-        <japicmp.skip>true</japicmp.skip>
+        <japicmp.skip>false</japicmp.skip>
     </properties>
 
     <dependencies>

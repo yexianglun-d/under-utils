@@ -73,6 +73,23 @@ public class UnderUtilsAiAutoConfiguration {
         return aiClientRegistry.getDefaultClient();
     }
 
+    /**
+     * 创建默认 AI client。
+     *
+     * @param properties AI 配置
+     * @param aiClientProviders 自定义 AI client provider
+     * @return AI client
+     * @deprecated 1.0.3 起自动装配通过 {@link #aiClientRegistry(UnderUtilsAiProperties, ObjectProvider)}
+     * 和 {@link #aiClient(AiClientRegistry)} 暴露默认客户端；保留该方法用于兼容 1.0.2 已发布 public API。
+     */
+    @Deprecated(since = "1.0.3", forRemoval = false)
+    public AiClient aiClient(UnderUtilsAiProperties properties,
+                             ObjectProvider<AiClientProvider> aiClientProviders) {
+        return createClient(resolveProvider(properties, null),
+                buildOptions(properties, null),
+                aiClientProviders.stream().toList());
+    }
+
     private AiClient createClient(String providerName, AiClientOptions options, List<AiClientProvider> providers) {
         String provider = AiClientProvider.normalize(providerName);
         AiClientProvider customProvider = providers.stream()

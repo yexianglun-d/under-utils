@@ -16,7 +16,7 @@ starter 会在业务项目提供同类基础设施 Bean 时自动退让。
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-starter</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 

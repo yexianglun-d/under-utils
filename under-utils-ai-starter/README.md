@@ -10,7 +10,7 @@ Spring Boot 自动装配入口，用于按配置创建默认 `AiClient`。
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-ai-starter</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -53,7 +53,7 @@ public class SummaryService {
 
 多模型配置：
 
-该能力位于当前 `1.0.3-SNAPSHOT` 开发周期，正式发布后再使用对应稳定版本坐标。
+该能力自 `1.0.3` 起可在稳定版本坐标中使用。
 
 ```yaml
 under:

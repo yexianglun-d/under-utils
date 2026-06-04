@@ -12,7 +12,7 @@ if (!versionMatch) {
 
 const version = versionMatch[1].trim();
 const data = {
-  stable: '1.0.2',
+  stable: '1.0.3',
   snapshot: version,
   java: '21',
   springBoot: '3.1.x',

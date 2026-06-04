@@ -10,7 +10,7 @@
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-redis</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 

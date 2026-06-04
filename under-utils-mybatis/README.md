@@ -10,7 +10,7 @@ MyBatis-Plus 支持模块，提供审计字段、逻辑删除约定、安全分�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-mybatis</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 

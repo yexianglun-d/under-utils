@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+暂无。
+
+## [1.0.3] - 2026-06-04
+
 ### Added
 
 - `under-utils-ai` 新增 `AiClientRegistry` 和 `DefaultAiClientRegistry`，支持在一个应用内按名称管理多个 AI client，并获取默认或指定客户端。
@@ -15,10 +19,12 @@
 
 ### Changed
 
-- `main` 分支 Maven 版本进入 `1.0.3-SNAPSHOT` 开发周期，`1.0.2` 保持为当前稳定版本。
+- 本轮 `1.0.3-SNAPSHOT` 开发内容收敛为 `1.0.3` 正式发布版本，`1.0.2` 继续作为 API 兼容性基线。
 - `LogicalExpireCacheOptions` 默认后台刷新执行器改为独立有界 daemon 线程池，不再使用 `ForkJoinPool.commonPool()`。
 - `CsvImportRowReader` 默认忽略 UTF-8 BOM、限制单条记录最大字符数，并严格校验 CSV 引号语法；需要历史宽松行为时可显式设置 `strictQuotes(false)`。
 - `docs/COMPATIBILITY.md` 增加 Java 21 / Spring Boot 3.1.x 运行环境矩阵和发布前验证要求。
+- `api-compat` 默认基线更新为 `1.0.2`，并将 `under-utils-ai` 与 `under-utils-ai-starter` 纳入兼容性检查。
+- `UnderUtilsAiAutoConfiguration` 恢复 `1.0.2` 已发布的默认 `AiClient` 工厂方法签名，避免 starter public API 破坏性变更。
 
 ## [1.0.2] - 2026-05-31
 

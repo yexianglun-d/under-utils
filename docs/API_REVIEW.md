@@ -249,7 +249,7 @@
 - 新增独立 `under-utils-ai-starter`，配置前缀为 `under.utils.ai`，默认 `enabled=false`，避免应用只引入 starter 坐标后就自动访问外部模型服务。
 - `under-utils-ai-starter` 在存在用户自定义 `AiClient` Bean 时退让；当前 `provider` 只支持 `openai-compatible`，不通过配置暗示未实现的厂商原生协议。
 - AI 模块复用 `under-utils-http` 的 HTTP 执行能力，因此会带入 OkHttp/Jackson；AI starter 没有放入 `under-utils-starter` 聚合入口，避免普通 Spring/Redis 用户被动引入 AI 依赖。
-- 新模块没有 `1.0.1` 基线构件，当前 `japicmp` 暂跳过；正式发布后再纳入 public API 兼容检查。
+- `1.0.3` 发布前，AI 与 AI Starter 已使用 `1.0.2` 已发布构件作为基线纳入 `japicmp` public API 兼容检查。
 
 ## 第二十四轮结论
 

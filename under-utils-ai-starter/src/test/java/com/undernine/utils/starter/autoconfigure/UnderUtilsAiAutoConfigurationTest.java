@@ -6,12 +6,14 @@ import com.undernine.utils.ai.AiClientProvider;
 import com.undernine.utils.ai.AiClientRegistry;
 import com.undernine.utils.ai.ChatRequest;
 import com.undernine.utils.ai.ChatResponse;
+import com.undernine.utils.starter.properties.UnderUtilsAiProperties;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -139,6 +141,19 @@ class UnderUtilsAiAutoConfigurationTest {
                 )
                 .run(context -> assertThat(context.getBean(AiClientRegistry.class).getDefaultName())
                         .isEqualTo("deepseek"));
+    }
+
+    @Test
+    void shouldKeepLegacyAiClientFactoryMethod() {
+        UnderUtilsAiProperties properties = new UnderUtilsAiProperties();
+        properties.setBaseUrl("https://api.example.com/v1");
+        properties.setModel("demo-model");
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+
+        AiClient client = new UnderUtilsAiAutoConfiguration().aiClient(properties,
+                beanFactory.getBeanProvider(AiClientProvider.class));
+
+        assertThat(client).isInstanceOf(AiClient.class);
     }
 
     @Test

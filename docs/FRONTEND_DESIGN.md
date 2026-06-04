@@ -149,8 +149,8 @@ site/
 
 版本信息来源必须单一化：
 
-- 稳定版本显示为当前已发布版本，例如 `1.0.3`。
-- 开发版本显示为当前 main 分支的 SNAPSHOT 版本，例如 `1.0.4-SNAPSHOT`。
+- 稳定版本显示为最新已发布版本。
+- 开发版本显示为根 `pom.xml` 中的当前 Maven 版本。
 - 版本值由发布流程生成的 `site/version.json` 或等价构建产物提供，官网、文档和 API 不允许手写不同版本。
 - 安装代码块、API 标题、版本切换器和 Release Notes 均读取同一来源。
 
@@ -230,7 +230,7 @@ site/
    - 说明：强调“不是 Hutool 替代品”，聚焦工程模式封装。
    - 主 CTA：`查看快速开始`
    - 次 CTA：`浏览 API`
-   - 版本状态：稳定版、当前 SNAPSHOT、Java 21、Spring Boot 3.1.x，版本值必须来自同一构建数据源。
+   - 版本状态：稳定版、开发版、Java 21、Spring Boot 3.1.x，版本号从统一版本数据读取。
 
 2. 安装区
    - 默认展示 BOM + `under-utils-spring-starter`。

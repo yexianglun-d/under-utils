@@ -28,7 +28,7 @@ Spring Web 支持模块，提供请求上下文传播、限流、防重复提交
 
 ## 请求上下文
 
-`OperationContextFilter` 会写入 `OperationContextHolder`。默认只信任 `X-Trace-Id` 作为链路标识，不会把客户端传入的 `X-User-Id` / `X-Tenant-Id` 当作可信身份来源。
+`OperationContextFilter` 会写入 `OperationContextHolder`。默认只信任 `X-Trace-Id` 作为链路标识，不会把客户端传入的 `X-User-Id` / `X-Tenant-Id` 当作可信身份来源，也不会把 `X-Forwarded-For` / `X-Real-IP` 当作可信客户端 IP 来源。
 
 ```java
 OperationContext context = OperationContextHolder.getContext();
@@ -45,7 +45,7 @@ Runnable task = OperationContextSnapshot.capture().wrap(() -> {
 
 `OperationContextTaskDecorator` 可挂到 Spring 线程池。使用 starter 时，如果业务项目没有自定义 `TaskDecorator`，可以自动装配。
 
-如果服务部署在可信网关之后，且网关已经清洗用户和租户 Header，可以在 starter 中显式开启：
+如果服务部署在可信网关之后，且网关已经清洗用户、租户和代理 IP Header，可以在 starter 中显式开启：
 
 ```yaml
 under:
@@ -53,6 +53,7 @@ under:
     web:
       operation-context:
         trusted-identity-headers: true
+        trusted-proxy-headers: true
 ```
 
 ## 限流和防重复提交

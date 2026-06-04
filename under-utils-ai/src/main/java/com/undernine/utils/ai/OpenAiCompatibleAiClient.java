@@ -437,23 +437,31 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
             }
             try {
                 String line;
+                StringBuilder data = new StringBuilder();
                 while ((line = reader.readLine()) != null) {
-                    if (line.trim().isEmpty() || line.startsWith(":")) {
+                    if (line.trim().isEmpty()) {
+                        ChatStreamEvent event = toStreamEvent(data);
+                        data.setLength(0);
+                        if (event != null) {
+                            return event;
+                        }
                         continue;
                     }
-                    if (!line.startsWith("data:")) {
+                    if (line.startsWith(":")) {
                         continue;
                     }
-                    String data = line.substring("data:".length()).trim();
-                    if (data.isEmpty()) {
+                    String value = dataFieldValue(line);
+                    if (value == null) {
                         continue;
                     }
-                    if ("[DONE]".equals(data)) {
-                        ChatStreamEvent done = doneEvent(requestId, durationSince(startedAt));
-                        close();
-                        return done;
+                    if (data.length() > 0) {
+                        data.append('\n');
                     }
-                    return parseStreamEvent(data, requestId, durationSince(startedAt));
+                    data.append(value);
+                }
+                ChatStreamEvent event = toStreamEvent(data);
+                if (event != null) {
+                    return event;
                 }
                 close();
                 return null;
@@ -465,6 +473,29 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
                 throw new AiException(AiErrorType.NETWORK, "AI stream request failed because of network error",
                         0, null, true, e);
             }
+        }
+
+        private String dataFieldValue(String line) {
+            int separatorIndex = line.indexOf(':');
+            String field = separatorIndex < 0 ? line : line.substring(0, separatorIndex);
+            if (!"data".equals(field)) {
+                return null;
+            }
+            String value = separatorIndex < 0 ? "" : line.substring(separatorIndex + 1);
+            return value.startsWith(" ") ? value.substring(1) : value;
+        }
+
+        private ChatStreamEvent toStreamEvent(StringBuilder data) {
+            if (data.length() == 0 || data.toString().trim().isEmpty()) {
+                return null;
+            }
+            String value = data.toString();
+            if ("[DONE]".equals(value.trim())) {
+                ChatStreamEvent done = doneEvent(requestId, durationSince(startedAt));
+                close();
+                return done;
+            }
+            return parseStreamEvent(value, requestId, durationSince(startedAt));
         }
 
         @Override

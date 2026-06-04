@@ -9,6 +9,7 @@ import com.undernine.utils.core.string.StringUtils;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class StringUtilsExample {
 
     public static void main(String[] args) {

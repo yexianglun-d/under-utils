@@ -125,12 +125,15 @@ public class UnderUtilsProperties {
      * 开启后自动注册 {@code OperationContextFilter}，用于在一次请求内聚合用户、租户和 traceId。
      * {@code task-decorator-enabled} 只控制异步任务上下文传播装饰器；当用户已经声明任意
      * {@code TaskDecorator} Bean 时，starter 会退让给用户配置。
+     * {@code trusted-proxy-headers} 只有在可信网关已经清洗
+     * {@code X-Forwarded-For}/{@code X-Real-IP} 时才应开启。
      * </p>
      */
     public static class OperationContext {
         private boolean enabled = true;
         private boolean taskDecoratorEnabled = true;
         private boolean trustedIdentityHeaders = false;
+        private boolean trustedProxyHeaders = false;
         private int order = Integer.MIN_VALUE + 100;
 
         public boolean isEnabled() {
@@ -155,6 +158,14 @@ public class UnderUtilsProperties {
 
         public void setTrustedIdentityHeaders(boolean trustedIdentityHeaders) {
             this.trustedIdentityHeaders = trustedIdentityHeaders;
+        }
+
+        public boolean isTrustedProxyHeaders() {
+            return trustedProxyHeaders;
+        }
+
+        public void setTrustedProxyHeaders(boolean trustedProxyHeaders) {
+            this.trustedProxyHeaders = trustedProxyHeaders;
         }
 
         public int getOrder() {

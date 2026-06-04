@@ -136,6 +136,33 @@ class OpenAiCompatibleAiClientTest {
     }
 
     @Test
+    void shouldStreamMultiLineSseDataEvent() {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setHeader("Content-Type", "text/event-stream")
+                .setBody(String.join("\n",
+                        ": keep-alive",
+                        "event: message",
+                        "data: {\"id\":\"chatcmpl-multi\",\"model\":\"demo-model\",",
+                        "data: \"choices\":[{\"delta\":{\"content\":\"分片\"},\"finish_reason\":null}]}",
+                        "",
+                        "data: [DONE]",
+                        "",
+                        "")));
+        StreamingAiClient client = (StreamingAiClient) client();
+
+        List<ChatStreamEvent> events;
+        try (ChatStream stream = client.streamChat(ChatRequest.user("hello"))) {
+            events = stream.stream().toList();
+        }
+
+        assertThat(events).hasSize(2);
+        assertThat(events.get(0).text()).isEqualTo("分片");
+        assertThat(events.get(0).getResponseId()).isEqualTo("chatcmpl-multi");
+        assertThat(events.get(1).isDone()).isTrue();
+    }
+
+    @Test
     void shouldMapStreamStatusFailure() {
         server.enqueue(new MockResponse()
                 .setResponseCode(429)

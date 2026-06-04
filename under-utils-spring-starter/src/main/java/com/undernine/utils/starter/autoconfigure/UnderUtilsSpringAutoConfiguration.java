@@ -78,7 +78,8 @@ public class UnderUtilsSpringAutoConfiguration {
                                                          UnderUtilsProperties properties) {
         return new OperationContextFilter(
                 customizers,
-                properties.getWeb().getOperationContext().isTrustedIdentityHeaders());
+                properties.getWeb().getOperationContext().isTrustedIdentityHeaders(),
+                properties.getWeb().getOperationContext().isTrustedProxyHeaders());
     }
 
     @Bean

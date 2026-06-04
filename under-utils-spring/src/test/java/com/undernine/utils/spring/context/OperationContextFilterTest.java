@@ -1,6 +1,7 @@
 package com.undernine.utils.spring.context;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -13,6 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class OperationContextFilterTest {
 
+    @BeforeEach
+    void setUp() {
+        tearDown();
+    }
+
     @AfterEach
     void tearDown() {
         OperationContextHolder.clear();
@@ -21,7 +27,7 @@ class OperationContextFilterTest {
 
     @Test
     void buildsContextFromTraceHeaderAndClearsAfterRequest() throws Exception {
-        OperationContextFilter filter = new OperationContextFilter(List.of(), true);
+        OperationContextFilter filter = new OperationContextFilter(List.of(), true, true);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/orders");
         request.addHeader(OperationContextFilter.TRACE_ID_HEADER, " trace-header ");
         request.addHeader(OperationContextFilter.TENANT_ID_HEADER, "tenant-a");
@@ -54,6 +60,7 @@ class OperationContextFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/orders");
         request.addHeader(OperationContextFilter.TENANT_ID_HEADER, "tenant-a");
         request.addHeader(OperationContextFilter.USER_ID_HEADER, "user-a");
+        request.addHeader("X-Forwarded-For", "10.0.0.1");
         request.setRemoteAddr("127.0.0.1");
         MockHttpServletResponse response = new MockHttpServletResponse();
         AtomicReference<OperationContext> seenContext = new AtomicReference<>();
@@ -63,6 +70,24 @@ class OperationContextFilterTest {
 
         assertThat(seenContext.get().getTenantId()).isEqualTo("default");
         assertThat(seenContext.get().getUserId()).isEqualTo("127.0.0.1");
+        assertThat(seenContext.get().getClientIp()).isEqualTo("127.0.0.1");
+    }
+
+    @Test
+    void readsForwardedClientIpOnlyWhenProxyHeadersTrusted() throws Exception {
+        OperationContextFilter filter = new OperationContextFilter(List.of(), false, true);
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/orders");
+        request.addHeader("X-Forwarded-For", "10.0.0.1, 10.0.0.2");
+        request.setRemoteAddr("127.0.0.1");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<OperationContext> seenContext = new AtomicReference<>();
+
+        filter.doFilter(request, response, (servletRequest, servletResponse) ->
+                seenContext.set(OperationContextHolder.getContext()));
+
+        assertThat(seenContext.get().getClientIp()).isEqualTo("10.0.0.1");
+        assertThat(filter.isTrustedIdentityHeaders()).isFalse();
+        assertThat(filter.isTrustedProxyHeaders()).isTrue();
     }
 
     @Test

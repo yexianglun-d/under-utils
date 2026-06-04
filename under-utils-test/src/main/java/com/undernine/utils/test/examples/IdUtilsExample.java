@@ -13,6 +13,7 @@ import java.util.Set;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class IdUtilsExample {
 
     public static void main(String[] args) {

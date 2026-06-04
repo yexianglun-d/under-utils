@@ -6,6 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -21,6 +22,12 @@ import static org.mockito.Mockito.when;
 class DefaultOperationKeyResolverTest {
 
     private final DefaultOperationKeyResolver resolver = new DefaultOperationKeyResolver();
+
+    @BeforeEach
+    void setUp() {
+        OperationContextHolder.clear();
+        RequestContextHolder.resetRequestAttributes();
+    }
 
     @AfterEach
     void tearDown() {
@@ -61,6 +68,19 @@ class DefaultOperationKeyResolverTest {
         String key = resolver.resolve(point, "orders", "");
 
         assertThat(key).matches("orders:default:anonymous:no-request:submit:[0-9a-f]{24}");
+    }
+
+    @Test
+    void defaultKeyFallsBackWhenArgumentsCannotBeSerialized() {
+        ProceedingJoinPoint firstPoint = pointWithArgs(new UnserializableArgument("order-a"));
+        ProceedingJoinPoint secondPoint = pointWithArgs(new UnserializableArgument("order-b"));
+
+        String firstKey = resolver.resolve(firstPoint, "orders", "");
+        String secondKey = resolver.resolve(secondPoint, "orders", "");
+
+        assertThat(firstKey).matches("orders:default:anonymous:no-request:submit:[0-9a-f]{24}");
+        assertThat(secondKey).matches("orders:default:anonymous:no-request:submit:[0-9a-f]{24}");
+        assertThat(firstKey).isNotEqualTo(secondKey);
     }
 
     @Test
@@ -116,6 +136,33 @@ class DefaultOperationKeyResolverTest {
         @SuppressWarnings("unused")
         public String submit(String orderId) {
             return orderId;
+        }
+    }
+
+    private ProceedingJoinPoint pointWithArgs(Object... args) {
+        ProceedingJoinPoint point = mock(ProceedingJoinPoint.class);
+        Signature signature = mock(Signature.class);
+        when(point.getSignature()).thenReturn(signature);
+        when(signature.getName()).thenReturn("submit");
+        when(point.getArgs()).thenReturn(args);
+        return point;
+    }
+
+    private static final class UnserializableArgument {
+        private final String value;
+
+        private UnserializableArgument(String value) {
+            this.value = value;
+        }
+
+        @SuppressWarnings("unused")
+        public String getBroken() {
+            throw new IllegalStateException("cannot serialize");
+        }
+
+        @Override
+        public String toString() {
+            return value;
         }
     }
 }

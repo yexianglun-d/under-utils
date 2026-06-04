@@ -10,8 +10,10 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * HTTP请求日志拦截器
@@ -25,6 +27,33 @@ public class RequestLogInterceptor implements HandlerInterceptor {
 
     private static final String START_TIME = "REQUEST_START_TIME";
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final String MASKED_HEADER_VALUE = "******";
+    private static final Set<String> SENSITIVE_HEADER_NAMES = Set.of(
+            "authorization",
+            "proxy-authorization",
+            "cookie",
+            "set-cookie",
+            "x-api-key",
+            "api-key",
+            "x-auth-token",
+            "x-access-token",
+            "x-refresh-token",
+            "x-csrf-token",
+            "x-xsrf-token"
+    );
+    private final boolean trustedProxyHeaders;
+
+    public RequestLogInterceptor() {
+        this(false);
+    }
+
+    public RequestLogInterceptor(boolean trustedProxyHeaders) {
+        this.trustedProxyHeaders = trustedProxyHeaders;
+    }
+
+    public boolean isTrustedProxyHeaders() {
+        return trustedProxyHeaders;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -63,22 +92,32 @@ public class RequestLogInterceptor implements HandlerInterceptor {
 
     private String getClientIp(HttpServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty()) ip = request.getHeader("X-Real-IP");
+        String ip = null;
+        if (trustedProxyHeaders) {
+            ip = request.getHeader("X-Forwarded-For");
+            if (ip == null || ip.isEmpty()) ip = request.getHeader("X-Real-IP");
+        }
         if (ip == null || ip.isEmpty()) ip = remoteAddr;
         return ip != null && ip.contains(",") ? ip.split(",")[0].trim() : ip;
     }
 
     private Map<String, String> getHeaders(HttpServletRequest request) {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new LinkedHashMap<>();
         Enumeration<String> headerNames = request.getHeaderNames();
         if (headerNames == null) {
             return headers;
         }
         while (headerNames.hasMoreElements()) {
             String name = headerNames.nextElement();
-            headers.put(name, request.getHeader(name));
+            headers.put(name, maskHeaderValue(name, request.getHeader(name)));
         }
         return headers;
+    }
+
+    private String maskHeaderValue(String name, String value) {
+        if (name != null && SENSITIVE_HEADER_NAMES.contains(name.toLowerCase(Locale.ROOT))) {
+            return MASKED_HEADER_VALUE;
+        }
+        return value;
     }
 }

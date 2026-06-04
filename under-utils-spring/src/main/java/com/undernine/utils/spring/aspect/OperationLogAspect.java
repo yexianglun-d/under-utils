@@ -31,6 +31,19 @@ import jakarta.servlet.http.HttpServletRequest;
 public class OperationLogAspect {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private final boolean trustedProxyHeaders;
+
+    public OperationLogAspect() {
+        this(false);
+    }
+
+    public OperationLogAspect(boolean trustedProxyHeaders) {
+        this.trustedProxyHeaders = trustedProxyHeaders;
+    }
+
+    public boolean isTrustedProxyHeaders() {
+        return trustedProxyHeaders;
+    }
 
     @Around("@annotation(operationLog)")
     public Object around(ProceedingJoinPoint point, OperationLog operationLog) throws Throwable {
@@ -99,8 +112,11 @@ public class OperationLogAspect {
         if (attrs == null) return "unknown";
         
         HttpServletRequest request = attrs.getRequest();
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty()) ip = request.getHeader("X-Real-IP");
+        String ip = null;
+        if (trustedProxyHeaders) {
+            ip = request.getHeader("X-Forwarded-For");
+            if (ip == null || ip.isEmpty()) ip = request.getHeader("X-Real-IP");
+        }
         if (ip == null || ip.isEmpty()) ip = request.getRemoteAddr();
         return ip != null && ip.contains(",") ? ip.split(",")[0].trim() : ip;
     }

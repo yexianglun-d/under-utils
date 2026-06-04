@@ -1,6 +1,7 @@
 package com.undernine.utils.spring.context;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -9,6 +10,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultCurrentUserProviderTest {
+
+    @BeforeEach
+    void setUp() {
+        tearDown();
+    }
 
     @AfterEach
     void tearDown() {

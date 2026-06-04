@@ -16,7 +16,7 @@
  * <ul>
  *     <li>请求方法（GET、POST、PUT、DELETE 等）</li>
  *     <li>请求 URI</li>
- *     <li>客户端 IP 地址（支持代理）</li>
+ *     <li>客户端 IP 地址（默认使用 remote address；显式信任代理 Header 后支持代理）</li>
  *     <li>请求头信息（DEBUG 级别）</li>
  *     <li>响应状态码</li>
  *     <li>请求耗时</li>
@@ -40,7 +40,7 @@
  * <h2>日志输出示例</h2>
  * <pre>
  * INFO  【HTTP请求】POST /api/users 来自IP: 192.168.1.100
- * DEBUG 【请求头】{Content-Type=application/json, Authorization=Bearer xxx}
+ * DEBUG 【请求头】{Content-Type=application/json, Authorization=******}
  * INFO  【HTTP响应】POST /api/users - 状态码: 200, 耗时: 125ms
  * </pre>
  *
@@ -49,11 +49,13 @@
  *     <li>拦截器需要在 WebMvcConfigurer 中注册</li>
  *     <li>可通过 addPathPatterns 配置拦截路径</li>
  *     <li>可通过 excludePathPatterns 配置排除路径</li>
- *     <li>请求头信息仅在 DEBUG 级别输出</li>
+ *     <li>请求头信息仅在 DEBUG 级别输出，敏感 Header 会被遮蔽</li>
  * </ul>
  *
  * <h2>IP 获取策略</h2>
- * <p>拦截器会按以下顺序获取客户端真实 IP：</p>
+ * <p>默认只使用 {@code request.getRemoteAddr()}。如果服务部署在可信网关之后，且网关会清洗
+ * {@code X-Forwarded-For} / {@code X-Real-IP}，可以使用 {@code new RequestLogInterceptor(true)}
+ * 显式开启代理 Header 读取。开启后拦截器会按以下顺序获取客户端真实 IP：</p>
  * <ol>
  *     <li>X-Forwarded-For 请求头（代理服务器）</li>
  *     <li>X-Real-IP 请求头（Nginx 等）</li>

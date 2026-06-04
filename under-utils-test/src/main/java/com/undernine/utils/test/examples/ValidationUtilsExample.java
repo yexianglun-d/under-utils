@@ -9,6 +9,7 @@ import com.undernine.utils.core.validation.ValidationUtils;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class ValidationUtilsExample {
 
     public static void main(String[] args) {
@@ -315,13 +316,17 @@ public class ValidationUtilsExample {
         // 密码验证：6-20 位字母或数字
         boolean passwordValid = ValidationUtils.isAlphanumeric(reg.password) &&
                 ValidationUtils.isLengthInRange(reg.password, 6, 20);
-        result.append("  密码: ").append(reg.password)
+        result.append("  密码: ").append(maskSecret(reg.password))
                 .append(" -> ").append(passwordValid ? "✓" : "✗").append("\n");
 
         boolean allValid = nameValid && phoneValid && emailValid && passwordValid;
         result.append("  整体验证: ").append(allValid ? "✓ 通过" : "✗ 失败");
 
         return result.toString();
+    }
+
+    private static String maskSecret(String value) {
+        return value == null || value.isEmpty() ? "" : "******";
     }
 
     /**

@@ -5,7 +5,7 @@
     "sourceFileCount": 142,
     "artifactCount": 11,
     "typeCount": 142,
-    "memberCount": 943,
+    "memberCount": 951,
     "artifacts": [
       {"artifact": "under-utils-ai", "module": "ai", "typeCount": 19},
       {"artifact": "under-utils-ai-starter", "module": "ai-starter", "typeCount": 2},
@@ -6861,9 +6861,30 @@
       "deprecatedMessage": "轻量日志切面保留为兼容 API，不作为 Under-Utils 后续工程模式主线能力演进。",
       "members": [
         {
+          "name": "OperationLogAspect",
+          "kind": "constructor",
+          "signature": "public OperationLogAspect()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "OperationLogAspect",
+          "kind": "constructor",
+          "signature": "public OperationLogAspect(boolean trustedProxyHeaders)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "around",
           "kind": "method",
           "signature": "public Object around(ProceedingJoinPoint point, OperationLog operationLog) throws Throwable",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isTrustedProxyHeaders",
+          "kind": "method",
+          "signature": "public boolean isTrustedProxyHeaders()",
           "status": "stable",
           "summary": ""
         }
@@ -7354,6 +7375,13 @@
           "summary": ""
         },
         {
+          "name": "OperationContextFilter",
+          "kind": "constructor",
+          "signature": "public OperationContextFilter(Collection<OperationContextCustomizer> customizers, boolean trustedIdentityHeaders, boolean trustedProxyHeaders)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "TENANT_ID_HEADER",
           "kind": "field",
           "signature": "public static final String TENANT_ID_HEADER",
@@ -7406,6 +7434,13 @@
           "name": "isTrustedIdentityHeaders",
           "kind": "method",
           "signature": "public boolean isTrustedIdentityHeaders()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isTrustedProxyHeaders",
+          "kind": "method",
+          "signature": "public boolean isTrustedProxyHeaders()",
           "status": "stable",
           "summary": ""
         },
@@ -8060,9 +8095,30 @@
       "deprecatedMessage": "",
       "members": [
         {
+          "name": "RequestLogInterceptor",
+          "kind": "constructor",
+          "signature": "public RequestLogInterceptor()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "RequestLogInterceptor",
+          "kind": "constructor",
+          "signature": "public RequestLogInterceptor(boolean trustedProxyHeaders)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "afterCompletion",
           "kind": "method",
           "signature": "public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isTrustedProxyHeaders",
+          "kind": "method",
+          "signature": "public boolean isTrustedProxyHeaders()",
           "status": "stable",
           "summary": ""
         },

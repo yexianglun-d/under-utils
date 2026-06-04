@@ -41,6 +41,7 @@ under:
         enabled: true
         task-decorator-enabled: true
         trusted-identity-headers: false
+        trusted-proxy-headers: false
       exception-handling:
         enabled: false
       rate-limit:
@@ -52,6 +53,7 @@ under:
 ```
 
 `trusted-identity-headers` 只有在服务位于可信网关之后，且网关会清洗 `X-User-Id` / `X-Tenant-Id` 时才应开启。
+`trusted-proxy-headers` 只有在可信网关会清洗 `X-Forwarded-For` / `X-Real-IP` 时才应开启；默认使用 servlet container 提供的 remote address。
 
 `exception-handling.enabled=true` 后，starter 才会注册 `GlobalExceptionHandler` 并返回 Under-Utils `Result` 响应模型。
 

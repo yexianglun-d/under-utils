@@ -11,6 +11,7 @@ import com.undernine.utils.core.crypto.SHA256Utils;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class CryptoUtilsExample {
 
     public static void main(String[] args) {
@@ -76,25 +77,25 @@ public class CryptoUtilsExample {
      * 2. MD5 加盐
      */
     private static void md5WithSalt() {
-        System.out.println("2. MD5 加盐（提高安全性）");
+        System.out.println("2. MD5 加盐（仅用于兼容演示，不用于密码存储）");
 
-        String password = "myPassword123";
-        String salt = "randomSalt456";
+        String sampleInput = "sample-input";
+        String salt = "demo-random-salt";
 
         // 不加盐
-        String md5NoSalt = MD5Utils.md5(password);
-        System.out.println("密码（无盐）: " + md5NoSalt);
+        String md5NoSalt = MD5Utils.md5(sampleInput);
+        System.out.println("输入哈希（无盐）: " + md5NoSalt);
 
         // 加盐
-        String md5WithSalt = MD5Utils.md5WithSalt(password, salt);
-        System.out.println("密码（加盐）: " + md5WithSalt);
+        String md5WithSalt = MD5Utils.md5WithSalt(sampleInput, salt);
+        System.out.println("输入哈希（加盐）: " + md5WithSalt);
 
-        // 验证加盐密码
-        boolean isValid = MD5Utils.verifyWithSalt(password, salt, md5WithSalt);
+        // 验证加盐摘要
+        boolean isValid = MD5Utils.verifyWithSalt(sampleInput, salt, md5WithSalt);
         System.out.println("加盐验证: " + (isValid ? "✓ 通过" : "✗ 失败"));
 
         // 错误的盐无法验证
-        boolean wrongSalt = MD5Utils.verifyWithSalt(password, "wrongSalt", md5WithSalt);
+        boolean wrongSalt = MD5Utils.verifyWithSalt(sampleInput, "wrongSalt", md5WithSalt);
         System.out.println("错误盐验证: " + (wrongSalt ? "✓ 通过" : "✗ 失败"));
 
         System.out.println();
@@ -129,19 +130,19 @@ public class CryptoUtilsExample {
     private static void sha256WithSalt() {
         System.out.println("4. SHA-256 加盐");
 
-        String password = "myPassword123";
-        String salt = "randomSalt456";
+        String sampleInput = "sample-input";
+        String salt = "demo-random-salt";
 
         // 不加盐
-        String sha256NoSalt = SHA256Utils.sha256(password);
-        System.out.println("密码（无盐）: " + sha256NoSalt);
+        String sha256NoSalt = SHA256Utils.sha256(sampleInput);
+        System.out.println("输入哈希（无盐）: " + sha256NoSalt);
 
         // 加盐
-        String sha256WithSalt = SHA256Utils.sha256WithSalt(password, salt);
-        System.out.println("密码（加盐）: " + sha256WithSalt);
+        String sha256WithSalt = SHA256Utils.sha256WithSalt(sampleInput, salt);
+        System.out.println("输入哈希（加盐）: " + sha256WithSalt);
 
-        // 验证加盐密码
-        boolean isValid = SHA256Utils.verifyWithSalt(password, salt, sha256WithSalt);
+        // 验证加盐摘要
+        boolean isValid = SHA256Utils.verifyWithSalt(sampleInput, salt, sha256WithSalt);
         System.out.println("加盐验证: " + (isValid ? "✓ 通过" : "✗ 失败"));
 
         System.out.println();
@@ -151,27 +152,27 @@ public class CryptoUtilsExample {
      * 5. SHA-256 多次哈希
      */
     private static void sha256Multiple() {
-        System.out.println("5. SHA-256 多次哈希（增强安全性，防暴力破解）");
+        System.out.println("5. SHA-256 多次哈希（演示计算成本，不替代专业密码哈希算法）");
 
-        String password = "myPassword123";
+        String sampleInput = "sample-input";
 
         // 单次哈希
-        String hash1 = SHA256Utils.sha256(password);
+        String hash1 = SHA256Utils.sha256(sampleInput);
         System.out.println("单次哈希: " + hash1.substring(0, 32) + "...");
 
         // 多次哈希（1000次）
         long start = System.currentTimeMillis();
-        String hash1000 = SHA256Utils.sha256Multiple(password, 1000);
+        String hash1000 = SHA256Utils.sha256Multiple(sampleInput, 1000);
         long time1000 = System.currentTimeMillis() - start;
         System.out.println("1000次哈希: " + hash1000.substring(0, 32) + "... (耗时: " + time1000 + "ms)");
 
         // 多次哈希（10000次）
         start = System.currentTimeMillis();
-        String hash10000 = SHA256Utils.sha256Multiple(password, 10000);
+        String hash10000 = SHA256Utils.sha256Multiple(sampleInput, 10000);
         long time10000 = System.currentTimeMillis() - start;
         System.out.println("10000次哈希: " + hash10000.substring(0, 32) + "... (耗时: " + time10000 + "ms)");
 
-        System.out.println("\n说明: 多次哈希增加计算成本，有效防止暴力破解和彩虹表攻击");
+        System.out.println("\n说明: 生产密码存储应使用 BCrypt、Argon2 或 PBKDF2 等专用算法");
         System.out.println();
     }
 
@@ -234,7 +235,7 @@ public class CryptoUtilsExample {
         System.out.println("\n算法类型对比:");
         System.out.println("  MD5 & SHA-256: 单向哈希算法");
         System.out.println("    - 不可逆，无法从哈希值还原原文");
-        System.out.println("    - 用于数据完整性校验、密码存储");
+        System.out.println("    - 用于数据完整性校验、非密码类摘要");
         System.out.println("    - 相同输入产生相同输出");
         System.out.println("  AES: 对称加密算法");
         System.out.println("    - 可逆，可以解密还原原文");
@@ -255,9 +256,9 @@ public class CryptoUtilsExample {
     private static void practicalUseCases() {
         System.out.println("7. 实际应用场景");
 
-        // 场景 1: 用户密码存储
-        System.out.println("场景 1: 用户密码存储");
-        userPasswordStorage();
+        // 场景 1: 密码校验边界演示
+        System.out.println("场景 1: 密码校验边界演示");
+        passwordHashingBoundary();
 
         System.out.println();
 
@@ -279,21 +280,21 @@ public class CryptoUtilsExample {
     }
 
     /**
-     * 场景 1: 用户密码存储
+     * 场景 1: 密码校验边界演示
      */
-    private static void userPasswordStorage() {
+    private static void passwordHashingBoundary() {
         // 用户注册
         String username = "zhangsan";
-        String password = "MySecurePass123!";
+        String password = "demo-password";
         String salt = generateSalt(username); // 根据用户名生成盐
 
-        // 存储到数据库的密码（SHA-256 + 盐 + 多次哈希）
+        // 这里只演示摘要验证流程，生产密码存储应使用 BCrypt、Argon2 或 PBKDF2。
         String storedPassword = SHA256Utils.sha256Multiple(password + salt, 5000);
         System.out.println("用户: " + username);
-        System.out.println("存储密码: " + storedPassword.substring(0, 32) + "...");
+        System.out.println("存储摘要: " + storedPassword.substring(0, 32) + "...");
 
         // 用户登录验证
-        String loginPassword = "MySecurePass123!";
+        String loginPassword = "demo-password";
         String computedHash = SHA256Utils.sha256Multiple(loginPassword + salt, 5000);
         boolean loginSuccess = storedPassword.equals(computedHash);
 
@@ -331,7 +332,7 @@ public class CryptoUtilsExample {
         String appId = "app123";
         String timestamp = String.valueOf(System.currentTimeMillis());
         String data = "param1=value1&param2=value2";
-        String secret = "mySecretKey";
+        String secret = "demo-shared-secret";
 
         // 生成签名
         String signString = appId + timestamp + data + secret;

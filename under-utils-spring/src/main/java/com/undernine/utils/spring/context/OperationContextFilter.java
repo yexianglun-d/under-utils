@@ -20,7 +20,8 @@ import java.util.UUID;
  * <p>
  * 进入请求时构建 {@link OperationContext}，结束时恢复/清理 ThreadLocal 和 MDC。
  * 该类只暴露能力，不负责自动注册；业务应用或 starter 可自行装配到过滤器链。
- * 默认不信任客户端传入的用户、租户 Header；只有部署在可信网关之后且 Header 已清洗时，才应开启可信身份 Header。
+ * 默认不信任客户端传入的用户、租户和代理 IP Header；只有部署在可信网关之后且 Header 已清洗时，
+ * 才应开启可信身份 Header 或可信代理 Header。
  * </p>
  *
  * @author Under-Utils Team
@@ -39,17 +40,25 @@ public class OperationContextFilter implements Filter {
 
     private final List<OperationContextCustomizer> customizers = new ArrayList<>();
     private final boolean trustedIdentityHeaders;
+    private final boolean trustedProxyHeaders;
 
     public OperationContextFilter() {
-        this(null, false);
+        this(null, false, false);
     }
 
     public OperationContextFilter(Collection<OperationContextCustomizer> customizers) {
-        this(customizers, false);
+        this(customizers, false, false);
     }
 
     public OperationContextFilter(Collection<OperationContextCustomizer> customizers, boolean trustedIdentityHeaders) {
+        this(customizers, trustedIdentityHeaders, trustedIdentityHeaders);
+    }
+
+    public OperationContextFilter(Collection<OperationContextCustomizer> customizers,
+                                  boolean trustedIdentityHeaders,
+                                  boolean trustedProxyHeaders) {
         this.trustedIdentityHeaders = trustedIdentityHeaders;
+        this.trustedProxyHeaders = trustedProxyHeaders;
         setCustomizers(customizers);
     }
 
@@ -62,6 +71,10 @@ public class OperationContextFilter implements Filter {
 
     public boolean isTrustedIdentityHeaders() {
         return trustedIdentityHeaders;
+    }
+
+    public boolean isTrustedProxyHeaders() {
+        return trustedProxyHeaders;
     }
 
     @Override
@@ -141,9 +154,12 @@ public class OperationContextFilter implements Filter {
     }
 
     protected String resolveClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (!isNotBlank(ip)) {
-            ip = request.getHeader("X-Real-IP");
+        String ip = null;
+        if (trustedProxyHeaders) {
+            ip = request.getHeader("X-Forwarded-For");
+            if (!isNotBlank(ip)) {
+                ip = request.getHeader("X-Real-IP");
+            }
         }
         if (!isNotBlank(ip)) {
             ip = request.getRemoteAddr();

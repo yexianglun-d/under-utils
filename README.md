@@ -161,6 +161,7 @@ under:
         enabled: true
         task-decorator-enabled: true
         trusted-identity-headers: false
+        trusted-proxy-headers: false
       exception-handling:
         enabled: false
       rate-limit:

@@ -42,7 +42,7 @@ class MybatisIntegrationTest {
     private static final Duration MYSQL_DATETIME_PRECISION = Duration.ofMillis(1);
 
     @Container
-    static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0.33")
+    static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.4")
             .withDatabaseName("under_utils_test")
             .withUsername("under_utils")
             .withPassword("under_utils");

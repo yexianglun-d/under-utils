@@ -49,7 +49,7 @@ class OperationLogAspectTest {
         RequestContextHolder.setRequestAttributes(attributes);
         
         when(request.getRequestURI()).thenReturn("/api/test");
-        when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+        lenient().when(request.getRemoteAddr()).thenReturn("127.0.0.1");
     }
 
     @Test
@@ -109,5 +109,39 @@ class OperationLogAspectTest {
         Object result = aspect.around(joinPoint, operationLog);
 
         assertThat(result).isEqualTo("result data");
+    }
+
+    @Test
+    void testIgnoreForwardedIpByDefault() throws Throwable {
+        when(operationLog.module()).thenReturn("测试模块");
+        when(operationLog.type()).thenReturn(OperationType.QUERY);
+        when(operationLog.content()).thenReturn("查询操作");
+        when(operationLog.recordParams()).thenReturn(false);
+        when(operationLog.recordResult()).thenReturn(false);
+        when(joinPoint.proceed()).thenReturn("result data");
+
+        Object result = aspect.around(joinPoint, operationLog);
+
+        assertThat(result).isEqualTo("result data");
+        assertThat(aspect.isTrustedProxyHeaders()).isFalse();
+        verify(request, never()).getHeader("X-Forwarded-For");
+    }
+
+    @Test
+    void testTrustForwardedIpWhenExplicitlyEnabled() throws Throwable {
+        OperationLogAspect trustedAspect = new OperationLogAspect(true);
+        when(operationLog.module()).thenReturn("测试模块");
+        when(operationLog.type()).thenReturn(OperationType.QUERY);
+        when(operationLog.content()).thenReturn("查询操作");
+        when(operationLog.recordParams()).thenReturn(false);
+        when(operationLog.recordResult()).thenReturn(false);
+        when(request.getHeader("X-Forwarded-For")).thenReturn("192.168.1.1");
+        when(joinPoint.proceed()).thenReturn("result data");
+
+        Object result = trustedAspect.around(joinPoint, operationLog);
+
+        assertThat(result).isEqualTo("result data");
+        assertThat(trustedAspect.isTrustedProxyHeaders()).isTrue();
+        verify(request).getHeader("X-Forwarded-For");
     }
 }

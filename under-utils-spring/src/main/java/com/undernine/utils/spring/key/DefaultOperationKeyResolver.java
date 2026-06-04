@@ -27,6 +27,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.HexFormat;
 
 /**
@@ -107,7 +108,30 @@ public class DefaultOperationKeyResolver implements OperationKeyResolver {
         try {
             return JSON_MAPPER.writeValueAsString(value);
         } catch (JsonProcessingException e) {
-            return null;
+            return fallbackDigestSource(value);
+        } catch (RuntimeException e) {
+            return fallbackDigestSource(value);
+        }
+    }
+
+    private String fallbackDigestSource(Object value) {
+        if (value instanceof Object[] values) {
+            return Arrays.stream(values)
+                    .map(this::safeValue)
+                    .toList()
+                    .toString();
+        }
+        return safeValue(value);
+    }
+
+    private String safeValue(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        try {
+            return value.getClass().getName() + ":" + String.valueOf(value);
+        } catch (RuntimeException ex) {
+            return value.getClass().getName() + ":<unprintable>";
         }
     }
 

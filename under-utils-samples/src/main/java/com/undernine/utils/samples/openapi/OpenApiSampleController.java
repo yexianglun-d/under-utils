@@ -1,7 +1,12 @@
 package com.undernine.utils.samples.openapi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.undernine.utils.core.json.JsonUtils;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.undernine.utils.core.json.JsonException;
 import com.undernine.utils.http.enums.HttpMethod;
 import com.undernine.utils.http.openapi.ApiErrorDecoder;
 import com.undernine.utils.http.openapi.ApiErrorDecodeResult;
@@ -29,6 +34,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RestController
 @RequestMapping("/samples/openapi")
 public class OpenApiSampleController {
+
+    private static final ObjectMapper JSON_MAPPER = createJsonMapper();
+    private static final String MASKED_AUTHORIZATION = "******";
 
     private final AtomicInteger tokenVersion = new AtomicInteger();
     private final RefreshingAccessTokenProvider accessTokenProvider = new RefreshingAccessTokenProvider(
@@ -83,7 +91,7 @@ public class OpenApiSampleController {
                                             @RequestHeader Map<String, String> headers) {
         return new GatewayOrderResponse(
                 "remote-" + command.requestNo(),
-                header(headers, "Authorization"),
+                maskedHeader(headers, "Authorization"),
                 header(headers, "X-Signature"),
                 header(headers, "X-Trace-Id"),
                 header(headers, "Idempotency-Key")
@@ -98,7 +106,7 @@ public class OpenApiSampleController {
         }
         GatewayOrderResponse data = new GatewayOrderResponse(
                 "remote-" + command.requestNo(),
-                header(headers, "Authorization"),
+                maskedHeader(headers, "Authorization"),
                 header(headers, "X-Signature"),
                 header(headers, "X-Trace-Id"),
                 header(headers, "Idempotency-Key")
@@ -126,11 +134,7 @@ public class OpenApiSampleController {
             if (!httpResponse.isSuccess()) {
                 return ApiErrorDecoder.httpStatus().decode(request, httpResponse);
             }
-            Map<String, Object> body = JsonUtils.fromJson(
-                    httpResponse.asString(),
-                    new TypeReference<Map<String, Object>>() {
-                    }
-            );
+            Map<String, Object> body = parseEnvelopeBody(httpResponse.asString());
             String code = String.valueOf(body.get("code"));
             if ("OK".equals(code)) {
                 return ApiErrorDecodeResult.success();
@@ -144,6 +148,15 @@ public class OpenApiSampleController {
         return Integer.toHexString(source.hashCode());
     }
 
+    private static Map<String, Object> parseEnvelopeBody(String rawBody) {
+        try {
+            return JSON_MAPPER.readValue(rawBody, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            throw new JsonException("Failed to deserialize sample gateway envelope", e);
+        }
+    }
+
     private static String header(Map<String, String> headers, String name) {
         for (Map.Entry<String, String> entry : headers.entrySet()) {
             if (entry.getKey().equalsIgnoreCase(name)) {
@@ -151,6 +164,19 @@ public class OpenApiSampleController {
             }
         }
         return "";
+    }
+
+    private static String maskedHeader(Map<String, String> headers, String name) {
+        return header(headers, name).isBlank() ? "" : MASKED_AUTHORIZATION;
+    }
+
+    private static ObjectMapper createJsonMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        return mapper;
     }
 
     public record GatewayOrderCommand(String requestNo, String skuId, int quantity) {

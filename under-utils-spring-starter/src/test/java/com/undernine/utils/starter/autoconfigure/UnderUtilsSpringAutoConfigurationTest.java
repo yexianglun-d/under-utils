@@ -96,7 +96,10 @@ class UnderUtilsSpringAutoConfigurationTest {
     @Test
     void shouldPassTrustedIdentityHeaderSettingToDefaultProvidersAndFilter() {
         contextRunner
-                .withPropertyValues("under.utils.web.operation-context.trusted-identity-headers=true")
+                .withPropertyValues(
+                        "under.utils.web.operation-context.trusted-identity-headers=true",
+                        "under.utils.web.operation-context.trusted-proxy-headers=true"
+                )
                 .run(context -> {
                     assertThat(context.getBean(CurrentUserProvider.class))
                             .isInstanceOfSatisfying(DefaultCurrentUserProvider.class,
@@ -105,7 +108,14 @@ class UnderUtilsSpringAutoConfigurationTest {
                             .isInstanceOfSatisfying(DefaultCurrentTenantProvider.class,
                                     provider -> assertThat(provider.isTrustedIdentityHeaders()).isTrue());
                     assertThat(context.getBean(OperationContextFilter.class).isTrustedIdentityHeaders()).isTrue();
+                    assertThat(context.getBean(OperationContextFilter.class).isTrustedProxyHeaders()).isTrue();
                 });
+    }
+
+    @Test
+    void shouldKeepProxyHeadersUntrustedByDefault() {
+        contextRunner.run(context ->
+                assertThat(context.getBean(OperationContextFilter.class).isTrustedProxyHeaders()).isFalse());
     }
 
     @Test

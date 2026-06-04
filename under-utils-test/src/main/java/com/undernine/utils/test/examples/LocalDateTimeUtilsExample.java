@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class LocalDateTimeUtilsExample {
 
     public static void main(String[] args) {

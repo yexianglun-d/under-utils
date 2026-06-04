@@ -1,6 +1,7 @@
 package com.undernine.utils.spring.context;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
@@ -9,6 +10,11 @@ import java.util.function.Supplier;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class OperationContextSnapshotTest {
+
+    @BeforeEach
+    void setUp() {
+        tearDown();
+    }
 
     @AfterEach
     void tearDown() {

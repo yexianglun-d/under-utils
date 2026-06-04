@@ -16,6 +16,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class JsonUtilsExample {
 
     public static void main(String[] args) {

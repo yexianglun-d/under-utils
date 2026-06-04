@@ -2,6 +2,7 @@ package com.undernine.utils.spring.context;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -14,6 +15,11 @@ import static org.mockito.Mockito.when;
 class DefaultTraceIdProviderTest {
 
     private final DefaultTraceIdProvider provider = new DefaultTraceIdProvider();
+
+    @BeforeEach
+    void setUp() {
+        tearDown();
+    }
 
     @AfterEach
     void tearDown() {

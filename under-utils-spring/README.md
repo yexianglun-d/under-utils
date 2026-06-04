@@ -28,7 +28,7 @@ Spring Web 支持模块，提供请求上下文传播、限流、防重复提交
 
 ## 请求上下文
 
-`OperationContextFilter` 从请求头读取上下文，并写入 `OperationContextHolder`。
+`OperationContextFilter` 会写入 `OperationContextHolder`。默认只信任 `X-Trace-Id` 作为链路标识，不会把客户端传入的 `X-User-Id` / `X-Tenant-Id` 当作可信身份来源。
 
 ```java
 OperationContext context = OperationContextHolder.getContext();
@@ -44,6 +44,16 @@ Runnable task = OperationContextSnapshot.capture().wrap(() -> {
 ```
 
 `OperationContextTaskDecorator` 可挂到 Spring 线程池。使用 starter 时，如果业务项目没有自定义 `TaskDecorator`，可以自动装配。
+
+如果服务部署在可信网关之后，且网关已经清洗用户和租户 Header，可以在 starter 中显式开启：
+
+```yaml
+under:
+  utils:
+    web:
+      operation-context:
+        trusted-identity-headers: true
+```
 
 ## 限流和防重复提交
 
@@ -122,6 +132,16 @@ public class UserController {
 @Import(GlobalExceptionHandler.class)
 public class WebConfiguration {
 }
+```
+
+使用 starter 时也可以显式开启：
+
+```yaml
+under:
+  utils:
+    web:
+      exception-handling:
+        enabled: true
 ```
 
 `Result` 只是轻量响应模型，不是强制约束。已有统一响应模型的应用，可以继续使用自己的 contract，同时复用上下文、限流和防重能力。

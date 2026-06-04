@@ -315,18 +315,12 @@ public final class HttpUtils {
      * @param targetFile 目标文件
      */
     public static void download(String url, File targetFile) {
-        HttpResponse response = HttpRequest.builder()
+        HttpRequest.builder()
                 .url(url)
                 .method(HttpMethod.GET)
                 .config(defaultConfig)
                 .build()
-                .execute();
-
-        try {
-            response.saveToFile(targetFile);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to save file", e);
-        }
+                .downloadToFile(targetFile);
     }
 
     // ==================== URL 工具方法 ====================

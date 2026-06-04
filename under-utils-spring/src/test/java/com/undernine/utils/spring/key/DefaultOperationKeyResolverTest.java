@@ -7,6 +7,9 @@ import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
@@ -22,6 +25,7 @@ class DefaultOperationKeyResolverTest {
     @AfterEach
     void tearDown() {
         OperationContextHolder.clear();
+        RequestContextHolder.resetRequestAttributes();
     }
 
     @Test
@@ -57,6 +61,24 @@ class DefaultOperationKeyResolverTest {
         String key = resolver.resolve(point, "orders", "");
 
         assertThat(key).matches("orders:default:anonymous:no-request:submit:[0-9a-f]{24}");
+    }
+
+    @Test
+    void defaultKeyIgnoresUntrustedIdentityHeaders() {
+        ProceedingJoinPoint point = mock(ProceedingJoinPoint.class);
+        Signature signature = mock(Signature.class);
+        when(point.getSignature()).thenReturn(signature);
+        when(signature.getName()).thenReturn("submit");
+        when(point.getArgs()).thenReturn(new Object[]{"order-1"});
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/orders");
+        request.addHeader("X-Tenant-Id", "tenant-spoofed");
+        request.addHeader("X-User-Id", "user-spoofed");
+        request.setRemoteAddr("127.0.0.1");
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        String key = resolver.resolve(point, "orders", "");
+
+        assertThat(key).startsWith("orders:default:127.0.0.1:/api/orders:submit:");
     }
 
     @Test

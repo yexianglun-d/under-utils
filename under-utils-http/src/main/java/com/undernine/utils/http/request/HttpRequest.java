@@ -194,8 +194,22 @@ public class HttpRequest {
      * @return HTTP 响应
      */
     public HttpResponse execute() {
-        OkHttpRequestExecutor executor = new OkHttpRequestExecutor(config != null ? config : HttpConfig.defaultConfig());
+        OkHttpRequestExecutor executor = new OkHttpRequestExecutor(resolveConfig());
         return executor.execute(this);
+    }
+
+    /**
+     * 以流式方式下载响应体到文件。
+     * <p>
+     * 该方法不会把完整响应体缓存在 {@link HttpResponse} 中，适合大文件或二进制下载场景。
+     * </p>
+     *
+     * @param targetFile 目标文件
+     * @return 仅包含状态码和响应头的 HTTP 响应
+     */
+    public HttpResponse downloadToFile(File targetFile) {
+        OkHttpRequestExecutor executor = new OkHttpRequestExecutor(resolveConfig());
+        return executor.download(this, targetFile);
     }
 
     /**
@@ -205,6 +219,10 @@ public class HttpRequest {
      */
     public CompletableFuture<HttpResponse> executeAsync() {
         return CompletableFuture.supplyAsync(this::execute);
+    }
+
+    private HttpConfig resolveConfig() {
+        return config != null ? config : HttpConfig.defaultConfig();
     }
 
     private static int toIntMillis(Duration duration, String fieldName) {
@@ -379,6 +397,9 @@ public class HttpRequest {
          * @return 构建器实例
          */
         public Builder timeout(int timeout) {
+            if (timeout < 0) {
+                throw new IllegalArgumentException("timeout must not be negative");
+            }
             request.timeout = timeout;
             return this;
         }
@@ -447,6 +468,16 @@ public class HttpRequest {
          */
         public CompletableFuture<HttpResponse> executeAsync() {
             return build().executeAsync();
+        }
+
+        /**
+         * 构建请求并以流式方式下载响应体到文件。
+         *
+         * @param targetFile 目标文件
+         * @return 仅包含状态码和响应头的 HTTP 响应
+         */
+        public HttpResponse downloadToFile(File targetFile) {
+            return build().downloadToFile(targetFile);
         }
     }
 }

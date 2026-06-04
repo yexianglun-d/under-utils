@@ -17,6 +17,7 @@ import java.util.Objects;
 public final class ChatRequest {
 
     private final List<ChatMessage> messages;
+    private final List<Map<String, Object>> nativeMessages;
     private final String model;
     private final Double temperature;
     private final Integer maxTokens;
@@ -24,10 +25,14 @@ public final class ChatRequest {
     private final Map<String, Object> extraBody;
 
     private ChatRequest(Builder builder) {
-        if (builder.messages.isEmpty()) {
+        if (builder.messages.isEmpty() && builder.nativeMessages.isEmpty()) {
             throw new IllegalArgumentException("messages must not be empty");
         }
+        if (!builder.messages.isEmpty() && !builder.nativeMessages.isEmpty()) {
+            throw new IllegalArgumentException("typed messages and native messages must not be mixed");
+        }
         this.messages = Collections.unmodifiableList(new ArrayList<>(builder.messages));
+        this.nativeMessages = copyNativeMessages(builder.nativeMessages);
         this.model = trimToNull(builder.model);
         this.temperature = builder.temperature;
         this.maxTokens = builder.maxTokens;
@@ -62,6 +67,7 @@ public final class ChatRequest {
     public Builder toBuilder() {
         return builder()
                 .messages(messages)
+                .nativeMessages(nativeMessages)
                 .model(model)
                 .temperature(temperature)
                 .maxTokens(maxTokens)
@@ -76,6 +82,15 @@ public final class ChatRequest {
      */
     public List<ChatMessage> getMessages() {
         return messages;
+    }
+
+    /**
+     * OpenAI-compatible 原生消息结构。用于多模态 content、tool 调用结果等文本 helper 无法表达的场景。
+     *
+     * @return 原生消息结构
+     */
+    public List<Map<String, Object>> getNativeMessages() {
+        return nativeMessages;
     }
 
     /**
@@ -126,7 +141,7 @@ public final class ChatRequest {
     @Override
     public String toString() {
         return "ChatRequest{"
-                + "messageCount=" + messages.size()
+                + "messageCount=" + (messages.isEmpty() ? nativeMessages.size() : messages.size())
                 + ", model='" + model + '\''
                 + ", temperature=" + temperature
                 + ", maxTokens=" + maxTokens
@@ -142,12 +157,38 @@ public final class ChatRequest {
         return value.trim();
     }
 
+    private static List<Map<String, Object>> copyNativeMessages(List<Map<String, Object>> messages) {
+        List<Map<String, Object>> copiedMessages = new ArrayList<>(messages.size());
+        for (Map<String, Object> message : messages) {
+            copiedMessages.add(copyObjectMap(message, "native message"));
+        }
+        return Collections.unmodifiableList(copiedMessages);
+    }
+
+    private static List<Map<String, Object>> copyObjectMaps(List<Map<String, Object>> values, String name) {
+        Objects.requireNonNull(values, name + " must not be null");
+        List<Map<String, Object>> copiedValues = new ArrayList<>(values.size());
+        for (Map<String, Object> value : values) {
+            copiedValues.add(copyObjectMap(value, name + " item"));
+        }
+        return copiedValues;
+    }
+
+    private static Map<String, Object> copyObjectMap(Map<String, Object> value, String name) {
+        Objects.requireNonNull(value, name + " must not be null");
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException(name + " must not be empty");
+        }
+        return Collections.unmodifiableMap(new LinkedHashMap<>(value));
+    }
+
     /**
      * 对话请求构建器。
      */
     public static final class Builder {
 
         private final List<ChatMessage> messages = new ArrayList<>();
+        private final List<Map<String, Object>> nativeMessages = new ArrayList<>();
         private String model;
         private Double temperature;
         private Integer maxTokens;
@@ -177,6 +218,30 @@ public final class ChatRequest {
         public Builder messages(List<ChatMessage> messages) {
             if (messages != null) {
                 messages.forEach(this::message);
+            }
+            return this;
+        }
+
+        /**
+         * 添加 OpenAI-compatible 原生消息结构。用于 content 数组、多模态消息、tool 调用结果等。
+         *
+         * @param message 原生消息结构
+         * @return 当前构建器
+         */
+        public Builder nativeMessage(Map<String, Object> message) {
+            this.nativeMessages.add(copyObjectMap(message, "native message"));
+            return this;
+        }
+
+        /**
+         * 批量添加 OpenAI-compatible 原生消息结构。
+         *
+         * @param messages 原生消息列表
+         * @return 当前构建器
+         */
+        public Builder nativeMessages(List<Map<String, Object>> messages) {
+            if (messages != null) {
+                this.nativeMessages.addAll(copyObjectMaps(messages, "nativeMessages"));
             }
             return this;
         }
@@ -290,12 +355,75 @@ public final class ChatRequest {
         }
 
         /**
+         * 设置 OpenAI-compatible tools 参数。
+         *
+         * @param tools tools 列表
+         * @return 当前构建器
+         */
+        public Builder tools(List<Map<String, Object>> tools) {
+            return extraBody("tools", Collections.unmodifiableList(copyObjectMaps(tools, "tools")));
+        }
+
+        /**
+         * 添加一个 OpenAI-compatible tool 参数。
+         *
+         * @param tool tool 定义
+         * @return 当前构建器
+         */
+        public Builder tool(Map<String, Object> tool) {
+            List<Map<String, Object>> tools = new ArrayList<>();
+            Object existingTools = this.extraBody.get("tools");
+            if (existingTools instanceof List<?> existingList) {
+                for (Object existingTool : existingList) {
+                    if (!(existingTool instanceof Map<?, ?> existingToolMap)) {
+                        throw new IllegalArgumentException("tools must contain map items");
+                    }
+                    tools.add(copyUnknownObjectMap(existingToolMap, "tools item"));
+                }
+            }
+            tools.add(copyObjectMap(tool, "tool"));
+            this.extraBody.put("tools", Collections.unmodifiableList(tools));
+            return this;
+        }
+
+        /**
+         * 设置 OpenAI-compatible tool_choice 参数。
+         *
+         * @param toolChoice tool_choice 值
+         * @return 当前构建器
+         */
+        public Builder toolChoice(Object toolChoice) {
+            return extraBody("tool_choice", toolChoice);
+        }
+
+        /**
+         * 设置 OpenAI-compatible response_format 参数。
+         *
+         * @param responseFormat response_format 值
+         * @return 当前构建器
+         */
+        public Builder responseFormat(Object responseFormat) {
+            return extraBody("response_format", responseFormat);
+        }
+
+        /**
          * 构建请求。
          *
          * @return 对话请求
          */
         public ChatRequest build() {
             return new ChatRequest(this);
+        }
+
+        private Map<String, Object> copyUnknownObjectMap(Map<?, ?> value, String name) {
+            Map<String, Object> copied = new LinkedHashMap<>();
+            for (Map.Entry<?, ?> entry : value.entrySet()) {
+                if (!(entry.getKey() instanceof String key) || key.trim().isEmpty()) {
+                    throw new IllegalArgumentException(name + " key must be a non-blank string");
+                }
+                copied.put(key, entry.getValue());
+            }
+            return Collections.unmodifiableMap(copied);
         }
     }
 }

@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
  * <p>
  * 使用说明：
  * 1. 在 Spring Boot 项目中，将此类注册为 Bean 即可生效
- * 2. 如需自定义用户 ID 获取逻辑，可继承此类并重写 getUserId() 方法
+ * 2. 如需自定义用户 ID 获取逻辑，可注入 {@link AuditorProvider}，或继承此类并重写 getUserId() 方法
+ * 3. 如需自定义字段名或逻辑未删除值，可注入 {@link AuditFillOptions}
  * </p>
  *
  * @author Under-Utils Team
@@ -24,19 +25,20 @@ import java.time.LocalDateTime;
 @Slf4j
 public class DefaultMetaObjectHandler implements MetaObjectHandler {
 
-    private static final String CREATE_TIME = "createTime";
-    private static final String UPDATE_TIME = "updateTime";
-    private static final String CREATE_BY = "createBy";
-    private static final String UPDATE_BY = "updateBy";
-
     private final AuditorProvider auditorProvider;
+    private final AuditFillOptions fillOptions;
 
     public DefaultMetaObjectHandler() {
-        this(null);
+        this(null, AuditFillOptions.defaults());
     }
 
     public DefaultMetaObjectHandler(AuditorProvider auditorProvider) {
+        this(auditorProvider, AuditFillOptions.defaults());
+    }
+
+    public DefaultMetaObjectHandler(AuditorProvider auditorProvider, AuditFillOptions fillOptions) {
         this.auditorProvider = auditorProvider;
+        this.fillOptions = fillOptions == null ? AuditFillOptions.defaults() : fillOptions;
     }
 
     /**
@@ -48,21 +50,19 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         log.debug("开始插入填充...");
 
-        // 填充创建时间
-        this.fillStrategy(metaObject, CREATE_TIME, LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        this.fillStrategy(metaObject, fillOptions.getCreateTimeField(), now);
+        this.fillStrategy(metaObject, fillOptions.getUpdateTimeField(), now);
 
-        // 填充修改时间
-        this.fillStrategy(metaObject, UPDATE_TIME, LocalDateTime.now());
-
-        // 填充创建人（需要从上下文获取当前用户 ID）
         Long userId = getUserId();
         if (userId != null) {
-            this.fillStrategy(metaObject, CREATE_BY, userId);
-            this.fillStrategy(metaObject, UPDATE_BY, userId);
+            this.fillStrategy(metaObject, fillOptions.getCreateByField(), userId);
+            this.fillStrategy(metaObject, fillOptions.getUpdateByField(), userId);
         }
 
-        // 填充逻辑删除标记（默认未删除）
-        this.fillStrategy(metaObject, "deleted", 0);
+        if (fillOptions.isFillDeleted()) {
+            this.fillStrategy(metaObject, fillOptions.getDeletedField(), fillOptions.getNotDeletedValue());
+        }
     }
 
     /**
@@ -74,13 +74,11 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
     public void updateFill(MetaObject metaObject) {
         log.debug("开始更新填充...");
 
-        // 填充修改时间（强制更新）
-        this.setFieldValByName(UPDATE_TIME, LocalDateTime.now(), metaObject);
+        this.setFieldValByName(fillOptions.getUpdateTimeField(), LocalDateTime.now(), metaObject);
 
-        // 填充修改人（强制更新）
         Long userId = getUserId();
         if (userId != null) {
-            this.setFieldValByName(UPDATE_BY, userId, metaObject);
+            this.setFieldValByName(fillOptions.getUpdateByField(), userId, metaObject);
         }
     }
 

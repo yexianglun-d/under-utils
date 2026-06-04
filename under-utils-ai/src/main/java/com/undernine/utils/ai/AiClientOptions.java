@@ -17,12 +17,14 @@ public final class AiClientOptions {
 
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration DEFAULT_RETRY_INTERVAL = Duration.ZERO;
+    private static final Duration DEFAULT_STREAM_READ_TIMEOUT = Duration.ZERO;
 
     private final String baseUrl;
     private final String apiKey;
     private final String model;
     private final String chatCompletionsPath;
     private final Duration timeout;
+    private final Duration streamReadTimeout;
     private final int maxRetries;
     private final Duration retryInterval;
     private final Double temperature;
@@ -35,6 +37,7 @@ public final class AiClientOptions {
         this.model = requireText(builder.model, "model");
         this.chatCompletionsPath = normalizePath(builder.chatCompletionsPath);
         this.timeout = requireNonNegative(builder.timeout, "timeout");
+        this.streamReadTimeout = requireNonNegative(builder.streamReadTimeout, "streamReadTimeout");
         this.maxRetries = builder.maxRetries;
         this.retryInterval = requireNonNegative(builder.retryInterval, "retryInterval");
         this.temperature = builder.temperature;
@@ -63,6 +66,7 @@ public final class AiClientOptions {
                 .model(model)
                 .chatCompletionsPath(chatCompletionsPath)
                 .timeout(timeout)
+                .streamReadTimeout(streamReadTimeout)
                 .maxRetries(maxRetries)
                 .retryInterval(retryInterval)
                 .temperature(temperature)
@@ -113,6 +117,15 @@ public final class AiClientOptions {
      */
     public Duration getTimeout() {
         return timeout;
+    }
+
+    /**
+     * 流式响应读取超时时间。为 0 时表示不限制 SSE 分片读取等待时间。
+     *
+     * @return 流式读取超时时间
+     */
+    public Duration getStreamReadTimeout() {
+        return streamReadTimeout;
     }
 
     /**
@@ -168,6 +181,7 @@ public final class AiClientOptions {
                 + ", model='" + model + '\''
                 + ", chatCompletionsPath='" + chatCompletionsPath + '\''
                 + ", timeout=" + timeout
+                + ", streamReadTimeout=" + streamReadTimeout
                 + ", maxRetries=" + maxRetries
                 + ", retryInterval=" + retryInterval
                 + ", temperature=" + temperature
@@ -233,6 +247,7 @@ public final class AiClientOptions {
         private String model;
         private String chatCompletionsPath = "/chat/completions";
         private Duration timeout = DEFAULT_TIMEOUT;
+        private Duration streamReadTimeout = DEFAULT_STREAM_READ_TIMEOUT;
         private int maxRetries;
         private Duration retryInterval = DEFAULT_RETRY_INTERVAL;
         private Double temperature;
@@ -294,6 +309,17 @@ public final class AiClientOptions {
          */
         public Builder timeout(Duration timeout) {
             this.timeout = timeout;
+            return this;
+        }
+
+        /**
+         * 设置流式响应读取超时时间。为 0 时表示不限制 SSE 分片读取等待时间。
+         *
+         * @param streamReadTimeout 流式读取超时时间
+         * @return 当前构建器
+         */
+        public Builder streamReadTimeout(Duration streamReadTimeout) {
+            this.streamReadTimeout = streamReadTimeout;
             return this;
         }
 

@@ -141,6 +141,25 @@ public AuditorProvider auditorProvider() {
 }
 ```
 
+字段名或逻辑未删除值与 `BaseEntity` 不一致时，可以显式配置：
+
+```java
+@Bean
+public DefaultMetaObjectHandler metaObjectHandler(AuditorProvider auditorProvider) {
+    AuditFillOptions options = AuditFillOptions.builder()
+            .createTimeField("createdAt")
+            .updateTimeField("updatedAt")
+            .createByField("creatorId")
+            .updateByField("updaterId")
+            .deletedField("isDeleted")
+            .notDeletedValue(false)
+            .build();
+    return new DefaultMetaObjectHandler(auditorProvider, options);
+}
+```
+
+没有逻辑删除字段的实体体系可以使用 `AuditFillOptions.builder().fillDeleted(false).build()`，避免 handler 默认写入 `deleted`。
+
 ## 多数据源场景
 
 多数据源项目通常应为每个 `SqlSessionFactory` 单独配置 MyBatis-Plus interceptor，不建议把数据源选择逻辑放进本模块。

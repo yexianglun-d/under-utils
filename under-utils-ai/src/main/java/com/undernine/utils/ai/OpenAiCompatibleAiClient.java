@@ -1,6 +1,7 @@
 package com.undernine.utils.ai;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -42,7 +43,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * OpenAI-compatible Chat Completions 客户端。
  * <p>
- * 当前实现覆盖同步文本对话和 SSE 流式文本对话，不处理工具调用和厂商私有完整参数。
+ * 当前实现覆盖同步文本对话和 SSE 流式文本对话，并支持 OpenAI-compatible
+ * 原生消息、tools、response_format 等请求参数透传；厂商私有协议仍应通过自定义 provider 扩展。
  * </p>
  *
  * @author Under-Utils Team
@@ -152,7 +154,7 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
     private Map<String, Object> toRequestBody(ChatRequest request) {
         Map<String, Object> body = new LinkedHashMap<>(request.getExtraBody());
         body.put("model", request.getModel() == null ? options.getModel() : request.getModel());
-        body.put("messages", toMessages(request.getMessages()));
+        body.put("messages", toMessages(request));
         Double temperature = request.getTemperature() == null ? options.getTemperature() : request.getTemperature();
         Integer maxTokens = request.getMaxTokens() == null ? options.getMaxTokens() : request.getMaxTokens();
         if (temperature != null) {
@@ -170,10 +172,14 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
         return body;
     }
 
-    private List<Map<String, String>> toMessages(List<ChatMessage> messages) {
-        List<Map<String, String>> result = new ArrayList<>(messages.size());
+    private List<Map<String, Object>> toMessages(ChatRequest request) {
+        if (!request.getNativeMessages().isEmpty()) {
+            return request.getNativeMessages();
+        }
+        List<ChatMessage> messages = request.getMessages();
+        List<Map<String, Object>> result = new ArrayList<>(messages.size());
         for (ChatMessage message : messages) {
-            Map<String, String> item = new LinkedHashMap<>();
+            Map<String, Object> item = new LinkedHashMap<>();
             item.put("role", message.getRole().wireName());
             item.put("content", message.getContent());
             result.add(item);
@@ -196,6 +202,9 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
         }
         ChatChoice choice = result.choices.get(0);
         String text = choice.message.content;
+        if (text == null && choice.message.hasToolCallPayload()) {
+            text = "";
+        }
         if (text == null) {
             throw new AiException(AiErrorType.RESPONSE_PARSE, "AI response assistant message content is missing",
                     response.getStatusCode(), null, false);
@@ -212,7 +221,8 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
                 .modelFingerprint(result.systemFingerprint)
                 .duration(duration)
                 .build();
-        return new ChatResponse(text, result.model, choice.finishReason, responseId, usage, metadata);
+        return new ChatResponse(text, result.model, choice.finishReason, responseId, usage, metadata,
+                choice.message.rawMessage());
     }
 
     private AiException toStatusException(HttpResponse response) {
@@ -274,9 +284,10 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
 
     private OkHttpClient buildStreamingHttpClient(AiClientOptions options) {
         Duration timeout = options.getTimeout();
+        Duration streamReadTimeout = options.getStreamReadTimeout();
         return new OkHttpClient.Builder()
                 .connectTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
-                .readTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
+                .readTimeout(streamReadTimeout.toMillis(), TimeUnit.MILLISECONDS)
                 .writeTimeout(timeout.toMillis(), TimeUnit.MILLISECONDS)
                 .retryOnConnectionFailure(options.getMaxRetries() > 0)
                 .connectionPool(new ConnectionPool())
@@ -509,6 +520,27 @@ public class OpenAiCompatibleAiClient implements AiClient, StreamingAiClient {
     private static final class ChatCompletionMessage {
         private String role;
         private String content;
+        private final Map<String, Object> extraFields = new LinkedHashMap<>();
+
+        @JsonAnySetter
+        private void setExtraField(String name, Object value) {
+            extraFields.put(name, value);
+        }
+
+        private boolean hasToolCallPayload() {
+            return extraFields.containsKey("tool_calls") || extraFields.containsKey("function_call");
+        }
+
+        private Map<String, Object> rawMessage() {
+            Map<String, Object> rawMessage = new LinkedHashMap<>(extraFields);
+            if (role != null) {
+                rawMessage.put("role", role);
+            }
+            if (content != null) {
+                rawMessage.put("content", content);
+            }
+            return rawMessage;
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

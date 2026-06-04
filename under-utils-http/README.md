@@ -76,6 +76,16 @@ HttpUtils.setDefaultConfig(config);
 
 已有配置可以通过 `toBuilder()` 复制后调整，避免重复声明所有字段。
 
+相同客户端配置会复用底层 `OkHttpClient` 和连接池；`HttpRequest.timeout(...)` 会作为单次调用的整体超时应用到当前请求。
+
+文件下载建议使用流式入口，避免把完整响应体缓存在内存中：
+
+```java
+HttpRequest.get("https://api.example.com/files/report.csv")
+        .timeout(Duration.ofSeconds(30))
+        .downloadToFile(new File("/tmp/report.csv"));
+```
+
 ## OpenAPI 客户端
 
 当每次调用都需要统一 token、签名、幂等和业务错误处理时，使用 `DefaultOpenApiClient`。
@@ -184,4 +194,5 @@ try {
 - 生产环境不要关闭 SSL 校验。
 - 非幂等请求应关闭或谨慎配置重试。
 - 超时时间应按上游接口特点配置，全局默认只作为基线。
+- 大文件或二进制下载应使用 `downloadToFile` / `HttpUtils.download`，不要先 `execute()` 再 `saveToFile()`。
 - 当 token、签名、幂等、trace 和业务错误处理在多个 service 方法中重复出现时，优先使用 `OpenApiClient`。

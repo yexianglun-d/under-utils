@@ -4,14 +4,17 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import okhttp3.mockwebserver.SocketPolicy;
+import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -245,6 +248,100 @@ class OpenAiCompatibleAiClientTest {
     }
 
     @Test
+    void shouldSendNativeMessagesAndToolOptions() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("""
+                        {
+                          "id": "chatcmpl-native",
+                          "model": "vision-model",
+                          "choices": [
+                            {
+                              "message": {
+                                "role": "assistant",
+                                "content": "native-ok"
+                              },
+                              "finish_reason": "stop"
+                            }
+                          ]
+                        }
+                        """));
+
+        client().chat(ChatRequest.builder()
+                .nativeMessage(Map.of(
+                        "role", "user",
+                        "content", List.of(Map.of("type", "text", "text", "describe this image"))
+                ))
+                .tool(Map.of(
+                        "type", "function",
+                        "function", Map.of(
+                                "name", "lookup_order",
+                                "parameters", Map.of("type", "object")
+                        )
+                ))
+                .toolChoice(Map.of(
+                        "type", "function",
+                        "function", Map.of("name", "lookup_order")
+                ))
+                .responseFormat(Map.of("type", "json_object"))
+                .build());
+
+        RecordedRequest request = server.takeRequest();
+        String requestBody = request.getBody().readUtf8();
+        assertThat(requestBody).contains("\"content\":[{");
+        assertThat(requestBody).contains("\"type\":\"text\"");
+        assertThat(requestBody).contains("\"text\":\"describe this image\"");
+        assertThat(requestBody).contains("\"tools\":[{");
+        assertThat(requestBody).contains("\"tool_choice\":{");
+        assertThat(requestBody).contains("\"name\":\"lookup_order\"");
+        assertThat(requestBody).contains("\"response_format\":{\"type\":\"json_object\"}");
+    }
+
+    @Test
+    void shouldExposeRawAssistantMessageForToolCalls() {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("""
+                        {
+                          "id": "chatcmpl-tool",
+                          "model": "demo-model",
+                          "choices": [
+                            {
+                              "message": {
+                                "role": "assistant",
+                                "content": null,
+                                "tool_calls": [
+                                  {
+                                    "id": "call_001",
+                                    "type": "function",
+                                    "function": {
+                                      "name": "lookup_order",
+                                      "arguments": "{\\"orderNo\\":\\"A001\\"}"
+                                    }
+                                  }
+                                ]
+                              },
+                              "finish_reason": "tool_calls"
+                            }
+                          ]
+                        }
+                        """));
+
+        ChatResponse response = client().chat(ChatRequest.builder()
+                .user("查订单")
+                .tool(Map.of(
+                        "type", "function",
+                        "function", Map.of("name", "lookup_order", "parameters", Map.of("type", "object"))
+                ))
+                .build());
+
+        assertThat(response.text()).isEmpty();
+        assertThat(response.getFinishReason()).isEqualTo("tool_calls");
+        assertThat(response.getRawMessage()).containsKeys("role", "tool_calls");
+        assertThat(response.getRawMessage().get("role")).isEqualTo("assistant");
+    }
+
+    @Test
     void shouldMapAuthenticationFailureWithoutLeakingApiKey() {
         server.enqueue(new MockResponse()
                 .setResponseCode(401)
@@ -387,6 +484,36 @@ class OpenAiCompatibleAiClientTest {
                 .hasMessageContaining("messages must not be empty");
     }
 
+    @Test
+    void shouldRejectMixedTypedAndNativeMessages() {
+        assertThatThrownBy(() -> ChatRequest.builder()
+                .user("hello")
+                .nativeMessage(Map.of("role", "user", "content", "native"))
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("typed messages and native messages must not be mixed");
+    }
+
+    @Test
+    void shouldDisableStreamingReadTimeoutByDefault() throws Exception {
+        OpenAiCompatibleAiClient client = (OpenAiCompatibleAiClient) client();
+
+        assertThat(streamingHttpClient(client).readTimeoutMillis()).isZero();
+    }
+
+    @Test
+    void shouldApplyCustomStreamingReadTimeout() throws Exception {
+        OpenAiCompatibleAiClient client = new OpenAiCompatibleAiClient(AiClientOptions.builder()
+                .baseUrl(server.url("/v1").toString())
+                .apiKey(API_KEY)
+                .model("demo-model")
+                .timeout(Duration.ofSeconds(2))
+                .streamReadTimeout(Duration.ofSeconds(10))
+                .build());
+
+        assertThat(streamingHttpClient(client).readTimeoutMillis()).isEqualTo(10_000);
+    }
+
     private AiClient client() {
         return AiClient.builder()
                 .baseUrl(server.url("/v1").toString())
@@ -395,5 +522,11 @@ class OpenAiCompatibleAiClientTest {
                 .timeout(Duration.ofSeconds(2))
                 .retryInterval(Duration.ZERO)
                 .build();
+    }
+
+    private OkHttpClient streamingHttpClient(OpenAiCompatibleAiClient client) throws Exception {
+        Field field = OpenAiCompatibleAiClient.class.getDeclaredField("streamingHttpClient");
+        field.setAccessible(true);
+        return (OkHttpClient) field.get(client);
     }
 }

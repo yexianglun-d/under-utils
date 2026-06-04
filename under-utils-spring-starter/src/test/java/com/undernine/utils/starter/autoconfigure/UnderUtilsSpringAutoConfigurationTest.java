@@ -4,9 +4,12 @@ import com.undernine.utils.spring.aspect.PreventRepeatAspect;
 import com.undernine.utils.spring.aspect.RateLimitAspect;
 import com.undernine.utils.spring.context.CurrentTenantProvider;
 import com.undernine.utils.spring.context.CurrentUserProvider;
+import com.undernine.utils.spring.context.DefaultCurrentTenantProvider;
+import com.undernine.utils.spring.context.DefaultCurrentUserProvider;
 import com.undernine.utils.spring.context.OperationContextFilter;
 import com.undernine.utils.spring.context.OperationContextTaskDecorator;
 import com.undernine.utils.spring.context.TraceIdProvider;
+import com.undernine.utils.spring.exception.GlobalExceptionHandler;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
 import com.undernine.utils.spring.ratelimit.RateLimitStore;
@@ -45,6 +48,7 @@ class UnderUtilsSpringAutoConfigurationTest {
             assertThat(context).hasSingleBean(RepeatSubmitStore.class);
             assertThat(context).hasSingleBean(RateLimitAspect.class);
             assertThat(context).hasSingleBean(PreventRepeatAspect.class);
+            assertThat(context).doesNotHaveBean(GlobalExceptionHandler.class);
             assertThat(context.getBean(RateLimitStore.class)).isInstanceOf(LocalRateLimitStore.class);
             assertThat(context.getBean(RepeatSubmitStore.class)).isInstanceOf(LocalRepeatSubmitStore.class);
         });
@@ -87,6 +91,31 @@ class UnderUtilsSpringAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(OperationContextFilter.class);
                     assertThat(context).doesNotHaveBean("underUtilsOperationContextFilterRegistration");
                 });
+    }
+
+    @Test
+    void shouldPassTrustedIdentityHeaderSettingToDefaultProvidersAndFilter() {
+        contextRunner
+                .withPropertyValues("under.utils.web.operation-context.trusted-identity-headers=true")
+                .run(context -> {
+                    assertThat(context.getBean(CurrentUserProvider.class))
+                            .isInstanceOfSatisfying(DefaultCurrentUserProvider.class,
+                                    provider -> assertThat(provider.isTrustedIdentityHeaders()).isTrue());
+                    assertThat(context.getBean(CurrentTenantProvider.class))
+                            .isInstanceOfSatisfying(DefaultCurrentTenantProvider.class,
+                                    provider -> assertThat(provider.isTrustedIdentityHeaders()).isTrue());
+                    assertThat(context.getBean(OperationContextFilter.class).isTrustedIdentityHeaders()).isTrue();
+                });
+    }
+
+    @Test
+    void shouldCreateGlobalExceptionHandlerOnlyWhenEnabled() {
+        contextRunner.run(context ->
+                assertThat(context).doesNotHaveBean(GlobalExceptionHandler.class));
+
+        contextRunner
+                .withPropertyValues("under.utils.web.exception-handling.enabled=true")
+                .run(context -> assertThat(context).hasSingleBean(GlobalExceptionHandler.class));
     }
 
     @Test

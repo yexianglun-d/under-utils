@@ -21,7 +21,7 @@ class OperationContextFilterTest {
 
     @Test
     void buildsContextFromTraceHeaderAndClearsAfterRequest() throws Exception {
-        OperationContextFilter filter = new OperationContextFilter();
+        OperationContextFilter filter = new OperationContextFilter(List.of(), true);
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/orders");
         request.addHeader(OperationContextFilter.TRACE_ID_HEADER, " trace-header ");
         request.addHeader(OperationContextFilter.TENANT_ID_HEADER, "tenant-a");
@@ -46,6 +46,23 @@ class OperationContextFilterTest {
         assertThat(response.getHeader(OperationContextFilter.TRACE_ID_HEADER)).isEqualTo("trace-header");
         assertThat(OperationContextHolder.getContext()).isNull();
         assertThat(MDC.get(OperationContextFilter.TRACE_ID_MDC_KEY)).isNull();
+    }
+
+    @Test
+    void ignoresIdentityHeadersByDefault() throws Exception {
+        OperationContextFilter filter = new OperationContextFilter();
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/orders");
+        request.addHeader(OperationContextFilter.TENANT_ID_HEADER, "tenant-a");
+        request.addHeader(OperationContextFilter.USER_ID_HEADER, "user-a");
+        request.setRemoteAddr("127.0.0.1");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<OperationContext> seenContext = new AtomicReference<>();
+
+        filter.doFilter(request, response, (servletRequest, servletResponse) ->
+                seenContext.set(OperationContextHolder.getContext()));
+
+        assertThat(seenContext.get().getTenantId()).isEqualTo("default");
+        assertThat(seenContext.get().getUserId()).isEqualTo("127.0.0.1");
     }
 
     @Test

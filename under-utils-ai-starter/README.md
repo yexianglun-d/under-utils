@@ -28,6 +28,7 @@ under:
       api-key: ${AI_API_KEY}
       model: your-model-name
       timeout: 30s
+      stream-read-timeout: 0ms
       max-retries: 0
       retry-interval: 0ms
 ```
@@ -92,7 +93,9 @@ public class ModelRouter {
 }
 ```
 
-顶层 `provider`、`base-url`、`api-key`、`model`、`timeout`、`max-retries`、`retry-interval`、`temperature`、`max-tokens` 和 `headers` 可作为命名客户端默认值；单个客户端配置会覆盖同名字段。未配置 `clients` 时，starter 会继续按旧的顶层配置创建名为 `default` 的客户端。
+顶层 `provider`、`base-url`、`api-key`、`model`、`timeout`、`stream-read-timeout`、`max-retries`、`retry-interval`、`temperature`、`max-tokens` 和 `headers` 可作为命名客户端默认值；单个客户端配置会覆盖同名字段。未配置 `clients` 时，starter 会继续按旧的顶层配置创建名为 `default` 的客户端。
+
+`stream-read-timeout` 只影响 SSE 分片读取等待时间，默认 `0ms` 表示不限制，避免长流式响应被普通 read timeout 提前断开；连接、写入和同步请求读写仍使用 `timeout`。
 
 ## 自动装配规则
 

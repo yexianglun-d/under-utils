@@ -59,7 +59,7 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 | `under-utils-spring` | Spring Web 上下文传播、限流/防重抽象、返回结果、异常处理和 JSON 脱敏。 |
 | `under-utils-redis` | 基于 Redisson 的分布式锁、限流/防重存储、cache-aside、逻辑过期缓存模板、内置指标和可选 Micrometer 观测适配。 |
 | `under-utils-http` | HTTP 便捷调用与 OpenAPI 客户端治理，包括 token 刷新、签名、trace/idempotency header、错误解码和重试。 |
-| `under-utils-ai` | OpenAI-compatible AI 大模型基础调用封装，覆盖同步/流式文本对话、命名客户端注册表、provider 扩展、响应元数据、基础错误分类和敏感信息脱敏。 |
+| `under-utils-ai` | OpenAI-compatible AI 大模型基础调用封装，覆盖同步/流式文本对话、原生消息和 tools 参数透传、命名客户端注册表、provider 扩展、响应元数据、基础错误分类和敏感信息脱敏。 |
 | `under-utils-mybatis` | MyBatis-Plus 安全分页、排序白名单、审计填充和分页结果封装。 |
 | `under-utils-biz` | 可复用业务流程模板，目前主要是 CSV 导入、异步导入进度查询和错误导出。 |
 | `under-utils-ai-starter` | Spring Boot AI 自动装配入口，按配置创建默认或多个命名 `AiClient`。 |
@@ -75,6 +75,8 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 - Maven 3.9+
 - Spring Boot 3.1.x
 - Docker，仅在运行 Testcontainers 集成测试或 Redis 示例环境时需要
+
+兼容性策略、支持矩阵和发布前验证命令见 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。当前 `1.0.3-SNAPSHOT` 发布准备说明见 [docs/releases/v1.0.3.md](docs/releases/v1.0.3.md)。
 
 ## 安装
 
@@ -158,6 +160,9 @@ under:
       operation-context:
         enabled: true
         task-decorator-enabled: true
+        trusted-identity-headers: false
+      exception-handling:
+        enabled: false
       rate-limit:
         enabled: true
         store: redis
@@ -185,6 +190,7 @@ under:
 ```
 
 限流和防重复提交默认失败语义是拒绝请求并抛出 `BizException`，异常消息来自注解配置。本地 store 只在当前 JVM 内生效，多实例部署应使用 Redis 或自定义 `RateLimitStore` / `RepeatSubmitStore`。
+`trusted-identity-headers` 只有在可信网关已清洗 `X-User-Id` / `X-Tenant-Id` 时才应开启；`exception-handling.enabled=true` 后才会注册 Under-Utils 的 `GlobalExceptionHandler`。
 存在 `MeterRegistry` 且没有自定义 `CacheOperationObserver` 时，Redis starter 会自动接入 Micrometer 缓存观测；需要关闭时设置 `under.utils.redis.observation.enabled=false`。
 
 ## 使用示例

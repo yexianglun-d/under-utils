@@ -7,7 +7,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /**
  * 默认当前用户提供器。
  * <p>
- * 优先读取请求头 {@code X-User-Id}，没有时退化为客户端 IP，再没有时返回 {@code anonymous}。
+ * 默认优先读取 {@link OperationContextHolder}，没有上下文时退化为客户端 IP，再没有时返回 {@code anonymous}。
+ * 只有显式开启可信身份 Header 时才会读取 {@code X-User-Id}。
  * </p>
  *
  * @author Under-Utils Team
@@ -18,6 +19,16 @@ public class DefaultCurrentUserProvider implements CurrentUserProvider {
 
     private static final String USER_ID_HEADER = "X-User-Id";
     private static final String ANONYMOUS = "anonymous";
+
+    private final boolean trustedIdentityHeaders;
+
+    public DefaultCurrentUserProvider() {
+        this(false);
+    }
+
+    public DefaultCurrentUserProvider(boolean trustedIdentityHeaders) {
+        this.trustedIdentityHeaders = trustedIdentityHeaders;
+    }
 
     @Override
     public String getCurrentUserId() {
@@ -32,13 +43,19 @@ public class DefaultCurrentUserProvider implements CurrentUserProvider {
         }
 
         HttpServletRequest request = attrs.getRequest();
-        String userId = request.getHeader(USER_ID_HEADER);
-        if (isNotBlank(userId)) {
-            return userId.trim();
+        if (trustedIdentityHeaders) {
+            String userId = request.getHeader(USER_ID_HEADER);
+            if (isNotBlank(userId)) {
+                return userId.trim();
+            }
         }
 
         String remoteAddr = request.getRemoteAddr();
         return isNotBlank(remoteAddr) ? remoteAddr.trim() : ANONYMOUS;
+    }
+
+    public boolean isTrustedIdentityHeaders() {
+        return trustedIdentityHeaders;
     }
 
     private boolean isNotBlank(String value) {

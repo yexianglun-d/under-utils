@@ -33,7 +33,8 @@
  *
  * <h2>异常处理</h2>
  * <p>
- * 业务异常会被 {@link com.undernine.utils.spring.handler.GlobalExceptionHandler} 自动捕获并转换为标准的 {@link com.undernine.utils.spring.response.Result} 格式返回。
+     * 业务异常可以由显式注册的 {@link com.undernine.utils.spring.exception.GlobalExceptionHandler}
+     * 转换为标准的 {@link com.undernine.utils.spring.result.Result} 格式返回。
  * </p>
  *
  * @author Under-Utils Team

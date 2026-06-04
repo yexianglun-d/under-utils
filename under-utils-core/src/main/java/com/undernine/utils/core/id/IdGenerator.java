@@ -19,7 +19,7 @@ import java.net.InetAddress;
  * <p>
  * 特性：
  * <ul>
- *   <li>全局唯一</li>
+ *   <li>显式分配节点编号后可保证全局唯一</li>
  *   <li>趋势递增</li>
  *   <li>高性能（单机每秒可生成百万级 ID）</li>
  *   <li>时间有序</li>
@@ -30,7 +30,9 @@ import java.net.InetAddress;
  * 默认构造器会优先读取系统属性 {@code under.utils.id.datacenter-id}、
  * {@code under.utils.id.worker-id}，其次读取环境变量 {@code UNDER_UTILS_DATACENTER_ID}、
  * {@code UNDER_UTILS_WORKER_ID}。未配置时会基于主机名和当前进程派生节点 ID。
- * 生产多节点部署仍建议显式传入稳定且全局唯一的节点编号。
+ * 派生节点 ID 只能降低默认值冲突概率，不能作为生产多节点全局唯一保证。
+ * 生产多节点部署应显式传入稳定且全局唯一的节点编号，或开启
+ * {@code under.utils.id.require-configured-node-id=true} 强制校验。
  * </p>
  *
  * @author Under-Utils Team
@@ -43,6 +45,12 @@ public class IdGenerator {
      * 起始时间戳（2024-01-01 00:00:00）
      */
     private static final long START_TIMESTAMP = 1704038400000L;
+    private static final String DATACENTER_ID_PROPERTY = "under.utils.id.datacenter-id";
+    private static final String WORKER_ID_PROPERTY = "under.utils.id.worker-id";
+    private static final String DATACENTER_ID_ENV = "UNDER_UTILS_DATACENTER_ID";
+    private static final String WORKER_ID_ENV = "UNDER_UTILS_WORKER_ID";
+    private static final String REQUIRE_CONFIGURED_NODE_ID_PROPERTY = "under.utils.id.require-configured-node-id";
+    private static final String REQUIRE_CONFIGURED_NODE_ID_ENV = "UNDER_UTILS_ID_REQUIRE_CONFIGURED_NODE_ID";
 
     /**
      * 数据中心 ID 占用的位数
@@ -100,6 +108,16 @@ public class IdGenerator {
     private final long workerId;
 
     /**
+     * 数据中心 ID 是否来自显式配置或构造参数。
+     */
+    private final boolean datacenterIdConfigured;
+
+    /**
+     * 机器 ID 是否来自显式配置或构造参数。
+     */
+    private final boolean workerIdConfigured;
+
+    /**
      * 序列号
      */
     private long sequence = 0L;
@@ -120,7 +138,8 @@ public class IdGenerator {
     }
 
     private IdGenerator(NodeIds nodeIds) {
-        this(nodeIds.datacenterId(), nodeIds.workerId());
+        this(nodeIds.datacenterId(), nodeIds.workerId(),
+                nodeIds.datacenterIdConfigured(), nodeIds.workerIdConfigured());
     }
 
     /**
@@ -131,6 +150,13 @@ public class IdGenerator {
      * @throws IllegalArgumentException 如果数据中心 ID 或机器 ID 超出范围
      */
     public IdGenerator(long datacenterId, long workerId) {
+        this(datacenterId, workerId, true, true);
+    }
+
+    private IdGenerator(long datacenterId,
+                        long workerId,
+                        boolean datacenterIdConfigured,
+                        boolean workerIdConfigured) {
         if (datacenterId > MAX_DATACENTER_ID || datacenterId < 0) {
             throw new IllegalArgumentException(
                     String.format("Datacenter ID must be between 0 and %d", MAX_DATACENTER_ID));
@@ -141,6 +167,8 @@ public class IdGenerator {
         }
         this.datacenterId = datacenterId;
         this.workerId = workerId;
+        this.datacenterIdConfigured = datacenterIdConfigured;
+        this.workerIdConfigured = workerIdConfigured;
     }
 
     /**
@@ -196,6 +224,33 @@ public class IdGenerator {
     }
 
     /**
+     * 数据中心 ID 是否来自显式构造参数、系统属性或环境变量。
+     *
+     * @return 如果是显式配置返回 true，自动派生返回 false
+     */
+    public boolean isDatacenterIdConfigured() {
+        return datacenterIdConfigured;
+    }
+
+    /**
+     * 机器 ID 是否来自显式构造参数、系统属性或环境变量。
+     *
+     * @return 如果是显式配置返回 true，自动派生返回 false
+     */
+    public boolean isWorkerIdConfigured() {
+        return workerIdConfigured;
+    }
+
+    /**
+     * 节点编号是否已完整显式配置。
+     *
+     * @return 数据中心 ID 和机器 ID 都显式配置时返回 true
+     */
+    public boolean isNodeIdFullyConfigured() {
+        return datacenterIdConfigured && workerIdConfigured;
+    }
+
+    /**
      * 解析 ID，获取其包含的信息。
      * <p>
      * 使用示例：
@@ -244,9 +299,9 @@ public class IdGenerator {
 
     private static NodeIds resolveDefaultNodeIds() {
         ResolvedNodeId datacenter = resolveConfiguredNodeId(
-                "under.utils.id.datacenter-id", "UNDER_UTILS_DATACENTER_ID");
+                DATACENTER_ID_PROPERTY, DATACENTER_ID_ENV);
         ResolvedNodeId worker = resolveConfiguredNodeId(
-                "under.utils.id.worker-id", "UNDER_UTILS_WORKER_ID");
+                WORKER_ID_PROPERTY, WORKER_ID_ENV);
 
         long datacenterId = datacenter.configured()
                 ? datacenter.value()
@@ -257,7 +312,12 @@ public class IdGenerator {
         if (!datacenter.configured() && !worker.configured() && datacenterId == 0L && workerId == 0L) {
             workerId = 1L;
         }
-        return new NodeIds(datacenterId, workerId);
+        if (requiresConfiguredNodeIds() && (!datacenter.configured() || !worker.configured())) {
+            throw new IllegalStateException("IdGenerator default constructor requires explicit datacenter and worker IDs. "
+                    + "Set " + DATACENTER_ID_PROPERTY + "/" + WORKER_ID_PROPERTY
+                    + " or use IdGenerator(long datacenterId, long workerId).");
+        }
+        return new NodeIds(datacenterId, workerId, datacenter.configured(), worker.configured());
     }
 
     private static ResolvedNodeId resolveConfiguredNodeId(String propertyName, String envName) {
@@ -298,6 +358,17 @@ public class IdGenerator {
 
     private static boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private static boolean requiresConfiguredNodeIds() {
+        String value = System.getProperty(REQUIRE_CONFIGURED_NODE_ID_PROPERTY);
+        if (isBlank(value)) {
+            value = System.getenv(REQUIRE_CONFIGURED_NODE_ID_ENV);
+        }
+        if (isBlank(value)) {
+            return false;
+        }
+        return Boolean.parseBoolean(value.trim());
     }
 
     /**
@@ -369,7 +440,10 @@ public class IdGenerator {
         }
     }
 
-    private record NodeIds(long datacenterId, long workerId) {
+    private record NodeIds(long datacenterId,
+                           long workerId,
+                           boolean datacenterIdConfigured,
+                           boolean workerIdConfigured) {
     }
 
     private record ResolvedNodeId(long value, boolean configured) {

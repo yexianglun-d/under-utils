@@ -2,17 +2,17 @@
   "meta": {
     "generatedBy": "JDK Compiler Tree API",
     "source": "src/main/java public and protected API",
-    "sourceFileCount": 141,
+    "sourceFileCount": 142,
     "artifactCount": 11,
-    "typeCount": 141,
-    "memberCount": 909,
+    "typeCount": 142,
+    "memberCount": 942,
     "artifacts": [
       {"artifact": "under-utils-ai", "module": "ai", "typeCount": 19},
       {"artifact": "under-utils-ai-starter", "module": "ai-starter", "typeCount": 2},
       {"artifact": "under-utils-biz", "module": "biz", "typeCount": 17},
       {"artifact": "under-utils-core", "module": "core", "typeCount": 12},
       {"artifact": "under-utils-http", "module": "http", "typeCount": 20},
-      {"artifact": "under-utils-mybatis", "module": "mybatis", "typeCount": 8},
+      {"artifact": "under-utils-mybatis", "module": "mybatis", "typeCount": 9},
       {"artifact": "under-utils-redis", "module": "redis", "typeCount": 19},
       {"artifact": "under-utils-redis-starter", "module": "redis-starter", "typeCount": 1},
       {"artifact": "under-utils-spring", "module": "spring", "typeCount": 40},
@@ -141,6 +141,13 @@
           "signature": "public Duration getRetryInterval()",
           "status": "stable",
           "summary": "重试间隔。"
+        },
+        {
+          "name": "getStreamReadTimeout",
+          "kind": "method",
+          "signature": "public Duration getStreamReadTimeout()",
+          "status": "stable",
+          "summary": "流式响应读取超时时间。为 0 时表示不限制 SSE 分片读取等待时间。"
         },
         {
           "name": "getTemperature",
@@ -635,6 +642,13 @@
           "summary": "本次请求覆盖的模型名称。"
         },
         {
+          "name": "getNativeMessages",
+          "kind": "method",
+          "signature": "public List<Map<String, Object>> getNativeMessages()",
+          "status": "stable",
+          "summary": "OpenAI-compatible 原生消息结构。用于多模态 content、tool 调用结果等文本 helper 无法表达的场景。"
+        },
+        {
           "name": "getRequestId",
           "kind": "method",
           "signature": "public String getRequestId()",
@@ -707,6 +721,13 @@
           "summary": "创建文本对话响应。"
         },
         {
+          "name": "ChatResponse",
+          "kind": "constructor",
+          "signature": "public ChatResponse(String text, String model, String finishReason, String requestId, TokenUsage usage, AiResponseMetadata metadata, Map<String, Object> rawMessage)",
+          "status": "stable",
+          "summary": "创建文本对话响应。"
+        },
+        {
           "name": "getDuration",
           "kind": "method",
           "signature": "public Duration getDuration()",
@@ -740,6 +761,13 @@
           "signature": "public String getModelFingerprint()",
           "status": "stable",
           "summary": "模型指纹。"
+        },
+        {
+          "name": "getRawMessage",
+          "kind": "method",
+          "signature": "public Map<String, Object> getRawMessage()",
+          "status": "stable",
+          "summary": "模型服务返回的 assistant 原始消息。工具调用等非纯文本字段可从这里读取。"
         },
         {
           "name": "getRequestId",
@@ -1329,6 +1357,13 @@
           "summary": ""
         },
         {
+          "name": "getStreamReadTimeout",
+          "kind": "method",
+          "signature": "public Duration getStreamReadTimeout()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "getTemperature",
           "kind": "method",
           "signature": "public Double getTemperature()",
@@ -1430,6 +1465,13 @@
           "name": "setRetryInterval",
           "kind": "method",
           "signature": "public void setRetryInterval(Duration retryInterval)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setStreamReadTimeout",
+          "kind": "method",
+          "signature": "public void setStreamReadTimeout(Duration streamReadTimeout)",
           "status": "stable",
           "summary": ""
         },
@@ -2850,6 +2892,27 @@
           "summary": "构造方法。"
         },
         {
+          "name": "isDatacenterIdConfigured",
+          "kind": "method",
+          "signature": "public boolean isDatacenterIdConfigured()",
+          "status": "stable",
+          "summary": "数据中心 ID 是否来自显式构造参数、系统属性或环境变量。"
+        },
+        {
+          "name": "isNodeIdFullyConfigured",
+          "kind": "method",
+          "signature": "public boolean isNodeIdFullyConfigured()",
+          "status": "stable",
+          "summary": "节点编号是否已完整显式配置。"
+        },
+        {
+          "name": "isWorkerIdConfigured",
+          "kind": "method",
+          "signature": "public boolean isWorkerIdConfigured()",
+          "status": "stable",
+          "summary": "机器 ID 是否来自显式构造参数、系统属性或环境变量。"
+        },
+        {
           "name": "nextId",
           "kind": "method",
           "signature": "public synchronized long nextId()",
@@ -3622,6 +3685,13 @@
           "summary": "构造方法"
         },
         {
+          "name": "download",
+          "kind": "method",
+          "signature": "public HttpResponse download(HttpRequest httpRequest, File targetFile)",
+          "status": "stable",
+          "summary": "以流式方式下载响应体到文件。"
+        },
+        {
           "name": "execute",
           "kind": "method",
           "signature": "public HttpResponse execute(HttpRequest httpRequest)",
@@ -4306,6 +4376,13 @@
           "summary": "创建 DELETE 请求构建器。"
         },
         {
+          "name": "downloadToFile",
+          "kind": "method",
+          "signature": "public HttpResponse downloadToFile(File targetFile)",
+          "status": "stable",
+          "summary": "以流式方式下载响应体到文件。"
+        },
+        {
           "name": "execute",
           "kind": "method",
           "signature": "public HttpResponse execute()",
@@ -4658,6 +4735,99 @@
       "members": []
     },
     {
+      "name": "AuditFillOptions",
+      "qualifiedName": "com.undernine.utils.mybatis.handler.AuditFillOptions",
+      "module": "mybatis",
+      "artifact": "under-utils-mybatis",
+      "packageName": "com.undernine.utils.mybatis.handler",
+      "type": "class",
+      "status": "stable",
+      "summary": "MyBatis-Plus 审计字段填充配置。",
+      "docsPath": "/docs/modules/mybatis/",
+      "sourcePath": "under-utils-mybatis/src/main/java/com/undernine/utils/mybatis/handler/AuditFillOptions.java",
+      "since": "1.0.3",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "builder",
+          "kind": "method",
+          "signature": "public static Builder builder()",
+          "status": "stable",
+          "summary": "创建构建器。"
+        },
+        {
+          "name": "defaults",
+          "kind": "method",
+          "signature": "public static AuditFillOptions defaults()",
+          "status": "stable",
+          "summary": "默认填充配置。"
+        },
+        {
+          "name": "getCreateByField",
+          "kind": "method",
+          "signature": "public String getCreateByField()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getCreateTimeField",
+          "kind": "method",
+          "signature": "public String getCreateTimeField()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getDeletedField",
+          "kind": "method",
+          "signature": "public String getDeletedField()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getNotDeletedValue",
+          "kind": "method",
+          "signature": "public Object getNotDeletedValue()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getUpdateByField",
+          "kind": "method",
+          "signature": "public String getUpdateByField()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getUpdateTimeField",
+          "kind": "method",
+          "signature": "public String getUpdateTimeField()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isFillDeleted",
+          "kind": "method",
+          "signature": "public boolean isFillDeleted()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "toBuilder",
+          "kind": "method",
+          "signature": "public Builder toBuilder()",
+          "status": "stable",
+          "summary": "基于当前配置创建构建器。"
+        },
+        {
+          "name": "Builder",
+          "kind": "nested-type",
+          "signature": "public static final class Builder",
+          "status": "stable",
+          "summary": "审计字段填充配置构建器。"
+        }
+      ]
+    },
+    {
       "name": "AuditorProvider",
       "qualifiedName": "com.undernine.utils.mybatis.handler.AuditorProvider",
       "module": "mybatis",
@@ -4705,6 +4875,13 @@
           "name": "DefaultMetaObjectHandler",
           "kind": "constructor",
           "signature": "public DefaultMetaObjectHandler(AuditorProvider auditorProvider)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DefaultMetaObjectHandler",
+          "kind": "constructor",
+          "signature": "public DefaultMetaObjectHandler(AuditorProvider auditorProvider, AuditFillOptions fillOptions)",
           "status": "stable",
           "summary": ""
         },
@@ -6857,9 +7034,30 @@
       "deprecatedMessage": "",
       "members": [
         {
+          "name": "DefaultCurrentTenantProvider",
+          "kind": "constructor",
+          "signature": "public DefaultCurrentTenantProvider()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DefaultCurrentTenantProvider",
+          "kind": "constructor",
+          "signature": "public DefaultCurrentTenantProvider(boolean trustedIdentityHeaders)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "getCurrentTenantId",
           "kind": "method",
           "signature": "public String getCurrentTenantId()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isTrustedIdentityHeaders",
+          "kind": "method",
+          "signature": "public boolean isTrustedIdentityHeaders()",
           "status": "stable",
           "summary": ""
         }
@@ -6880,9 +7078,30 @@
       "deprecatedMessage": "",
       "members": [
         {
+          "name": "DefaultCurrentUserProvider",
+          "kind": "constructor",
+          "signature": "public DefaultCurrentUserProvider()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DefaultCurrentUserProvider",
+          "kind": "constructor",
+          "signature": "public DefaultCurrentUserProvider(boolean trustedIdentityHeaders)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "getCurrentUserId",
           "kind": "method",
           "signature": "public String getCurrentUserId()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isTrustedIdentityHeaders",
+          "kind": "method",
+          "signature": "public boolean isTrustedIdentityHeaders()",
           "status": "stable",
           "summary": ""
         }
@@ -7121,6 +7340,13 @@
           "summary": ""
         },
         {
+          "name": "OperationContextFilter",
+          "kind": "constructor",
+          "signature": "public OperationContextFilter(Collection<OperationContextCustomizer> customizers, boolean trustedIdentityHeaders)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "TENANT_ID_HEADER",
           "kind": "field",
           "signature": "public static final String TENANT_ID_HEADER",
@@ -7166,6 +7392,13 @@
           "name": "generateTraceId",
           "kind": "method",
           "signature": "protected String generateTraceId()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isTrustedIdentityHeaders",
+          "kind": "method",
+          "signature": "public boolean isTrustedIdentityHeaders()",
           "status": "stable",
           "summary": ""
         },
@@ -8467,21 +8700,28 @@
         {
           "name": "currentTenantProvider",
           "kind": "method",
-          "signature": "public CurrentTenantProvider currentTenantProvider()",
+          "signature": "public CurrentTenantProvider currentTenantProvider(UnderUtilsProperties properties)",
           "status": "stable",
           "summary": ""
         },
         {
           "name": "currentUserProvider",
           "kind": "method",
-          "signature": "public CurrentUserProvider currentUserProvider()",
+          "signature": "public CurrentUserProvider currentUserProvider(UnderUtilsProperties properties)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "globalExceptionHandler",
+          "kind": "method",
+          "signature": "public GlobalExceptionHandler globalExceptionHandler()",
           "status": "stable",
           "summary": ""
         },
         {
           "name": "operationContextFilter",
           "kind": "method",
-          "signature": "public OperationContextFilter operationContextFilter(Collection<OperationContextCustomizer> customizers)",
+          "signature": "public OperationContextFilter operationContextFilter(Collection<OperationContextCustomizer> customizers, UnderUtilsProperties properties)",
           "status": "stable",
           "summary": ""
         },
@@ -8577,6 +8817,13 @@
           "signature": "public static class Cache",
           "status": "stable",
           "summary": "Redis cache-aside 缓存治理配置。"
+        },
+        {
+          "name": "ExceptionHandling",
+          "kind": "nested-type",
+          "signature": "public static class ExceptionHandling",
+          "status": "stable",
+          "summary": "全局异常处理配置。"
         },
         {
           "name": "LogicalCache",

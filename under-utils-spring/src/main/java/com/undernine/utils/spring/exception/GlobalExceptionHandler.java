@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
  *
  * <h3>使用方式：</h3>
  * <pre>{@code
- * // 在 Spring Boot 项目中，此类会自动生效（需要在扫描路径下）
- * // 或通过 @Import 导入：
+ * // 通过 @Import 导入，或在 starter 中显式开启 under.utils.web.exception-handling.enabled=true
  * @Import(GlobalExceptionHandler.class)
  * @SpringBootApplication
  * public class Application {

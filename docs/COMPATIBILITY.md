@@ -30,6 +30,21 @@ Minor 版本可以新增 API 或配置，但不应删除或重命名已有 contr
 | 最新 `1.x` release | 在维护能力允许时提供 bug 修复和安全修复。 |
 | 更旧 release 线 | 尽力维护，不承诺固定修复周期。 |
 
+## 运行环境矩阵
+
+当前 `1.x` 明确支持的主线环境如下：
+
+| 维度 | 支持范围 | 发布前验证要求 |
+|------|----------|----------------|
+| JDK | Java 21 | `mvn -B -ntp clean test` 必须通过。 |
+| Maven | 3.9+ | release profile、sources 和 javadocs 打包必须通过。 |
+| Spring Boot | 3.1.x | Spring/starter 自动装配测试必须通过。 |
+| MyBatis-Plus | 3.5.x | 单元测试和 Testcontainers MySQL 集成测试覆盖核心行为。 |
+| Redisson | 3.23.x | 单元测试和 Testcontainers Redis 集成测试覆盖锁、限流和缓存模板。 |
+| OkHttp | 4.12.x | HTTP、OpenAPI 和 AI 模块 MockWebServer 测试覆盖请求、超时和错误映射。 |
+
+Java 17、Spring Boot 2.x/3.0.x、Jakarta EE 以外的旧 Servlet API 不在当前承诺范围内。业务项目如果需要这些组合，应在自己的集成测试中锁定依赖版本，并把兼容性结果补回 release notes。
+
 ## 公开 API 范围
 
 以下内容一旦发布，就按 public API 对待：

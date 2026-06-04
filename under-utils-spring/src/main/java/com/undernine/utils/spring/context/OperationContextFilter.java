@@ -20,6 +20,7 @@ import java.util.UUID;
  * <p>
  * 进入请求时构建 {@link OperationContext}，结束时恢复/清理 ThreadLocal 和 MDC。
  * 该类只暴露能力，不负责自动注册；业务应用或 starter 可自行装配到过滤器链。
+ * 默认不信任客户端传入的用户、租户 Header；只有部署在可信网关之后且 Header 已清洗时，才应开启可信身份 Header。
  * </p>
  *
  * @author Under-Utils Team
@@ -37,11 +38,18 @@ public class OperationContextFilter implements Filter {
     private static final String ANONYMOUS = "anonymous";
 
     private final List<OperationContextCustomizer> customizers = new ArrayList<>();
+    private final boolean trustedIdentityHeaders;
 
     public OperationContextFilter() {
+        this(null, false);
     }
 
     public OperationContextFilter(Collection<OperationContextCustomizer> customizers) {
+        this(customizers, false);
+    }
+
+    public OperationContextFilter(Collection<OperationContextCustomizer> customizers, boolean trustedIdentityHeaders) {
+        this.trustedIdentityHeaders = trustedIdentityHeaders;
         setCustomizers(customizers);
     }
 
@@ -50,6 +58,10 @@ public class OperationContextFilter implements Filter {
         if (customizers != null) {
             this.customizers.addAll(customizers);
         }
+    }
+
+    public boolean isTrustedIdentityHeaders() {
+        return trustedIdentityHeaders;
     }
 
     @Override
@@ -108,14 +120,21 @@ public class OperationContextFilter implements Filter {
     }
 
     protected String resolveTenantId(HttpServletRequest request) {
-        String tenantId = request.getHeader(TENANT_ID_HEADER);
-        return isNotBlank(tenantId) ? tenantId.trim() : DEFAULT_TENANT;
+        if (trustedIdentityHeaders) {
+            String tenantId = request.getHeader(TENANT_ID_HEADER);
+            if (isNotBlank(tenantId)) {
+                return tenantId.trim();
+            }
+        }
+        return DEFAULT_TENANT;
     }
 
     protected String resolveUserId(HttpServletRequest request) {
-        String userId = request.getHeader(USER_ID_HEADER);
-        if (isNotBlank(userId)) {
-            return userId.trim();
+        if (trustedIdentityHeaders) {
+            String userId = request.getHeader(USER_ID_HEADER);
+            if (isNotBlank(userId)) {
+                return userId.trim();
+            }
         }
         String remoteAddr = request.getRemoteAddr();
         return isNotBlank(remoteAddr) ? remoteAddr.trim() : ANONYMOUS;

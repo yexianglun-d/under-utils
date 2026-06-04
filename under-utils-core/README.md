@@ -42,7 +42,9 @@ long workerId = info.getWorkerId();
 
 - `datacenterId` 和 `workerId` 取值范围为 `0..31`。
 - 默认构造器会优先读取系统属性 `under.utils.id.datacenter-id`、`under.utils.id.worker-id`，其次读取环境变量 `UNDER_UTILS_DATACENTER_ID`、`UNDER_UTILS_WORKER_ID`。
-- 未配置节点 ID 时，默认构造器会基于主机名和当前进程派生节点 ID；生产多节点部署仍建议显式传入稳定且全局唯一的节点编号。
+- 未配置节点 ID 时，默认构造器会基于主机名和当前进程派生节点 ID；该派生值只能降低默认值冲突概率，不能作为生产多节点唯一性保证。
+- 生产多节点部署应显式传入稳定且全局唯一的节点编号，或设置 `under.utils.id.require-configured-node-id=true` 强制默认构造器拒绝自动派生。
+- 可以通过 `isNodeIdFullyConfigured()` 判断当前生成器节点编号是否完整来自显式配置。
 - 生成器依赖系统时钟单调前进，发生时钟回拨会拒绝生成 ID。
 - 多节点部署时，节点 ID 分配不由本模块负责。
 
@@ -76,6 +78,8 @@ Payload parsed = JsonUtils.fromJson(json, Payload.class);
 ```
 
 `JsonUtils.getObjectMapper()` 返回共享 mapper，调用方不应修改其配置。
+
+反序列化失败时，异常消息只包含目标类型和输入长度，不会拼接原始 JSON，避免日志泄漏敏感字段。
 
 `JsonUtils` 在 `1.x` 内保留 Jackson 依赖，原因是它已经作为 public API 发布。后续如果迁移到独立 JSON 模块，会按 major 版本或明确迁移路径处理。
 

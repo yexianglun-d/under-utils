@@ -41,6 +41,7 @@ public class UnderUtilsProperties {
         private OperationContext operationContext = new OperationContext();
         private StoreCapability rateLimit = new StoreCapability();
         private StoreCapability repeatSubmit = new StoreCapability();
+        private ExceptionHandling exceptionHandling = new ExceptionHandling();
 
         public OperationContext getOperationContext() {
             return operationContext;
@@ -64,6 +65,14 @@ public class UnderUtilsProperties {
 
         public void setRepeatSubmit(StoreCapability repeatSubmit) {
             this.repeatSubmit = repeatSubmit;
+        }
+
+        public ExceptionHandling getExceptionHandling() {
+            return exceptionHandling;
+        }
+
+        public void setExceptionHandling(ExceptionHandling exceptionHandling) {
+            this.exceptionHandling = exceptionHandling;
         }
     }
 
@@ -121,6 +130,7 @@ public class UnderUtilsProperties {
     public static class OperationContext {
         private boolean enabled = true;
         private boolean taskDecoratorEnabled = true;
+        private boolean trustedIdentityHeaders = false;
         private int order = Integer.MIN_VALUE + 100;
 
         public boolean isEnabled() {
@@ -139,12 +149,39 @@ public class UnderUtilsProperties {
             this.taskDecoratorEnabled = taskDecoratorEnabled;
         }
 
+        public boolean isTrustedIdentityHeaders() {
+            return trustedIdentityHeaders;
+        }
+
+        public void setTrustedIdentityHeaders(boolean trustedIdentityHeaders) {
+            this.trustedIdentityHeaders = trustedIdentityHeaders;
+        }
+
         public int getOrder() {
             return order;
         }
 
         public void setOrder(int order) {
             this.order = order;
+        }
+    }
+
+    /**
+     * 全局异常处理配置。
+     * <p>
+     * 属性前缀：{@code under.utils.web.exception-handling}。
+     * 默认关闭，避免 starter 接管业务已有 API 响应契约。
+     * </p>
+     */
+    public static class ExceptionHandling {
+        private boolean enabled = false;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
         }
     }
 

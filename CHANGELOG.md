@@ -9,10 +9,16 @@
 - `under-utils-ai` 新增 `AiClientRegistry` 和 `DefaultAiClientRegistry`，支持在一个应用内按名称管理多个 AI client，并获取默认或指定客户端。
 - `under-utils-ai-starter` 支持 `under.utils.ai.clients.<name>.*` 多客户端配置和 `under.utils.ai.default-client` 默认路由；旧的单客户端顶层配置继续兼容。
 - `under-utils-samples` 的 AI profile 新增命名客户端示例和 `/samples/ai/clients/{clientName}/chat`、`/samples/ai/clients/{clientName}/chat/stream` 路由。
+- `under-utils-ai` 的 `ChatRequest` 新增 OpenAI-compatible 原生消息、tools、tool_choice 和 response_format 参数入口，`ChatResponse` 新增原始 assistant 消息读取能力。
+- `under-utils-ai` 和 `under-utils-ai-starter` 新增 `streamReadTimeout` / `under.utils.ai.stream-read-timeout`，单独控制 SSE 分片读取等待时间。
+- `under-utils-mybatis` 新增 `AuditFillOptions`，支持自定义审计字段名、逻辑未删除值和关闭逻辑删除默认填充。
 
 ### Changed
 
 - `main` 分支 Maven 版本进入 `1.0.3-SNAPSHOT` 开发周期，`1.0.2` 保持为当前稳定版本。
+- `LogicalExpireCacheOptions` 默认后台刷新执行器改为独立有界 daemon 线程池，不再使用 `ForkJoinPool.commonPool()`。
+- `CsvImportRowReader` 默认忽略 UTF-8 BOM、限制单条记录最大字符数，并严格校验 CSV 引号语法；需要历史宽松行为时可显式设置 `strictQuotes(false)`。
+- `docs/COMPATIBILITY.md` 增加 Java 21 / Spring Boot 3.1.x 运行环境矩阵和发布前验证要求。
 
 ## [1.0.2] - 2026-05-31
 

@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -39,6 +40,19 @@ class LogicalExpireCacheTemplateTest {
             .build())
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("physicalTtl must be greater than logicalTtl");
+    }
+
+    @Test
+    void defaultsUseDedicatedBoundedRefreshExecutor() {
+        Executor executor = LogicalExpireCacheOptions.defaults().refreshExecutor();
+
+        assertThat(executor).isInstanceOf(ThreadPoolExecutor.class);
+        ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) executor;
+        Thread thread = threadPoolExecutor.getThreadFactory().newThread(() -> {
+        });
+        assertThat(thread.getName()).startsWith("under-utils-logical-cache-refresh-");
+        assertThat(thread.isDaemon()).isTrue();
+        assertThat(threadPoolExecutor.getQueue().remainingCapacity()).isEqualTo(1024);
     }
 
     @Test

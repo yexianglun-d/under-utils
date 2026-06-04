@@ -34,6 +34,7 @@ class IdGeneratorTest {
         IdGenerator generator = new IdGenerator(1, 1);
         long id = generator.nextId();
         assertThat(id).isPositive();
+        assertThat(generator.isNodeIdFullyConfigured()).isTrue();
     }
 
     @Test
@@ -49,9 +50,55 @@ class IdGeneratorTest {
 
             assertThat(info.getDatacenterId()).isEqualTo(2);
             assertThat(info.getWorkerId()).isEqualTo(3);
+            assertThat(generator.isDatacenterIdConfigured()).isTrue();
+            assertThat(generator.isWorkerIdConfigured()).isTrue();
+            assertThat(generator.isNodeIdFullyConfigured()).isTrue();
         } finally {
             restoreProperty("under.utils.id.datacenter-id", oldDatacenter);
             restoreProperty("under.utils.id.worker-id", oldWorker);
+        }
+    }
+
+    @Test
+    void testConstructor_strictModeRequiresConfiguredNodeIds() {
+        String oldDatacenter = System.getProperty("under.utils.id.datacenter-id");
+        String oldWorker = System.getProperty("under.utils.id.worker-id");
+        String oldRequire = System.getProperty("under.utils.id.require-configured-node-id");
+        try {
+            System.clearProperty("under.utils.id.datacenter-id");
+            System.clearProperty("under.utils.id.worker-id");
+            System.setProperty("under.utils.id.require-configured-node-id", "true");
+
+            assertThatThrownBy(IdGenerator::new)
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("requires explicit datacenter and worker IDs");
+        } finally {
+            restoreProperty("under.utils.id.datacenter-id", oldDatacenter);
+            restoreProperty("under.utils.id.worker-id", oldWorker);
+            restoreProperty("under.utils.id.require-configured-node-id", oldRequire);
+        }
+    }
+
+    @Test
+    void testConstructor_strictModeAllowsConfiguredNodeIds() {
+        String oldDatacenter = System.getProperty("under.utils.id.datacenter-id");
+        String oldWorker = System.getProperty("under.utils.id.worker-id");
+        String oldRequire = System.getProperty("under.utils.id.require-configured-node-id");
+        try {
+            System.setProperty("under.utils.id.datacenter-id", "4");
+            System.setProperty("under.utils.id.worker-id", "5");
+            System.setProperty("under.utils.id.require-configured-node-id", "true");
+
+            IdGenerator generator = new IdGenerator();
+            IdGenerator.IdInfo info = generator.parseId(generator.nextId());
+
+            assertThat(info.getDatacenterId()).isEqualTo(4);
+            assertThat(info.getWorkerId()).isEqualTo(5);
+            assertThat(generator.isNodeIdFullyConfigured()).isTrue();
+        } finally {
+            restoreProperty("under.utils.id.datacenter-id", oldDatacenter);
+            restoreProperty("under.utils.id.worker-id", oldWorker);
+            restoreProperty("under.utils.id.require-configured-node-id", oldRequire);
         }
     }
 

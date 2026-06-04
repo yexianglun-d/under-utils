@@ -151,8 +151,7 @@ class AESUtilsTest {
 
         String encrypted = AESUtils.encrypt(plainText, key1, iv);
 
-        assertThatThrownBy(() -> AESUtils.decrypt(encrypted, key2, iv))
-                .isInstanceOf(RuntimeException.class);
+        assertDecryptFailsOrDiffers(encrypted, key2, iv, plainText);
     }
 
     @Test
@@ -164,8 +163,7 @@ class AESUtilsTest {
 
         String encrypted = AESUtils.encrypt(plainText, key, iv1);
 
-        assertThatThrownBy(() -> AESUtils.decrypt(encrypted, key, iv2))
-                .isInstanceOf(RuntimeException.class);
+        assertDecryptFailsOrDiffers(encrypted, key, iv2, plainText);
     }
 
     // ==================== ECB 模式测试 ====================
@@ -276,5 +274,13 @@ class AESUtilsTest {
         System.out.println("AES 加解密 " + count + " 次耗时: " + duration + "ms");
 
         assertThat(duration).isLessThan(5000);
+    }
+
+    private static void assertDecryptFailsOrDiffers(String cipherText, String key, String iv, String plainText) {
+        try {
+            assertThat(AESUtils.decrypt(cipherText, key, iv)).isNotEqualTo(plainText);
+        } catch (RuntimeException expected) {
+            assertThat(expected).hasMessageContaining("AES decryption failed");
+        }
     }
 }

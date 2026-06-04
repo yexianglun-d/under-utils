@@ -24,12 +24,16 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
 
     private static final char DEFAULT_DELIMITER = ',';
     private static final char DEFAULT_QUOTE = '"';
+    private static final char UTF8_BOM = '\ufeff';
+    private static final int DEFAULT_MAX_RECORD_CHARS = 1024 * 1024;
 
     private final Reader reader;
     private final boolean hasHeader;
     private final char delimiter;
     private final char quote;
     private final BlankRowPolicy blankRowPolicy;
+    private final boolean strictQuotes;
+    private final int maxRecordChars;
 
     private boolean iteratorCreated;
     private boolean closed;
@@ -43,6 +47,8 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
         this.delimiter = builder.delimiter;
         this.quote = builder.quote;
         this.blankRowPolicy = builder.blankRowPolicy;
+        this.strictQuotes = builder.strictQuotes;
+        this.maxRecordChars = builder.maxRecordChars;
     }
 
     /**
@@ -94,6 +100,7 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
         boolean fieldStarted = false;
         boolean recordHasCharacter = false;
         int recordStartLine = lineNumber;
+        int recordCharCount = 0;
 
         while (true) {
             int ch = readChar();
@@ -102,11 +109,22 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
                 if (!recordHasCharacter && !fieldStarted && values.isEmpty()) {
                     return null;
                 }
+                if (inQuotes && strictQuotes) {
+                    throw malformedRecord(recordStartLine, "quoted field is not closed");
+                }
                 values.add(field.toString());
                 return new RawCsvRecord(recordStartLine, values);
             }
+            if (recordStartLine == 1 && !recordHasCharacter && !fieldStarted && values.isEmpty()
+                    && ch == UTF8_BOM) {
+                continue;
+            }
 
             recordHasCharacter = true;
+            recordCharCount++;
+            if (recordCharCount > maxRecordChars) {
+                throw malformedRecord(recordStartLine, "record length exceeds " + maxRecordChars + " characters");
+            }
 
             if (inQuotes) {
                 if (ch == quote) {
@@ -138,6 +156,12 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
                     values.add(field.toString());
                     return new RawCsvRecord(recordStartLine, values);
                 }
+                if (strictQuotes) {
+                    if (Character.isWhitespace(ch)) {
+                        continue;
+                    }
+                    throw malformedRecord(recordStartLine, "unexpected character after closing quote");
+                }
                 field.append((char) ch);
                 quoteClosed = false;
                 fieldStarted = true;
@@ -159,10 +183,17 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
                 values.add(field.toString());
                 return new RawCsvRecord(recordStartLine, values);
             }
+            if (strictQuotes && ch == quote) {
+                throw malformedRecord(recordStartLine, "quote must be the first character of a quoted field");
+            }
 
             field.append((char) ch);
             fieldStarted = true;
         }
+    }
+
+    private ImportTaskException malformedRecord(int recordStartLine, String reason) {
+        return new ImportTaskException("Malformed CSV record at line " + recordStartLine + ": " + reason);
     }
 
     private int readChar() throws IOException {
@@ -230,6 +261,8 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
         private char delimiter = DEFAULT_DELIMITER;
         private char quote = DEFAULT_QUOTE;
         private BlankRowPolicy blankRowPolicy = BlankRowPolicy.KEEP;
+        private boolean strictQuotes = true;
+        private int maxRecordChars = DEFAULT_MAX_RECORD_CHARS;
 
         private Builder(Reader reader) {
             this.reader = Objects.requireNonNull(reader, "reader must not be null");
@@ -276,6 +309,31 @@ public final class CsvImportRowReader implements ImportRowReader<CsvRow> {
          */
         public Builder blankRowPolicy(BlankRowPolicy blankRowPolicy) {
             this.blankRowPolicy = Objects.requireNonNull(blankRowPolicy, "blankRowPolicy must not be null");
+            return this;
+        }
+
+        /**
+         * 设置是否严格校验 CSV 引号语法。
+         *
+         * @param strictQuotes true 表示遇到未闭合引号或闭合引号后的非法字符时立即失败
+         * @return 当前构建器
+         */
+        public Builder strictQuotes(boolean strictQuotes) {
+            this.strictQuotes = strictQuotes;
+            return this;
+        }
+
+        /**
+         * 设置单条 CSV 记录允许的最大字符数，用于防止异常大行耗尽内存。
+         *
+         * @param maxRecordChars 最大字符数
+         * @return 当前构建器
+         */
+        public Builder maxRecordChars(int maxRecordChars) {
+            if (maxRecordChars <= 0) {
+                throw new IllegalArgumentException("maxRecordChars must be greater than 0");
+            }
+            this.maxRecordChars = maxRecordChars;
             return this;
         }
 

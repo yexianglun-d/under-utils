@@ -98,6 +98,8 @@ public class UnderUtilsAiAutoConfiguration {
                         clientProperties == null ? null : clientProperties.getChatCompletionsPath()))
                 .timeout(clientProperties == null || clientProperties.getTimeout() == null
                         ? properties.getTimeout() : clientProperties.getTimeout())
+                .streamReadTimeout(clientProperties == null || clientProperties.getStreamReadTimeout() == null
+                        ? properties.getStreamReadTimeout() : clientProperties.getStreamReadTimeout())
                 .maxRetries(clientProperties == null || clientProperties.getMaxRetries() == null
                         ? properties.getMaxRetries() : clientProperties.getMaxRetries())
                 .retryInterval(clientProperties == null || clientProperties.getRetryInterval() == null

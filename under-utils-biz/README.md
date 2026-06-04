@@ -80,6 +80,22 @@ try (Reader reader = Files.newBufferedReader(path)) {
 
 CSV 解析保持小而可预测。Excel、大文件流式导入等场景，建议业务项目自行解析文件，再把行数据交给 `ImportTaskTemplate`。
 
+默认 CSV reader 会：
+
+- 自动忽略文件开头的 UTF-8 BOM。
+- 严格校验引号语法，未闭合引号或闭合引号后的非法字符会抛出 `ImportTaskException`。
+- 限制单条记录最大字符数，默认 1 MiB，避免异常大行耗尽内存。
+
+需要兼容历史宽松引号文件时，可以显式关闭严格模式；处理可信内部文件且单行较大时，可以调高记录长度上限：
+
+```java
+CsvImportRowReader reader = CsvImportRowReader.builder(source)
+        .hasHeader(true)
+        .strictQuotes(false)
+        .maxRecordChars(2 * 1024 * 1024)
+        .build();
+```
+
 ## 异步导入
 
 `AsyncImportTaskTemplate` 使用业务传入的 `Executor` 执行后台导入，并在当前 JVM 内保存任务进度、完成结果或任务级失败。

@@ -3,7 +3,11 @@ package com.undernine.utils.redis.cache;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 逻辑过期缓存模板配置。
@@ -24,7 +28,8 @@ public final class LogicalExpireCacheOptions {
     private static final Duration DEFAULT_PHYSICAL_TTL = Duration.ofMinutes(30);
     private static final Duration DEFAULT_LOCK_WAIT_TIME = Duration.ofSeconds(1);
     private static final Duration DEFAULT_LOCK_LEASE_TIME = Duration.ofSeconds(30);
-    private static final Executor DEFAULT_REFRESH_EXECUTOR = ForkJoinPool.commonPool();
+    private static final int DEFAULT_REFRESH_QUEUE_CAPACITY = 1024;
+    private static final Executor DEFAULT_REFRESH_EXECUTOR = createDefaultRefreshExecutor();
 
     private final Duration logicalTtl;
     private final Duration physicalTtl;
@@ -138,6 +143,30 @@ public final class LogicalExpireCacheOptions {
         if (physicalTtl.compareTo(logicalTtl) <= 0) {
             throw new IllegalArgumentException("physicalTtl must be greater than logicalTtl");
         }
+    }
+
+    private static Executor createDefaultRefreshExecutor() {
+        int threadCount = Math.max(2, Math.min(Runtime.getRuntime().availableProcessors(), 4));
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+            @Override
+            public Thread newThread(Runnable runnable) {
+                Thread thread = new Thread(runnable,
+                    "under-utils-logical-cache-refresh-" + threadNumber.getAndIncrement());
+                thread.setDaemon(true);
+                return thread;
+            }
+        };
+        return new ThreadPoolExecutor(
+            threadCount,
+            threadCount,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(DEFAULT_REFRESH_QUEUE_CAPACITY),
+            threadFactory,
+            new ThreadPoolExecutor.AbortPolicy()
+        );
     }
 
     /**

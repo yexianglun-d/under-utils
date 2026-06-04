@@ -29,6 +29,8 @@ Spring Boot 自动装配模块，只接入 `under-utils-spring` 的本地横切�
 - local `RateLimitStore`
 - local `RepeatSubmitStore`
 
+默认不会注册 `GlobalExceptionHandler`，避免接管业务已有响应契约。
+
 ## 配置
 
 ```yaml
@@ -38,6 +40,9 @@ under:
       operation-context:
         enabled: true
         task-decorator-enabled: true
+        trusted-identity-headers: false
+      exception-handling:
+        enabled: false
       rate-limit:
         enabled: true
         store: local
@@ -45,6 +50,10 @@ under:
         enabled: true
         store: local
 ```
+
+`trusted-identity-headers` 只有在服务位于可信网关之后，且网关会清洗 `X-User-Id` / `X-Tenant-Id` 时才应开启。
+
+`exception-handling.enabled=true` 后，starter 才会注册 `GlobalExceptionHandler` 并返回 Under-Utils `Result` 响应模型。
 
 ## 退让规则
 

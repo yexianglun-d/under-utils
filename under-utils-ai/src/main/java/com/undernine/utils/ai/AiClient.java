@@ -95,6 +95,17 @@ public interface AiClient {
         }
 
         /**
+         * 设置流式响应读取超时时间。为 0 时表示不限制 SSE 分片读取等待时间。
+         *
+         * @param streamReadTimeout 流式读取超时时间
+         * @return 当前构建器
+         */
+        public Builder streamReadTimeout(Duration streamReadTimeout) {
+            optionsBuilder.streamReadTimeout(streamReadTimeout);
+            return this;
+        }
+
+        /**
          * 设置最大重试次数。
          *
          * @param maxRetries 最大重试次数

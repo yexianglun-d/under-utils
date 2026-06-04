@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CsvImportRowReaderTest {
 
@@ -57,6 +58,69 @@ class CsvImportRowReaderTest {
             assertThat(row.get("name")).isEqualTo("apple");
             assertThat(row.get("quantity")).isEqualTo("10");
         });
+    }
+
+    @Test
+    void read_utf8BomHeader() throws Exception {
+        List<CsvRow> rows = readRows(CsvImportRowReader.builder(new StringReader(
+                "\ufeffname,quantity\napple,10\n"))
+                .hasHeader(true)
+                .build());
+
+        assertThat(rows).singleElement().satisfies(row -> {
+            assertThat(row.getHeaders()).containsExactly("name", "quantity");
+            assertThat(row.get("name")).isEqualTo("apple");
+        });
+    }
+
+    @Test
+    void read_rejectsUnclosedQuotedFieldInStrictMode() {
+        CsvImportRowReader reader = CsvImportRowReader.builder(new StringReader(
+                "name,description\napple,\"fresh\n"))
+                .hasHeader(true)
+                .build();
+
+        assertThatThrownBy(() -> readRows(reader))
+                .isInstanceOf(ImportTaskException.class)
+                .hasMessageContaining("Malformed CSV record at line 2")
+                .hasMessageContaining("quoted field is not closed");
+    }
+
+    @Test
+    void read_rejectsUnexpectedCharacterAfterClosingQuoteInStrictMode() {
+        CsvImportRowReader reader = CsvImportRowReader.builder(new StringReader(
+                "name,description\n\"apple\"bad,10\n"))
+                .hasHeader(true)
+                .build();
+
+        assertThatThrownBy(() -> readRows(reader))
+                .isInstanceOf(ImportTaskException.class)
+                .hasMessageContaining("unexpected character after closing quote");
+    }
+
+    @Test
+    void read_supportsLegacyLooseQuoteParsingWhenStrictModeDisabled() throws Exception {
+        List<CsvRow> rows = readRows(CsvImportRowReader.builder(new StringReader(
+                "name,description\n\"apple\"bad,10\n"))
+                .hasHeader(true)
+                .strictQuotes(false)
+                .build());
+
+        assertThat(rows).singleElement().satisfies(row ->
+                assertThat(row.get("name")).isEqualTo("applebad"));
+    }
+
+    @Test
+    void read_rejectsOversizedRecord() {
+        CsvImportRowReader reader = CsvImportRowReader.builder(new StringReader(
+                "name\napple\n"))
+                .hasHeader(true)
+                .maxRecordChars(3)
+                .build();
+
+        assertThatThrownBy(() -> readRows(reader))
+                .isInstanceOf(ImportTaskException.class)
+                .hasMessageContaining("record length exceeds 3 characters");
     }
 
     @Test

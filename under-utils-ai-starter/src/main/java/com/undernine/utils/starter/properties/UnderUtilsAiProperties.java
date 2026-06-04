@@ -57,6 +57,11 @@ public class UnderUtilsAiProperties {
     private Duration timeout = Duration.ofSeconds(30);
 
     /**
+     * 流式响应读取超时时间。0 表示不限制 SSE 分片读取等待时间。
+     */
+    private Duration streamReadTimeout = Duration.ZERO;
+
+    /**
      * 最大重试次数。
      */
     private int maxRetries = 0;
@@ -150,6 +155,14 @@ public class UnderUtilsAiProperties {
         this.timeout = timeout;
     }
 
+    public Duration getStreamReadTimeout() {
+        return streamReadTimeout;
+    }
+
+    public void setStreamReadTimeout(Duration streamReadTimeout) {
+        this.streamReadTimeout = streamReadTimeout;
+    }
+
     public int getMaxRetries() {
         return maxRetries;
     }
@@ -234,6 +247,11 @@ public class UnderUtilsAiProperties {
         private Duration timeout;
 
         /**
+         * 流式响应读取超时时间。为空时继承顶层 stream-read-timeout。
+         */
+        private Duration streamReadTimeout;
+
+        /**
          * 最大重试次数。为空时继承顶层 max-retries。
          */
         private Integer maxRetries;
@@ -304,6 +322,14 @@ public class UnderUtilsAiProperties {
 
         public void setTimeout(Duration timeout) {
             this.timeout = timeout;
+        }
+
+        public Duration getStreamReadTimeout() {
+            return streamReadTimeout;
+        }
+
+        public void setStreamReadTimeout(Duration streamReadTimeout) {
+            this.streamReadTimeout = streamReadTimeout;
         }
 
         public Integer getMaxRetries() {

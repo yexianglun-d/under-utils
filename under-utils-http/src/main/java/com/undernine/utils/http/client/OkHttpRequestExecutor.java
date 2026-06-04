@@ -19,9 +19,14 @@ import okhttp3.*;
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 public class OkHttpRequestExecutor {
 
     private static final ObjectMapper JSON_MAPPER = createJsonMapper();
+    private static final Map<ClientKey, okhttp3.OkHttpClient> CLIENT_CACHE = new ConcurrentHashMap<>();
 
     /**
      * OkHttp 客户端实例
@@ -56,8 +62,13 @@ public class OkHttpRequestExecutor {
      * @param config HTTP 配置
      */
     public OkHttpRequestExecutor(HttpConfig config) {
-        this.config = config;
-        this.client = buildClient(config);
+        this.config = Objects.requireNonNull(config, "config must not be null");
+        this.client = sharedClient(this.config);
+    }
+
+    private static okhttp3.OkHttpClient sharedClient(HttpConfig config) {
+        ClientKey key = ClientKey.from(config);
+        return CLIENT_CACHE.computeIfAbsent(key, ignored -> buildClient(config));
     }
 
     /**
@@ -66,7 +77,7 @@ public class OkHttpRequestExecutor {
      * @param config HTTP 配置
      * @return OkHttp 客户端实例
      */
-    private okhttp3.OkHttpClient buildClient(HttpConfig config) {
+    private static okhttp3.OkHttpClient buildClient(HttpConfig config) {
         okhttp3.OkHttpClient.Builder builder = new okhttp3.OkHttpClient.Builder()
                 .connectTimeout(config.getConnectTimeout(), TimeUnit.MILLISECONDS)
                 .readTimeout(config.getReadTimeout(), TimeUnit.MILLISECONDS)
@@ -107,7 +118,7 @@ public class OkHttpRequestExecutor {
      *
      * @param builder OkHttp 构建器
      */
-    private void configureTrustAllSsl(okhttp3.OkHttpClient.Builder builder) {
+    private static void configureTrustAllSsl(okhttp3.OkHttpClient.Builder builder) {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
                     new X509TrustManager() {
@@ -152,7 +163,7 @@ public class OkHttpRequestExecutor {
         HttpException lastException = null;
         for (int i = 0; i <= retries; i++) {
             try {
-                return executeRequest(request);
+                return executeRequest(httpRequest, request);
             } catch (HttpTimeoutException | HttpNetworkException e) {
                 lastException = e;
                 if (i < retries) {
@@ -172,18 +183,95 @@ public class OkHttpRequestExecutor {
     }
 
     /**
+     * 以流式方式下载响应体到文件。
+     *
+     * @param httpRequest HTTP 请求对象
+     * @param targetFile  目标文件
+     * @return 仅包含状态码和响应头的 HTTP 响应
+     */
+    public HttpResponse download(HttpRequest httpRequest, File targetFile) {
+        Request request = buildRequest(httpRequest);
+
+        int retries = httpRequest.getMaxRetries() != null ?
+                httpRequest.getMaxRetries() : config.getMaxRetries();
+
+        HttpException lastException = null;
+        for (int i = 0; i <= retries; i++) {
+            try {
+                return executeDownloadRequest(httpRequest, request, targetFile);
+            } catch (HttpTimeoutException | HttpNetworkException e) {
+                lastException = e;
+                if (i < retries) {
+                    log.warn("Download failed, retrying... ({}/{})", i + 1, retries);
+                    try {
+                        Thread.sleep(config.getRetryInterval());
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new HttpException("Download interrupted", ie);
+                    }
+                }
+            }
+        }
+
+        throw lastException != null ? lastException :
+                new HttpException("Download failed after " + retries + " retries");
+    }
+
+    /**
      * 执行请求
      *
      * @param request OkHttp 请求对象
      * @return HTTP 响应
      */
-    private HttpResponse executeRequest(Request request) {
-        try (Response response = client.newCall(request).execute()) {
+    private HttpResponse executeRequest(HttpRequest httpRequest, Request request) {
+        Call call = client.newCall(request);
+        applyCallTimeout(httpRequest, call);
+        try (Response response = call.execute()) {
             return buildResponse(response);
-        } catch (java.net.SocketTimeoutException e) {
+        } catch (InterruptedIOException e) {
             throw new HttpTimeoutException("Request timeout", e);
         } catch (IOException e) {
             throw new HttpNetworkException("Network error", e);
+        }
+    }
+
+    private HttpResponse executeDownloadRequest(HttpRequest httpRequest, Request request, File targetFile) {
+        Call call = client.newCall(request);
+        applyCallTimeout(httpRequest, call);
+        try (Response response = call.execute()) {
+            ResponseBody responseBody = response.body();
+            if (responseBody == null) {
+                throw new HttpNetworkException("Response body is empty");
+            }
+            prepareTargetFile(targetFile);
+            Files.copy(responseBody.byteStream(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return HttpResponse.builder()
+                    .statusCode(response.code())
+                    .headers(extractHeaders(response))
+                    .build();
+        } catch (InterruptedIOException e) {
+            throw new HttpTimeoutException("Request timeout", e);
+        } catch (IOException e) {
+            throw new HttpNetworkException("Network error", e);
+        }
+    }
+
+    private void applyCallTimeout(HttpRequest httpRequest, Call call) {
+        Integer timeout = httpRequest.getTimeout();
+        if (timeout == null) {
+            return;
+        }
+        if (timeout < 0) {
+            throw new IllegalArgumentException("timeout must not be negative");
+        }
+        call.timeout().timeout(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    private void prepareTargetFile(File targetFile) throws IOException {
+        Objects.requireNonNull(targetFile, "targetFile must not be null");
+        File parentDir = targetFile.getParentFile();
+        if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
+            throw new IOException("Failed to create parent directory: " + parentDir);
         }
     }
 
@@ -391,10 +479,6 @@ public class OkHttpRequestExecutor {
      * @throws IOException 如果读取响应体失败
      */
     private HttpResponse buildResponse(Response response) throws IOException {
-        // 提取响应头
-        Map<String, String> headers = new HashMap<>();
-        response.headers().forEach(pair -> headers.put(pair.getFirst(), pair.getSecond()));
-
         // 读取响应体
         byte[] bodyBytes = null;
         String bodyString = null;
@@ -406,9 +490,40 @@ public class OkHttpRequestExecutor {
 
         return HttpResponse.builder()
                 .statusCode(response.code())
-                .headers(headers)
+                .headers(extractHeaders(response))
                 .body(bodyString)
                 .bodyBytes(bodyBytes)
                 .build();
+    }
+
+    private Map<String, String> extractHeaders(Response response) {
+        Map<String, String> headers = new HashMap<>();
+        response.headers().forEach(pair -> headers.put(pair.getFirst(), pair.getSecond()));
+        return headers;
+    }
+
+    private record ClientKey(int connectTimeout,
+                             int readTimeout,
+                             int writeTimeout,
+                             boolean followRedirects,
+                             boolean retryOnConnectionFailure,
+                             int maxConnections,
+                             long keepAliveTime,
+                             boolean loggingEnabled,
+                             boolean verifySsl) {
+
+        private static ClientKey from(HttpConfig config) {
+            return new ClientKey(
+                    config.getConnectTimeout(),
+                    config.getReadTimeout(),
+                    config.getWriteTimeout(),
+                    config.isFollowRedirects(),
+                    config.getMaxRetries() > 0,
+                    config.getMaxConnections(),
+                    config.getKeepAliveTime(),
+                    config.isLoggingEnabled(),
+                    config.isVerifySsl()
+            );
+        }
     }
 }

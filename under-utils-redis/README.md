@@ -116,6 +116,9 @@ ProductView view = logicalExpireCacheTemplate.cache("product:view:" + productId,
 - 逻辑过期时立即返回旧值，并提交后台刷新。
 - `physicalTtl` 必须大于 `logicalTtl`，否则旧值无法作为兜底窗口。
 - 配置 `LogicalExpireCacheRefreshFailureHandler` 后，后台刷新失败会回调处理器。
+- 未显式配置 `refreshExecutor` 时，默认使用独立有界 daemon 线程池，不占用 `ForkJoinPool.commonPool()`。
+
+生产环境仍建议按业务吞吐和下游容量显式传入 `refreshExecutor`，避免热点 key 刷新任务和应用其他后台任务互相影响。
 
 ## 限流和防重复提交 store
 

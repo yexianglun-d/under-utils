@@ -2,7 +2,7 @@
 
 AI 大模型基础调用封装模块，提供 OpenAI-compatible 文本对话客户端。
 
-本模块目标是让业务项目只配置模型服务的基础参数，就能完成最常见的同步文本对话和 SSE 流式对话调用；它不是 Agent 框架，也不覆盖工具调用、RAG、向量数据库或厂商私有全部参数。
+本模块目标是让业务项目只配置模型服务的基础参数，就能完成最常见的同步文本对话和 SSE 流式对话调用；它不是 Agent 框架，也不覆盖 RAG、向量数据库或厂商私有全部协议。
 
 ## 依赖
 
@@ -22,6 +22,7 @@ AiClient aiClient = AiClient.builder()
         .apiKey(apiKey)
         .model("your-model-name")
         .timeout(Duration.ofSeconds(30))
+        .streamReadTimeout(Duration.ZERO)
         .build();
 
 ChatResponse response = aiClient.chat(ChatRequest.user("请总结这段文本"));
@@ -63,6 +64,8 @@ try (ChatStream stream = streamingClient.streamChat(ChatRequest.user("请逐步�
 
 流式请求会在请求体中写入 `"stream": true`，并读取 `data:` SSE 分片。`ChatStreamEvent` 暴露增量文本、角色、结束原因、token 用量和元数据；连接中断、超时、HTTP 错误和分片解析失败都会映射为 `AiException`。
 
+`timeout` 控制连接、普通同步请求读写和流式写入超时；`streamReadTimeout` 只控制 SSE 分片读取等待时间。默认值为 `Duration.ZERO`，表示不限制长连接分片等待，避免模型长时间思考或低频输出时被普通 read timeout 提前断开。
+
 ## 多轮消息
 
 ```java
@@ -86,6 +89,36 @@ ChatRequest request = ChatRequest.builder()
         .extraBody("top_p", 0.9D)
         .build();
 ```
+
+## 原生消息和工具参数
+
+文本 helper 无法表达多模态 content 数组、tool 结果或厂商兼容扩展时，可以使用 OpenAI-compatible 原生消息结构。原生消息不能和 `.user()`、`.system()` 等 typed message helper 混用，避免消息顺序语义不清。
+
+```java
+ChatRequest request = ChatRequest.builder()
+        .nativeMessage(Map.of(
+                "role", "user",
+                "content", List.of(Map.of(
+                        "type", "text",
+                        "text", "请按 JSON 输出"
+                ))
+        ))
+        .tool(Map.of(
+                "type", "function",
+                "function", Map.of(
+                        "name", "lookup_order",
+                        "parameters", Map.of("type", "object")
+                )
+        ))
+        .toolChoice(Map.of(
+                "type", "function",
+                "function", Map.of("name", "lookup_order")
+        ))
+        .responseFormat(Map.of("type", "json_object"))
+        .build();
+```
+
+当模型返回 `tool_calls` 或 `function_call` 且 `content=null` 时，`ChatResponse.text()` 返回空字符串，原始 assistant 消息可通过 `response.getRawMessage()` 读取。本模块只负责兼容协议传输和基础解析，工具执行编排仍由业务侧负责。
 
 ## 多客户端注册表
 
@@ -182,6 +215,6 @@ AiClient client = AiClient.builder()
 ## 当前限制
 
 - 流式响应只覆盖 OpenAI-compatible SSE，不封装 WebSocket 或厂商私有流式协议。
-- 不封装工具调用、函数调用、Agent 工作流和多步骤推理。
+- 支持 tools/function calling 参数透传和原始响应读取，但不负责工具执行、Agent 工作流和多步骤推理。
 - 默认不引入具体厂商 SDK；厂商原生协议应通过业务侧 `AiClientProvider` 扩展。
 - Spring Boot 自动装配已放入独立 `under-utils-ai-starter`，不会被 `under-utils-starter` 聚合引入。

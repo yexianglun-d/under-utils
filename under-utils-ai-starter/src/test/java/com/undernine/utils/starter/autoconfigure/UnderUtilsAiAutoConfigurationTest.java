@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -186,6 +187,37 @@ class UnderUtilsAiAutoConfigurationTest {
                     assertThat(context).hasSingleBean(AiClientRegistry.class);
                     assertThat(context.getBean(AiClient.class).chat(ChatRequest.user("hello")).text())
                             .isEqualTo("custom-provider");
+                });
+    }
+
+    @Test
+    void shouldBindStreamReadTimeout() {
+        AiClientProvider customProvider = new AiClientProvider() {
+            @Override
+            public String provider() {
+                return "native-vendor";
+            }
+
+            @Override
+            public AiClient create(AiClientOptions options) {
+                return request -> new ChatResponse(options.getStreamReadTimeout().toString(),
+                        options.getModel(), "stop", "custom-002", null);
+            }
+        };
+
+        contextRunner
+                .withBean(AiClientProvider.class, () -> customProvider)
+                .withPropertyValues(
+                        "under.utils.ai.enabled=true",
+                        "under.utils.ai.provider=native-vendor",
+                        "under.utils.ai.base-url=https://api.example.com/v1",
+                        "under.utils.ai.model=native-model",
+                        "under.utils.ai.stream-read-timeout=12s"
+                )
+                .run(context -> {
+                    assertThat(context).hasSingleBean(AiClient.class);
+                    assertThat(context.getBean(AiClient.class).chat(ChatRequest.user("hello")).text())
+                            .isEqualTo(Duration.ofSeconds(12).toString());
                 });
     }
 

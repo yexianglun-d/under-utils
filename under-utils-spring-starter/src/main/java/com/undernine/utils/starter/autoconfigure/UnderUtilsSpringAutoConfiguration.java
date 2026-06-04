@@ -11,6 +11,7 @@ import com.undernine.utils.spring.context.OperationContextCustomizer;
 import com.undernine.utils.spring.context.OperationContextFilter;
 import com.undernine.utils.spring.context.OperationContextTaskDecorator;
 import com.undernine.utils.spring.context.TraceIdProvider;
+import com.undernine.utils.spring.exception.GlobalExceptionHandler;
 import com.undernine.utils.spring.key.DefaultOperationKeyResolver;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
@@ -44,14 +45,16 @@ public class UnderUtilsSpringAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public CurrentUserProvider currentUserProvider() {
-        return new DefaultCurrentUserProvider();
+    public CurrentUserProvider currentUserProvider(UnderUtilsProperties properties) {
+        return new DefaultCurrentUserProvider(
+                properties.getWeb().getOperationContext().isTrustedIdentityHeaders());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public CurrentTenantProvider currentTenantProvider() {
-        return new DefaultCurrentTenantProvider();
+    public CurrentTenantProvider currentTenantProvider(UnderUtilsProperties properties) {
+        return new DefaultCurrentTenantProvider(
+                properties.getWeb().getOperationContext().isTrustedIdentityHeaders());
     }
 
     @Bean
@@ -71,8 +74,11 @@ public class UnderUtilsSpringAutoConfiguration {
     @ConditionalOnMissingBean
     @ConditionalOnClass(OperationContextFilter.class)
     @ConditionalOnProperty(prefix = "under.utils.web.operation-context", name = "enabled", havingValue = "true", matchIfMissing = true)
-    public OperationContextFilter operationContextFilter(Collection<OperationContextCustomizer> customizers) {
-        return new OperationContextFilter(customizers);
+    public OperationContextFilter operationContextFilter(Collection<OperationContextCustomizer> customizers,
+                                                         UnderUtilsProperties properties) {
+        return new OperationContextFilter(
+                customizers,
+                properties.getWeb().getOperationContext().isTrustedIdentityHeaders());
     }
 
     @Bean
@@ -98,6 +104,15 @@ public class UnderUtilsSpringAutoConfiguration {
             matchIfMissing = true)
     public OperationContextTaskDecorator operationContextTaskDecorator() {
         return new OperationContextTaskDecorator();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "under.utils.web.exception-handling",
+            name = "enabled",
+            havingValue = "true")
+    public GlobalExceptionHandler globalExceptionHandler() {
+        return new GlobalExceptionHandler();
     }
 
     @Bean

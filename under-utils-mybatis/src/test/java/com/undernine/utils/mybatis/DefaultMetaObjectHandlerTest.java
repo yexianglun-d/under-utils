@@ -1,6 +1,7 @@
 package com.undernine.utils.mybatis;
 
 import com.undernine.utils.mybatis.handler.DefaultMetaObjectHandler;
+import com.undernine.utils.mybatis.handler.AuditFillOptions;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * DefaultMetaObjectHandler 测试
@@ -89,6 +91,58 @@ class DefaultMetaObjectHandlerTest {
 
         assertThat(entity.get("createBy")).isEqualTo(777L);
         assertThat(entity.get("updateBy")).isEqualTo(777L);
+    }
+
+    @Test
+    @DisplayName("测试自定义审计字段名和未删除值")
+    void testCustomAuditFillOptions() {
+        AuditFillOptions options = AuditFillOptions.builder()
+                .createTimeField("createdAt")
+                .updateTimeField("updatedAt")
+                .createByField("creatorId")
+                .updateByField("updaterId")
+                .deletedField("isDeleted")
+                .notDeletedValue(false)
+                .build();
+        DefaultMetaObjectHandler customHandler = new DefaultMetaObjectHandler(() -> 1001L, options);
+
+        Map<String, Object> entity = new HashMap<>();
+        MetaObject metaObject = SystemMetaObject.forObject(entity);
+
+        customHandler.insertFill(metaObject);
+
+        assertThat(entity.get("createdAt")).isInstanceOf(LocalDateTime.class);
+        assertThat(entity.get("updatedAt")).isInstanceOf(LocalDateTime.class);
+        assertThat(entity.get("creatorId")).isEqualTo(1001L);
+        assertThat(entity.get("updaterId")).isEqualTo(1001L);
+        assertThat(entity.get("isDeleted")).isEqualTo(false);
+        assertThat(entity.get("createTime")).isNull();
+        assertThat(entity.get("deleted")).isNull();
+    }
+
+    @Test
+    @DisplayName("测试可以关闭逻辑删除默认填充")
+    void testDisableDeletedFill() {
+        DefaultMetaObjectHandler customHandler = new DefaultMetaObjectHandler(
+                null, AuditFillOptions.builder().fillDeleted(false).build());
+
+        Map<String, Object> entity = new HashMap<>();
+        MetaObject metaObject = SystemMetaObject.forObject(entity);
+
+        customHandler.insertFill(metaObject);
+
+        assertThat(entity.get("createTime")).isNotNull();
+        assertThat(entity.get("deleted")).isNull();
+    }
+
+    @Test
+    @DisplayName("测试审计字段配置拒绝空字段名")
+    void testRejectBlankAuditFieldName() {
+        assertThatThrownBy(() -> AuditFillOptions.builder()
+                .createTimeField(" ")
+                .build())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("createTimeField must not be blank");
     }
 
     @Test

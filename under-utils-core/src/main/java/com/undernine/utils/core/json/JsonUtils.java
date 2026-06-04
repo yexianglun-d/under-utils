@@ -147,7 +147,8 @@ public final class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(json, clazz);
         } catch (JsonProcessingException e) {
-            throw new JsonException("Failed to deserialize JSON to " + clazz.getName() + ": " + json, e);
+            throw new JsonException("Failed to deserialize JSON to "
+                    + clazz.getName() + " (" + inputSummary(json) + ")", e);
         }
     }
 
@@ -174,8 +175,13 @@ public final class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(json, typeReference);
         } catch (JsonProcessingException e) {
-            throw new JsonException("Failed to deserialize JSON to " + typeReference.getType() + ": " + json, e);
+            throw new JsonException("Failed to deserialize JSON to "
+                    + typeReference.getType() + " (" + inputSummary(json) + ")", e);
         }
+    }
+
+    private static String inputSummary(String json) {
+        return "inputLength=" + json.length();
     }
 
     /**

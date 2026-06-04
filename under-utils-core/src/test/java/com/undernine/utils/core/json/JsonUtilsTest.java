@@ -200,6 +200,19 @@ class JsonUtilsTest {
             .hasMessageContaining("Failed to deserialize JSON");
     }
 
+    @Test
+    void testFromJson_invalidJsonDoesNotExposePayload() {
+        String invalidJson = "{\"password\":\"secret-token\",\"age\":}";
+
+        Throwable throwable = catchThrowable(() -> JsonUtils.fromJson(invalidJson, User.class));
+
+        assertThat(throwable)
+                .isInstanceOf(JsonException.class)
+                .hasMessageContaining("inputLength=")
+                .hasMessageNotContaining("secret-token")
+                .hasMessageNotContaining(invalidJson);
+    }
+
     // ==================== fromJson(String, TypeReference) 测试 ====================
 
     @Test
@@ -228,6 +241,20 @@ class JsonUtilsTest {
     void testFromJson_typeReference_null() {
         List<User> users = JsonUtils.fromJson(null, new TypeReference<List<User>>() {});
         assertThat(users).isNull();
+    }
+
+    @Test
+    void testFromJson_typeReferenceInvalidJsonDoesNotExposePayload() {
+        String invalidJson = "[{\"password\":\"secret-token\",\"age\":}]";
+
+        Throwable throwable = catchThrowable(() ->
+                JsonUtils.fromJson(invalidJson, new TypeReference<List<User>>() {}));
+
+        assertThat(throwable)
+                .isInstanceOf(JsonException.class)
+                .hasMessageContaining("inputLength=")
+                .hasMessageNotContaining("secret-token")
+                .hasMessageNotContaining(invalidJson);
     }
 
     // ==================== tryToJson() 测试 ====================

@@ -7,7 +7,7 @@
 
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Under-Utils</name>
@@ -74,7 +74,7 @@
         <central.autoPublish>false</central.autoPublish>
         <central.skipPublishing>true</central.skipPublishing>
         <central.waitUntil>validated</central.waitUntil>
-        <api.compat.baseline.version>1.0.3</api.compat.baseline.version>
+        <api.compat.baseline.version>1.0.4</api.compat.baseline.version>
         <japicmp.skip>true</japicmp.skip>
     </properties>
 

@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+暂无。
+
+## [1.0.4] - 2026-06-05
+
 ### 企业级能力
 
 - 新增 `under-utils-mybatis-starter`，按 `under.utils.mybatis.*` 自动装配 MyBatis-Plus interceptor 和默认审计字段填充处理器，并在用户已有同类型 Bean 时退让；该 starter 不进入旧聚合 `under-utils-starter`。
@@ -33,12 +37,12 @@
 
 ### 构建验证
 
-- CI 的 `api-compat` 检查模块列表补齐 `under-utils-ai` 和 `under-utils-ai-starter`，继续以 `1.0.3` 作为 `1.0.4-SNAPSHOT` 开发周期的 public API 基线。
-- 新增 `docs/releases/v1.0.4.md` 作为下一版发布说明草稿；当前仅做 `1.0.4-SNAPSHOT` 发布候选准备，不切正式版本、不打 tag、不上传 Maven Central。
+- CI 的 `api-compat` 检查模块列表补齐 `under-utils-ai` 和 `under-utils-ai-starter`，继续以 `1.0.3` 作为 `1.0.4` 的 public API 基线。
+- `docs/releases/v1.0.4.md` 收敛为正式发布说明，记录本地验证、CI 验证、API 兼容性检查和 Maven Central dry-run 验证边界。
 
 ### Changed
 
-- `main` 分支 Maven 版本进入 `1.0.4-SNAPSHOT` 开发周期，`1.0.3` 保持为当前稳定版本。
+- 本轮 `1.0.4-SNAPSHOT` 开发内容收敛为 `1.0.4` 正式发布版本，`1.0.3` 继续作为 API 兼容性基线。
 
 ## [1.0.3] - 2026-06-04
 

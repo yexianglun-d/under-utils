@@ -16,7 +16,7 @@ Under-Utils 是一组面向 Java 21 / Spring Boot 项目的工程模式工具包
 
 这个项目不定位为 Hutool、Apache Commons 或 Guava 的替代品。新增能力应解决可复用的工程问题，并且有明确行为可以测试，例如请求上下文传播、限流、防重复提交、Redis 分布式锁、缓存重建、OpenAPI 客户端治理、AI 模型基础调用、安全分页、审计填充和导入任务流程。
 
-当前稳定版本：`1.0.3`。`main` 分支当前为 `1.0.4-SNAPSHOT` 开发周期。
+当前稳定版本：`1.0.4`。
 
 Maven 坐标使用 GitHub namespace `io.github.yexianglun-d`。Java 包名在 `1.x` 内继续保持
 `com.undernine.utils`，这是为了避免已发布 public API 发生包名级破坏性迁移。
@@ -81,7 +81,7 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 - Spring Boot 3.1.x
 - Docker，仅在运行 Testcontainers 集成测试或 Redis 示例环境时需要
 
-兼容性策略、支持矩阵和发布前验证命令见 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。当前 `1.0.3` 发布说明见 [docs/releases/v1.0.3.md](docs/releases/v1.0.3.md)。
+兼容性策略、支持矩阵和发布前验证命令见 [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md)。当前 `1.0.4` 发布说明见 [docs/releases/v1.0.4.md](docs/releases/v1.0.4.md)。
 
 ## 安装
 
@@ -93,7 +93,7 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
         <dependency>
             <groupId>io.github.yexianglun-d</groupId>
             <artifactId>under-utils-bom</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>

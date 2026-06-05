@@ -162,7 +162,7 @@ Under-Utils 把防重复提交拆成三层：
         <dependency>
             <groupId>io.github.yexianglun-d</groupId>
             <artifactId>under-utils-bom</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>

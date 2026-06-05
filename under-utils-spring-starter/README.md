@@ -10,7 +10,7 @@ Spring Boot 自动装配模块，只接入 `under-utils-spring` 的本地横切�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-spring-starter</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

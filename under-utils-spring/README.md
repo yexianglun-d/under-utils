@@ -10,7 +10,7 @@ Spring Web 支持模块，提供请求上下文传播、限流、防重复提交
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-spring</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

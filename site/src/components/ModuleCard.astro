@@ -5,7 +5,7 @@ import Icon from './Icon.astro';
 const { module, compact = false } = Astro.props as { module: ModuleEntry; compact?: boolean };
 ---
 
-<article class={`module-card${compact ? ' module-card--compact' : ''}`}>
+<article class={`module-card${compact ? ' module-card--compact' : ''}`} data-module-card>
   <div class="module-card__head">
     <div class="module-card__icon">
       <Icon name={module.kind === 'starter' ? 'rocket' : 'package'} size={20} />

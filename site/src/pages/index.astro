@@ -28,25 +28,33 @@ const installCode = `<dependencyManagement>
 
 <SiteShell
   current="home"
+  bodyClass="home-page"
   description="Under-Utils 将 Spring Boot 业务系统里反复出现的上下文传播、限流防重、Redis 缓存、OpenAPI 客户端治理和 AI Client 封装为可测试、可替换、可发布的工程模式组件。"
 >
-  <section class="site-section hero">
+  <section class="site-section hero" data-home-hero>
+    <div class="hero__motion" aria-hidden="true">
+      <span class="hero__beam hero__beam--one"></span>
+      <span class="hero__beam hero__beam--two"></span>
+      <span class="hero__node hero__node--one"></span>
+      <span class="hero__node hero__node--two"></span>
+      <span class="hero__node hero__node--three"></span>
+    </div>
     <div class="hero__copy">
-      <div class="eyebrow"><Icon name="spark" size={16} /> Java 21 / Spring Boot 3.1.x</div>
-      <h1>Under-Utils</h1>
-      <p class="hero__lead">
+      <div class="eyebrow" data-hero-item><Icon name="spark" size={16} /> Java 21 / Spring Boot 3.1.x</div>
+      <h1 data-hero-title>Under-Utils</h1>
+      <p class="hero__lead" data-hero-item>
         把业务系统里反复手写的上下文传播、限流防重、缓存重建、OpenAPI 调用和 AI Client
         收口成可测试、可替换、可发布的 Spring Boot 组件。
       </p>
       <div class="hero__stack" aria-label="核心模块">
-        <span>Context</span>
-        <span>RateLimit</span>
-        <span>Redis Cache</span>
-        <span>OpenAPI</span>
-        <span>AI Client</span>
-        <span>Safe Page</span>
+        <span data-hero-chip>Context</span>
+        <span data-hero-chip>RateLimit</span>
+        <span data-hero-chip>Redis Cache</span>
+        <span data-hero-chip>OpenAPI</span>
+        <span data-hero-chip>AI Client</span>
+        <span data-hero-chip>Safe Page</span>
       </div>
-      <div class="hero__actions">
+      <div class="hero__actions" data-hero-item>
         <a class="button button--primary" href="/docs/">
           <Icon name="book" size={17} />
           快速开始
@@ -60,32 +68,39 @@ const installCode = `<dependencyManagement>
           GitHub
         </a>
       </div>
-      <div class="hero__meta" aria-label="项目版本和运行要求">
+      <div class="hero__meta" aria-label="项目版本和运行要求" data-hero-item>
         <span class="pill pill--success"><Icon name="check" size={14} /> stable {version.stable}</span>
         <span class="pill">snapshot {version.snapshot}</span>
         <span class="pill">Java {version.java}</span>
         <span class="pill">Spring Boot {version.springBoot}</span>
       </div>
     </div>
-    <CodeBlock label="推荐安装：BOM + Spring Starter" language="xml" code={installCode} />
+    <div data-hero-code>
+      <CodeBlock label="推荐安装：BOM + Spring Starter" language="xml" code={installCode} />
+    </div>
   </section>
 
-  <section class="section-band">
+  <section class="section-band section-band--narrative" data-scroll-scene>
     <div class="site-section">
+      <div class="scene-orbit" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
       <div class="section-heading">
-        <h2>先接入这些场景</h2>
+        <h2 data-section-title>先接入这些场景</h2>
         <p>从真实业务系统里最容易写散、最需要统一失败语义的横切能力开始。</p>
       </div>
       <div class="scenario-grid">
-        <div class="scenario-item">
+        <div class="scenario-item" data-scene-card>
           <strong>接口保护</strong>
           <span>统一限流、防重复提交、操作 key 和请求上下文传播。</span>
         </div>
-        <div class="scenario-item">
+        <div class="scenario-item" data-scene-card>
           <strong>Redis 缓存</strong>
           <span>收口 TTL、空值缓存、抖动、重建锁、逻辑过期和观测指标。</span>
         </div>
-        <div class="scenario-item">
+        <div class="scenario-item" data-scene-card>
           <strong>外部调用</strong>
           <span>封装 OpenAPI token 刷新、签名、幂等 header、错误解码和 AI Client。</span>
         </div>
@@ -93,10 +108,10 @@ const installCode = `<dependencyManagement>
     </div>
   </section>
 
-  <section class="section-band">
+  <section class="section-band section-band--modules" data-scroll-scene>
     <div class="site-section">
       <div class="section-heading">
-        <h2>模块</h2>
+        <h2 data-section-title>模块</h2>
       </div>
       <div class="module-grid">
         {primaryModules.map((module) => <ModuleCard module={module} compact />)}
@@ -104,29 +119,37 @@ const installCode = `<dependencyManagement>
     </div>
   </section>
 
-  <section class="section-band">
+  <section class="section-band section-band--paths" data-scroll-scene>
     <div class="site-section">
       <div class="section-heading">
-        <h2>接入路径</h2>
+        <h2 data-section-title>接入路径</h2>
       </div>
       <div class="path-grid">
-        <div class="path-item">
+        <div class="path-item" data-path-item>
           <strong>Spring Boot</strong>
           <code>under-utils-spring-starter</code>
         </div>
-        <div class="path-item">
+        <div class="path-item" data-path-item>
           <strong>Redis</strong>
           <code>under-utils-redis-starter</code>
         </div>
-        <div class="path-item">
+        <div class="path-item" data-path-item>
           <strong>AI</strong>
           <code>under-utils-ai-starter</code>
         </div>
-        <div class="path-item">
+        <div class="path-item" data-path-item>
           <strong>Compat</strong>
           <code>under-utils-starter</code>
         </div>
       </div>
     </div>
   </section>
+
+  <div class="story-progress" aria-hidden="true" data-story-progress>
+    <span></span>
+  </div>
+
+  <script>
+    import '../scripts/homeAnimations';
+  </script>
 </SiteShell>

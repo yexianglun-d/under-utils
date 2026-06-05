@@ -10,7 +10,7 @@ Spring Boot 自动装配模块，为 MyBatis-Plus 项目提供分页插件、乐
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-mybatis-starter</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

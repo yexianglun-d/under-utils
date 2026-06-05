@@ -9,6 +9,9 @@ const payload = JSON.stringify(searchEntries);
   <label class="sr-only" for="site-search">全站搜索</label>
   <Icon name="search" size={17} className="search-box__icon" />
   <input id="site-search" type="search" placeholder="搜索模块、配置、API" autocomplete="off" />
+  <button type="button" class="search-box__clear" aria-label="清空搜索" data-search-clear hidden>
+    <Icon name="x" size={15} />
+  </button>
   <div class="search-box__panel" role="listbox" hidden></div>
   <script type="application/json" data-search-source set:html={payload}></script>
 </div>
@@ -16,9 +19,13 @@ const payload = JSON.stringify(searchEntries);
 <script>
   for (const root of document.querySelectorAll('[data-site-search]')) {
     const input = root.querySelector('input');
+    const clearButton = root.querySelector('[data-search-clear]');
     const panel = root.querySelector('.search-box__panel');
     const sourceNode = root.querySelector('[data-search-source]');
     const entries = JSON.parse(sourceNode?.textContent || '[]');
+    const syncClearButton = () => {
+      if (clearButton) clearButton.hidden = !input?.value;
+    };
 
     const render = (items) => {
       if (!panel) return;
@@ -29,6 +36,7 @@ const payload = JSON.stringify(searchEntries);
             <span>试试 RateLimit、CacheAsideTemplate、AiClient 或 SafePageQuery。</span>
           </div>`;
         panel.hidden = false;
+        panel.dispatchEvent(new CustomEvent('under-utils:search-open', { bubbles: true }));
         return;
       }
 
@@ -41,10 +49,12 @@ const payload = JSON.stringify(searchEntries);
           </a>`)
         .join('');
       panel.hidden = false;
+      panel.dispatchEvent(new CustomEvent('under-utils:search-open', { bubbles: true }));
     };
 
     input?.addEventListener('input', () => {
       const query = input.value.trim().toLowerCase();
+      syncClearButton();
       if (!query) {
         panel.hidden = true;
         return;
@@ -52,10 +62,18 @@ const payload = JSON.stringify(searchEntries);
       render(entries.filter((entry) => entry.text.toLowerCase().includes(query)));
     });
 
+    clearButton?.addEventListener('click', () => {
+      input.value = '';
+      panel.hidden = true;
+      syncClearButton();
+      input?.focus();
+    });
+
     input?.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         input.value = '';
         panel.hidden = true;
+        syncClearButton();
       }
     });
 
@@ -71,5 +89,7 @@ const payload = JSON.stringify(searchEntries);
         panel.hidden = true;
       }
     });
+
+    syncClearButton();
   }
 </script>

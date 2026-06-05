@@ -18,7 +18,7 @@ Under-Utils 通过 Central Publisher Portal 发布到 Maven Central，不使用�
 - `CHANGELOG.md`、README、samples 和 API Review 已反映本次发布。
 - 已按 `docs/COMPATIBILITY.md` 检查兼容性影响，包括 deprecated API 和迁移说明。
 - 已按版本类型准备 Release Notes：patch 版本参考 `docs/release-notes-patch-template.md`，minor 版本参考 `docs/release-notes-minor-template.md`。
-- 当前稳定版发布说明见 `docs/releases/v1.0.3.md`，其中记录了本次发布的能力变化、兼容性和验证结果。
+- 当前稳定版发布说明见 `docs/releases/v1.0.4.md`，其中记录了本次发布的能力变化、兼容性和验证结果。
 - 独立 BOM 版本必须单独检查，不能只看父工程和子模块版本。
 
 不要把 Central token、GPG 私钥、passphrase 或生成的发布 bundle 提交到仓库。

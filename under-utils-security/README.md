@@ -10,7 +10,7 @@
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-security</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ Spring Boot 项目需要按配置创建加密器时使用：
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-security-starter</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

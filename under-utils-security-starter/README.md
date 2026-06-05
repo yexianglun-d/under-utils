@@ -8,7 +8,7 @@ Spring Boot 自动装配模块，用于按配置创建字段级加密器，并�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-security-starter</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 

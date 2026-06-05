@@ -118,13 +118,18 @@ const types = Array.from(new Set(apiItems.map((item) => item.type))).sort();
       const q = query.value.trim().toLowerCase();
       const selectedModule = moduleSelect.value;
       const selectedType = typeSelect.value;
+      const visibleCards = [];
 
       for (const card of cards) {
         const matchesQuery = !q || card.dataset.text.includes(q);
         const matchesModule = !selectedModule || card.dataset.module === selectedModule;
         const matchesType = !selectedType || card.dataset.type === selectedType;
-        card.hidden = !(matchesQuery && matchesModule && matchesType);
+        const visible = matchesQuery && matchesModule && matchesType;
+        card.hidden = !visible;
+        if (visible) visibleCards.push(card);
       }
+
+      document.dispatchEvent(new CustomEvent('under-utils:api-filtered', { detail: { visibleCards } }));
     };
 
     query?.addEventListener('input', applyFilter);

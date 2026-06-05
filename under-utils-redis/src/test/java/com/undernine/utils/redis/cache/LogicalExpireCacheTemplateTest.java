@@ -168,8 +168,12 @@ class LogicalExpireCacheTemplateTest {
         CacheHarness harness = CacheHarness.create();
         ExecutorService refreshExecutor = Executors.newFixedThreadPool(8);
         LogicalExpireCacheTemplate template = new LogicalExpireCacheTemplate(harness.redissonClient());
-        LogicalExpireCacheOptions options = options(refreshExecutor)
+        LogicalExpireCacheOptions staleOptions = options(refreshExecutor)
             .logicalTtl(Duration.ofMillis(10))
+            .lockWaitTime(Duration.ofSeconds(1))
+            .build();
+        LogicalExpireCacheOptions refreshOptions = options(refreshExecutor)
+            .logicalTtl(Duration.ofSeconds(5))
             .lockWaitTime(Duration.ofSeconds(1))
             .build();
         AtomicInteger refreshLoadCount = new AtomicInteger();
@@ -179,12 +183,12 @@ class LogicalExpireCacheTemplateTest {
         CountDownLatch start = new CountDownLatch(1);
         List<Future<String>> futures = new ArrayList<>();
 
-        String oldValue = template.getOrLoad("hot:user:5", String.class, options, key -> "old");
+        String oldValue = template.getOrLoad("hot:user:5", String.class, staleOptions, key -> "old");
         waitUntilLogicallyExpired();
         for (int i = 0; i < threads; i++) {
             futures.add(callers.submit(() -> {
                 start.await();
-                return template.getOrLoad("hot:user:5", String.class, options, key -> {
+                return template.getOrLoad("hot:user:5", String.class, refreshOptions, key -> {
                     refreshLoadCount.incrementAndGet();
                     refreshStarted.countDown();
                     Thread.sleep(80L);

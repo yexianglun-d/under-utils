@@ -50,9 +50,12 @@ public class ApiIndexExtractor {
         ARTIFACT_MODULES.put("under-utils-redis", "redis");
         ARTIFACT_MODULES.put("under-utils-http", "http");
         ARTIFACT_MODULES.put("under-utils-ai", "ai");
+        ARTIFACT_MODULES.put("under-utils-security", "security");
         ARTIFACT_MODULES.put("under-utils-mybatis", "mybatis");
         ARTIFACT_MODULES.put("under-utils-biz", "biz");
         ARTIFACT_MODULES.put("under-utils-ai-starter", "ai-starter");
+        ARTIFACT_MODULES.put("under-utils-security-starter", "security-starter");
+        ARTIFACT_MODULES.put("under-utils-mybatis-starter", "mybatis-starter");
         ARTIFACT_MODULES.put("under-utils-spring-starter", "spring-starter");
         ARTIFACT_MODULES.put("under-utils-redis-starter", "redis-starter");
         ARTIFACT_MODULES.put("under-utils-starter", "starter");

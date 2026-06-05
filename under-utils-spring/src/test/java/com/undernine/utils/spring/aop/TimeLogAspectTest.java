@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Under-Utils Team
  */
 @SpringJUnitConfig(TimeLogAspectTest.TestConfig.class)
+@SuppressWarnings("deprecation")
 class TimeLogAspectTest {
 
     @Autowired

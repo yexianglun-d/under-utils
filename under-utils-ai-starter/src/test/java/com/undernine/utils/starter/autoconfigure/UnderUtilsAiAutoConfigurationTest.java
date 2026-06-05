@@ -20,6 +20,7 @@ import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("deprecation")
 class UnderUtilsAiAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()

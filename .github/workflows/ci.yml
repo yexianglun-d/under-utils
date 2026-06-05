@@ -36,7 +36,7 @@ jobs:
       - name: Check public API compatibility
         run: >
           mvn -B -ntp -Papi-compat
-          -pl under-utils-core,under-utils-http,under-utils-spring,under-utils-redis,under-utils-mybatis,under-utils-biz
+          -pl under-utils-core,under-utils-http,under-utils-ai,under-utils-ai-starter,under-utils-spring,under-utils-redis,under-utils-mybatis,under-utils-biz
           -am
           -DskipTests
           verify

@@ -21,6 +21,7 @@
 | `DistributedLockTemplate` | 在 Redisson lock 下执行回调，并确保释放锁。 |
 | `RedisRateLimitStore` | 分布式 `RateLimitStore` 实现。 |
 | `RedisRepeatSubmitStore` | 分布式 `RepeatSubmitStore` 实现。 |
+| `RedisIdempotencyStore` | 分布式 `IdempotencyStore` 实现，支持执行中状态和完成结果复用。 |
 | `CacheAsideTemplate` | cache-aside 读穿模板，支持空值缓存、TTL 抖动和重建锁。 |
 | `LogicalExpireCacheTemplate` | 热点 key 缓存模板，逻辑过期后先返回旧值并后台刷新。 |
 | `CacheMetrics` | 缓存模板内置指标快照，包含命中、未命中、加载、写入、锁和刷新计数。 |
@@ -120,10 +121,11 @@ ProductView view = logicalExpireCacheTemplate.cache("product:view:" + productId,
 
 生产环境仍建议按业务吞吐和下游容量显式传入 `refreshExecutor`，避免热点 key 刷新任务和应用其他后台任务互相影响。
 
-## 限流和防重复提交 store
+## 限流、防重复提交和业务幂等 store
 
-`RedisRateLimitStore` 和 `RedisRepeatSubmitStore` 实现了 `under-utils-spring` 中的 store 接口。
+`RedisRateLimitStore`、`RedisRepeatSubmitStore` 和 `RedisIdempotencyStore` 实现了 `under-utils-spring` 中的 store 接口。
 `RedisRateLimitStore` 会在同一个 key 的限流参数变化时更新 Redisson limiter 配置，并只在 key 没有 TTL 时设置过期时间。
+`RedisIdempotencyStore` 使用 Redis 原子 set-if-absent 语义写入处理中状态，并使用执行 owner token 条件完成或释放 key；首次成功完成后保存结果并按结果 TTL 复用。
 
 通常由 `under-utils-redis-starter` 在以下配置下装配：
 
@@ -135,6 +137,10 @@ under:
         store: redis
       repeat-submit:
         store: redis
+    idempotent:
+      store: redis
+      processing-ttl: 30s
+      result-ttl: 5m
 ```
 
 Redis 或 Redisson 异常不会被吞掉。如果业务需要 fail-open 或兜底策略，请在应用内提供自定义 store。

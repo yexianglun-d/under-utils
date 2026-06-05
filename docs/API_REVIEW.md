@@ -285,3 +285,19 @@
 - 顶层配置可作为命名客户端默认值，单个客户端可覆盖 provider、base URL、API key、model、chat completions path、timeout、retry、temperature、max tokens 和 headers。
 - 默认客户端仍作为 `AiClient` Bean 暴露，业务代码只需要单模型时无需感知 registry；用户自定义 `AiClient` Bean 时自动装配继续退让。
 - 相关测试覆盖 registry 行为、多客户端自动装配、默认客户端选择、headers 继承、自定义 provider 和缺失/不支持流式客户端的失败语义。
+
+## 第二十七轮结论
+
+### Enterprise Pain Point APIs
+
+- 新增 `under-utils-mybatis-starter`，只自动装配 `MybatisPlusInterceptor` 和 `DefaultMetaObjectHandler`，配置前缀为 `under.utils.mybatis`。starter 不进入旧聚合 `under-utils-starter`，避免已有 Spring/Redis 用户被动引入 MyBatis。
+- `under-utils-mybatis-starter` 所有 Bean 均使用 `@ConditionalOnMissingBean` 退让；多数据源项目仍应由业务自行管理每个 `SqlSessionFactory` 的 interceptor。
+- 新增服务层 `@Idempotent`，与 HTTP 入口层 `@PreventRepeat` 分离。`@Idempotent` 面向 MQ 重试、RPC 重试和跨服务回调；执行中重复调用抛出 `IdempotentInProgressException`，完成后重复调用返回第一次结果。
+- 新增 `IdempotencyStore`、`LocalIdempotencyStore`、`RedisIdempotencyStore` 和 `IdempotencyResultCodec`。本地 store 只保护当前 JVM；多实例部署应使用 Redis store 或自定义 store。失败结果默认不缓存，业务方法抛异常时默认按执行 owner token 释放 key。
+- `IdempotencyStore` 的完成/释放语义带执行 owner token；旧执行在 processing TTL 过期后不能覆盖或释放新执行。业务方法已经成功但完成态写入失败时，不释放 key，避免重复执行业务。
+- `@Idempotent` 显式 SpEL key 解析失败会抛出 `IdempotentKeyResolveException`，不使用兜底 key，避免错误 key 造成业务重复或误挡。
+- 新增 `under.utils.idempotent.*` 配置，支持 `enabled`、`store`、`key-prefix`、`processing-ttl`、`result-ttl`、`local-max-entries` 和 `local-cleanup-interval`。
+- 新增 `under-utils-security` 和 `under-utils-security-starter`。字段级加密只提供 AES-GCM、key provider 和显式 MyBatis TypeHandler；不使用历史 `AESUtils`，不做全局隐式字段加密。
+- `EncryptedStringTypeHandler` 需要实体字段显式声明 `@TableField(typeHandler = EncryptedStringTypeHandler.class)`，并要求 MyBatis-Plus 实体启用 `@TableName(autoResultMap = true)`。
+- 新增 `@Mask`、`MaskType` 和 `MaskingJsonSerializer` 作为 security 模块的响应脱敏 API；`under-utils-spring` 中已有 `@Sensitive` 继续保留兼容，不迁移包名。
+- 新增 `under.utils.security.*` 配置。未配置字段加密 key 或显式设置 `under.utils.security.field-encryption.enabled=false` 时，security starter 不创建默认 `FieldEncryptor`，也不注册 MyBatis TypeHandler 默认加密器。

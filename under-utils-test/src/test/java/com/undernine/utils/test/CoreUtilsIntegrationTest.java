@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 1.0.0
  */
 @DisplayName("核心工具类集成测试")
+@SuppressWarnings("deprecation")
 class CoreUtilsIntegrationTest {
 
     @Test

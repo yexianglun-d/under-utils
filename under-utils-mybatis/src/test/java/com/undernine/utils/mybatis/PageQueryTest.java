@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 1.0.0
  */
 @DisplayName("分页查询测试")
+@SuppressWarnings("deprecation")
 class PageQueryTest {
 
     @Test

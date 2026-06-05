@@ -25,6 +25,7 @@ import static org.mockito.Mockito.*;
  * @author deng
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("deprecation")
 class OperationLogAspectTest {
 
     @InjectMocks

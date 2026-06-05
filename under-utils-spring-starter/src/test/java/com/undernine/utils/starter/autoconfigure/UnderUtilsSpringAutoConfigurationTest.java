@@ -2,6 +2,7 @@ package com.undernine.utils.starter.autoconfigure;
 
 import com.undernine.utils.spring.aspect.PreventRepeatAspect;
 import com.undernine.utils.spring.aspect.RateLimitAspect;
+import com.undernine.utils.spring.aspect.IdempotentAspect;
 import com.undernine.utils.spring.context.CurrentTenantProvider;
 import com.undernine.utils.spring.context.CurrentUserProvider;
 import com.undernine.utils.spring.context.DefaultCurrentTenantProvider;
@@ -10,6 +11,12 @@ import com.undernine.utils.spring.context.OperationContextFilter;
 import com.undernine.utils.spring.context.OperationContextTaskDecorator;
 import com.undernine.utils.spring.context.TraceIdProvider;
 import com.undernine.utils.spring.exception.GlobalExceptionHandler;
+import com.undernine.utils.spring.idempotent.IdempotencyResultCodec;
+import com.undernine.utils.spring.idempotent.IdempotencyExecution;
+import com.undernine.utils.spring.idempotent.IdempotencyException;
+import com.undernine.utils.spring.idempotent.IdempotencyStore;
+import com.undernine.utils.spring.idempotent.IdempotentKeyResolver;
+import com.undernine.utils.spring.idempotent.LocalIdempotencyStore;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
 import com.undernine.utils.spring.ratelimit.RateLimitStore;
@@ -23,6 +30,7 @@ import org.springframework.core.task.TaskDecorator;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * UnderUtilsSpringAutoConfiguration 测试。
@@ -41,16 +49,21 @@ class UnderUtilsSpringAutoConfigurationTest {
             assertThat(context).hasSingleBean(CurrentTenantProvider.class);
             assertThat(context).hasSingleBean(TraceIdProvider.class);
             assertThat(context).hasSingleBean(OperationKeyResolver.class);
+            assertThat(context).hasSingleBean(IdempotentKeyResolver.class);
+            assertThat(context).hasSingleBean(IdempotencyResultCodec.class);
             assertThat(context).hasSingleBean(OperationContextFilter.class);
             assertThat(context).hasSingleBean(OperationContextTaskDecorator.class);
             assertThat(context).hasBean("underUtilsOperationContextFilterRegistration");
             assertThat(context).hasSingleBean(RateLimitStore.class);
             assertThat(context).hasSingleBean(RepeatSubmitStore.class);
+            assertThat(context).hasSingleBean(IdempotencyStore.class);
             assertThat(context).hasSingleBean(RateLimitAspect.class);
             assertThat(context).hasSingleBean(PreventRepeatAspect.class);
+            assertThat(context).hasSingleBean(IdempotentAspect.class);
             assertThat(context).doesNotHaveBean(GlobalExceptionHandler.class);
             assertThat(context.getBean(RateLimitStore.class)).isInstanceOf(LocalRateLimitStore.class);
             assertThat(context.getBean(RepeatSubmitStore.class)).isInstanceOf(LocalRepeatSubmitStore.class);
+            assertThat(context.getBean(IdempotencyStore.class)).isInstanceOf(LocalIdempotencyStore.class);
         });
     }
 
@@ -61,16 +74,23 @@ class UnderUtilsSpringAutoConfigurationTest {
                         "under.utils.web.rate-limit.local-max-entries=1",
                         "under.utils.web.rate-limit.local-cleanup-interval=10ms",
                         "under.utils.web.repeat-submit.local-max-entries=1",
-                        "under.utils.web.repeat-submit.local-cleanup-interval=10ms"
+                        "under.utils.web.repeat-submit.local-cleanup-interval=10ms",
+                        "under.utils.idempotent.local-max-entries=1",
+                        "under.utils.idempotent.local-cleanup-interval=10ms"
                 )
                 .run(context -> {
                     RateLimitStore rateLimitStore = context.getBean(RateLimitStore.class);
                     RepeatSubmitStore repeatSubmitStore = context.getBean(RepeatSubmitStore.class);
+                    IdempotencyStore idempotencyStore = context.getBean(IdempotencyStore.class);
 
                     assertThat(rateLimitStore.tryAcquire("rate:1", 1, Duration.ofSeconds(1))).isTrue();
                     assertThat(rateLimitStore.tryAcquire("rate:2", 1, Duration.ofSeconds(1))).isFalse();
                     assertThat(repeatSubmitStore.acquire("repeat:1", Duration.ofSeconds(1))).isTrue();
                     assertThat(repeatSubmitStore.acquire("repeat:2", Duration.ofSeconds(1))).isFalse();
+                    assertThat(idempotencyStore.begin("idem:1", Duration.ofSeconds(1), String.class).isAcquired())
+                            .isTrue();
+                    assertThatThrownBy(() -> idempotencyStore.begin("idem:2", Duration.ofSeconds(1), String.class))
+                            .isInstanceOf(IdempotencyException.class);
                 });
     }
 
@@ -184,5 +204,39 @@ class UnderUtilsSpringAutoConfigurationTest {
                     assertThat(context.getBean(RepeatSubmitStore.class)).isSameAs(customStore);
                     assertThat(context).hasSingleBean(PreventRepeatAspect.class);
                 });
+    }
+
+    @Test
+    void shouldBackOffIdempotencyStoreWhenUserStoreExists() {
+        IdempotencyStore customStore = new IdempotencyStore() {
+            @Override
+            public IdempotencyExecution begin(String key, Duration processingTtl, java.lang.reflect.Type resultType) {
+                return IdempotencyExecution.acquired();
+            }
+
+            @Override
+            public boolean complete(String key,
+                                    String executionToken,
+                                    Object result,
+                                    java.lang.reflect.Type resultType,
+                                    Duration resultTtl) {
+                return true;
+            }
+        };
+
+        contextRunner
+                .withBean(IdempotencyStore.class, () -> customStore)
+                .run(context -> {
+                    assertThat(context).hasSingleBean(IdempotencyStore.class);
+                    assertThat(context.getBean(IdempotencyStore.class)).isSameAs(customStore);
+                    assertThat(context).hasSingleBean(IdempotentAspect.class);
+                });
+    }
+
+    @Test
+    void shouldDisableIdempotentAspectWhenConfigured() {
+        contextRunner
+                .withPropertyValues("under.utils.idempotent.enabled=false")
+                .run(context -> assertThat(context).doesNotHaveBean(IdempotentAspect.class));
     }
 }

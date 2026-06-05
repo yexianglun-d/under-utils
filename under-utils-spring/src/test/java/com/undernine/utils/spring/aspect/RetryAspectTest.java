@@ -22,6 +22,7 @@ import static org.mockito.Mockito.*;
  * @author deng
  */
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"deprecation", "unchecked"})
 class RetryAspectTest {
 
     @InjectMocks

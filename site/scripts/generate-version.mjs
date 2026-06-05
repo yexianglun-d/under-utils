@@ -27,16 +27,30 @@ await writeFile(output, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 async function latestReleaseVersion() {
   const releaseDir = resolve(root, 'docs/releases');
   const files = await readdir(releaseDir);
-  const versions = files
-    .map((file) => file.match(/^v(\d+\.\d+\.\d+)\.md$/)?.[1])
-    .filter(Boolean)
-    .sort(compareSemver);
+  const versions = [];
+  for (const file of files) {
+    const releaseMatch = file.match(/^v(\d+\.\d+\.\d+)\.md$/);
+    if (!releaseMatch) {
+      continue;
+    }
+    const markdown = await readFile(resolve(releaseDir, file), 'utf8');
+    if (isDraftRelease(markdown)) {
+      continue;
+    }
+    versions.push(releaseMatch[1]);
+  }
+  versions.sort(compareSemver);
 
   if (versions.length > 0) {
     return versions[versions.length - 1];
   }
 
   return version.replace(/-SNAPSHOT$/, '');
+}
+
+function isDraftRelease(markdown) {
+  const title = markdown.match(/^#\s+(.+)$/m)?.[1] ?? '';
+  return title.includes('草稿') || title.toLowerCase().includes('draft');
 }
 
 function compareSemver(left, right) {

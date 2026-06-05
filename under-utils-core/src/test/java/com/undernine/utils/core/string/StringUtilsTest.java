@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 class StringUtilsTest {
 
     @Test

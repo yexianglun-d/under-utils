@@ -2,7 +2,7 @@
 
 Spring Boot 自动装配模块，只接入 `under-utils-spring` 的本地横切能力，不引入 `under-utils-redis` 和 Redisson。
 
-适合只需要请求上下文、限流、防重复提交、操作 key 和本地状态存储的服务。
+适合只需要请求上下文、限流、防重复提交、服务层幂等、操作 key 和本地状态存储的服务。
 
 ## 依赖
 
@@ -22,12 +22,16 @@ Spring Boot 自动装配模块，只接入 `under-utils-spring` 的本地横切�
 - `CurrentTenantProvider`
 - `TraceIdProvider`
 - `OperationKeyResolver`
+- `IdempotentKeyResolver`
+- `IdempotencyResultCodec`
 - `OperationContextFilter`
 - `OperationContextTaskDecorator`
 - `RateLimitAspect`
 - `PreventRepeatAspect`
+- `IdempotentAspect`
 - local `RateLimitStore`
 - local `RepeatSubmitStore`
+- local `IdempotencyStore`
 
 默认不会注册 `GlobalExceptionHandler`，避免接管业务已有响应契约。
 
@@ -50,6 +54,14 @@ under:
       repeat-submit:
         enabled: true
         store: local
+    idempotent:
+      enabled: true
+      store: local
+      key-prefix: "under-utils:idempotent:"
+      processing-ttl: 30s
+      result-ttl: 5m
+      local-max-entries: 100000
+      local-cleanup-interval: 1s
 ```
 
 `trusted-identity-headers` 只有在服务位于可信网关之后，且网关会清洗 `X-User-Id` / `X-Tenant-Id` 时才应开启。
@@ -65,8 +77,11 @@ starter 不会替换业务项目中同角色 Bean。常见退让点：
 - `CurrentTenantProvider`
 - `TraceIdProvider`
 - `OperationKeyResolver`
+- `IdempotentKeyResolver`
 - `TaskDecorator`
 - `RateLimitStore`
 - `RepeatSubmitStore`
+- `IdempotencyStore`
+- `IdempotencyResultCodec`
 
-多实例服务如果需要集群级限流和防重复提交，应使用 `under-utils-redis-starter`，或自行实现 `RateLimitStore` / `RepeatSubmitStore`。
+多实例服务如果需要集群级限流、防重复提交或服务层幂等，应使用 `under-utils-redis-starter`，或自行实现对应 store。

@@ -20,6 +20,7 @@ Spring Boot 自动装配模块，用于接入 `under-utils-redis` 的分布式�
 
 - `RedisRateLimitStore`
 - `RedisRepeatSubmitStore`
+- `RedisIdempotencyStore`
 - `DistributedLockTemplate`
 - `CacheValueCodec`
 - `CacheOptions`
@@ -38,6 +39,10 @@ under:
         store: redis
       repeat-submit:
         store: redis
+    idempotent:
+      store: redis
+      processing-ttl: 30s
+      result-ttl: 5m
     redis:
       lock-enabled: true
       cache:
@@ -60,6 +65,7 @@ starter 不会替换业务项目中同角色 Bean。常见退让点：
 
 - `RateLimitStore`
 - `RepeatSubmitStore`
+- `IdempotencyStore`
 - `DistributedLockTemplate`
 - `CacheValueCodec`
 - `CacheOptions`

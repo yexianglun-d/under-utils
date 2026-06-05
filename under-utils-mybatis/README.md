@@ -14,6 +14,16 @@ MyBatis-Plus 支持模块，提供审计字段、逻辑删除约定、安全分�
 </dependency>
 ```
 
+Spring Boot 项目希望自动装配 MyBatis-Plus interceptor 和默认审计字段填充时，可以使用独立 starter：
+
+```xml
+<dependency>
+    <groupId>io.github.yexianglun-d</groupId>
+    <artifactId>under-utils-mybatis-starter</artifactId>
+    <version>1.0.4-SNAPSHOT</version>
+</dependency>
+```
+
 ## 主要 API
 
 | API | 说明 |

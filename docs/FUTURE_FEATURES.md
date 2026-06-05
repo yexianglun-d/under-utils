@@ -220,6 +220,89 @@ F-001 和 F-002 已经覆盖单个 OpenAI-compatible 客户端的同步与流式
 - 已通过 starter 测试覆盖旧单客户端配置、多命名客户端配置、默认客户端选择、headers 继承、自定义 provider 和用户自定义 `AiClient` 退让。
 - 默认测试仍使用 MockWebServer，不访问外网。
 
+## F-004 MyBatis Starter 零配置入口
+
+状态：`已实现`
+
+### 背景
+
+真实 MyBatis-Plus 项目反复需要配置分页插件、乐观锁、防全表更新删除和审计字段填充。`under-utils-mybatis` 已有能力，但用户仍要手写配置类。
+
+### 目标
+
+- 新增独立 `under-utils-mybatis-starter`。
+- 默认装配 `MybatisPlusInterceptor` 和 `DefaultMetaObjectHandler`。
+- 通过 `under.utils.mybatis.*` 配置数据库类型、审计字段名和逻辑删除填充值。
+- 用户已有同类型 Bean 时自动退让。
+
+### 非目标
+
+- 不加入 `under-utils-starter` 聚合入口。
+- 不接管数据源、事务、mapper 扫描或多数据源路由。
+
+### 实现记录
+
+- 新增 `UnderUtilsMybatisAutoConfiguration` 和 `UnderUtilsMybatisProperties`。
+- 新增 starter README 和自动装配测试，覆盖默认装配、配置关闭、审计字段配置和用户 Bean 退让。
+
+## F-005 服务层业务幂等
+
+状态：`已实现`
+
+### 背景
+
+`@PreventRepeat` 解决 HTTP 入口层重复点击，但 MQ 重试、RPC 重试和跨服务回调需要服务层业务幂等：同一业务 key 只执行一次，完成后重复调用返回第一次结果。
+
+### 目标
+
+- 新增 `@Idempotent`，独立于 `@PreventRepeat`。
+- 同一 key 首次执行中，重复调用立即抛出处理中异常。
+- 首次执行成功完成后，重复调用返回第一次结果。
+- 提供本地 store 和 Redis store，支持 starter 配置切换。
+
+### 非目标
+
+- 第一阶段不做阻塞等待首结果。
+- 不做分布式事务保证。
+- 不缓存失败结果。
+
+### 实现记录
+
+- 新增 `IdempotentAspect`、`IdempotencyStore`、`LocalIdempotencyStore`、`RedisIdempotencyStore` 和 `IdempotencyResultCodec`。
+- 新增 `under.utils.idempotent.*` 配置，支持 store、key prefix、processing/result TTL、本地容量和清理周期。
+- 显式 SpEL key 解析失败会抛出异常，不再兜底，避免误幂等。
+- store 完成和释放 key 均带执行 owner token，避免 processing TTL 过期后旧执行覆盖新执行。
+- 单元测试覆盖本地状态机、切面行为、key 解析、结果编解码、Redis store mock；Testcontainers 集成测试放入 `under-utils-test`。
+
+## F-006 字段级加密与响应脱敏
+
+状态：`已实现`
+
+### 背景
+
+企业项目中手机号、证件号、银行卡号等敏感字段常需要落库前加密、响应前脱敏。历史 `AESUtils` 属于兼容工具类，不适合继续承载安全治理语义。
+
+### 目标
+
+- 新增独立 `under-utils-security`。
+- 提供 AES-GCM 字段级加密、key provider 和密文 envelope。
+- 提供 MyBatis 显式加密 TypeHandler。
+- 提供 security 侧响应脱敏注解。
+- 提供 `under-utils-security-starter` 和 `under.utils.security.*` 配置。
+
+### 非目标
+
+- 不提供 KMS、密钥托管或轮换调度。
+- 不做全局隐式字段加密。
+- 不迁移或删除 `under-utils-spring` 的 `@Sensitive`。
+
+### 实现记录
+
+- 新增 `FieldEncryptor`、`AesGcmFieldEncryptor`、`KeyProvider`、`StaticKeyProvider`。
+- 新增 `EncryptedStringTypeHandler`，要求实体字段显式声明 TypeHandler，并配合 `@TableName(autoResultMap = true)`。
+- 新增 `@Mask`、`MaskType`、`MaskingJsonSerializer` 和 `MaskingUtils`。
+- security starter 只有显式配置 Base64 AES key 且未关闭 `field-encryption.enabled` 时才创建默认 `FieldEncryptor` 并注册 TypeHandler 默认加密器。
+
 ## 新功能记录模板
 
 ```markdown

@@ -18,6 +18,8 @@ public class UnderUtilsProperties {
 
     private Redis redis = new Redis();
 
+    private Idempotent idempotent = new Idempotent();
+
     public Web getWeb() {
         return web;
     }
@@ -32,6 +34,14 @@ public class UnderUtilsProperties {
 
     public void setRedis(Redis redis) {
         this.redis = redis;
+    }
+
+    public Idempotent getIdempotent() {
+        return idempotent;
+    }
+
+    public void setIdempotent(Idempotent idempotent) {
+        this.idempotent = idempotent;
     }
 
     /**
@@ -414,6 +424,79 @@ public class UnderUtilsProperties {
 
         public void setThreadNamePrefix(String threadNamePrefix) {
             this.threadNamePrefix = threadNamePrefix;
+        }
+    }
+
+    /**
+     * 服务层业务幂等配置。
+     * <p>
+     * 属性前缀：{@code under.utils.idempotent}。该能力面向 MQ 重试、RPC 重试和跨服务回调等
+     * 服务层重复执行场景，不依赖 HTTP 请求上下文。
+     * </p>
+     */
+    public static class Idempotent {
+        private boolean enabled = true;
+        private StoreType store = StoreType.LOCAL;
+        private String keyPrefix = "under-utils:idempotent:";
+        private Duration processingTtl = Duration.ofSeconds(30);
+        private Duration resultTtl = Duration.ofMinutes(5);
+        private int localMaxEntries = 100_000;
+        private Duration localCleanupInterval = Duration.ofSeconds(1);
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public StoreType getStore() {
+            return store;
+        }
+
+        public void setStore(StoreType store) {
+            this.store = store;
+        }
+
+        public String getKeyPrefix() {
+            return keyPrefix;
+        }
+
+        public void setKeyPrefix(String keyPrefix) {
+            this.keyPrefix = keyPrefix;
+        }
+
+        public Duration getProcessingTtl() {
+            return processingTtl;
+        }
+
+        public void setProcessingTtl(Duration processingTtl) {
+            this.processingTtl = processingTtl;
+        }
+
+        public Duration getResultTtl() {
+            return resultTtl;
+        }
+
+        public void setResultTtl(Duration resultTtl) {
+            this.resultTtl = resultTtl;
+        }
+
+        public int getLocalMaxEntries() {
+            return localMaxEntries;
+        }
+
+        public void setLocalMaxEntries(int localMaxEntries) {
+            this.localMaxEntries = localMaxEntries;
+        }
+
+        public Duration getLocalCleanupInterval() {
+            return localCleanupInterval;
+        }
+
+        public void setLocalCleanupInterval(Duration localCleanupInterval) {
+            this.localCleanupInterval = localCleanupInterval;
         }
     }
 

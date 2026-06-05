@@ -9,9 +9,12 @@ import com.undernine.utils.redis.cache.LogicalExpireCacheOptions;
 import com.undernine.utils.redis.cache.LogicalExpireCacheRefreshFailureHandler;
 import com.undernine.utils.redis.cache.LogicalExpireCacheTemplate;
 import com.undernine.utils.redis.cache.MicrometerCacheOperationObserver;
+import com.undernine.utils.redis.idempotent.RedisIdempotencyStore;
 import com.undernine.utils.redis.lock.DistributedLockTemplate;
 import com.undernine.utils.redis.ratelimit.RedisRateLimitStore;
 import com.undernine.utils.redis.repeat.RedisRepeatSubmitStore;
+import com.undernine.utils.spring.idempotent.IdempotencyResultCodec;
+import com.undernine.utils.spring.idempotent.IdempotencyStore;
 import com.undernine.utils.spring.ratelimit.RateLimitStore;
 import com.undernine.utils.spring.repeat.RepeatSubmitStore;
 import com.undernine.utils.starter.properties.UnderUtilsProperties;
@@ -83,6 +86,19 @@ public class UnderUtilsRedisAutoConfiguration {
     @ConditionalOnProperty(prefix = "under.utils.web.repeat-submit", name = "store", havingValue = "redis")
     public RepeatSubmitStore redisRepeatSubmitStore(RedissonClient redissonClient) {
         return new RedisRepeatSubmitStore(redissonClient);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "under.utils.idempotent", name = "store", havingValue = "redis")
+    public IdempotencyStore redisIdempotencyStore(RedissonClient redissonClient,
+                                                  IdempotencyResultCodec resultCodec,
+                                                  UnderUtilsProperties properties) {
+        return new RedisIdempotencyStore(
+                redissonClient,
+                resultCodec,
+                properties.getIdempotent().getKeyPrefix()
+        );
     }
 
     @Bean

@@ -14,6 +14,8 @@
 - `under-utils-biz` 当前实现只使用无外部依赖的 CSV/导入模板，已移除未使用的 Excel/POI/Jackson optional 依赖。
 - `under-utils-http` 已移除未实现的 HttpClient5 optional 依赖，当前对外边界明确为 OkHttp 执行器和 OpenAPI 客户端治理。
 - `under-utils-ai` 作为独立模块复用 `under-utils-http`；`under-utils-ai-starter` 也保持独立，不会通过聚合 starter 让普通 Spring/Redis 用户被动引入 AI 依赖。
+- `under-utils-mybatis-starter` 保持独立，不进入 `under-utils-starter` 聚合入口，避免普通 Spring/Redis 用户被动引入 MyBatis-Plus。
+- `under-utils-security` 的 MyBatis TypeHandler 依赖保持 optional；`under-utils-security-starter` 为了注册 TypeHandler 默认加密器显式依赖 MyBatis-Plus core，但同样不进入聚合 starter。
 
 ## 模块快照
 
@@ -25,9 +27,12 @@
 | `under-utils-http` | 64K | 16 行 | core、SLF4J、OkHttp/Okio/Kotlin、Jackson | 默认 OkHttp 会带 Kotlin runtime；不再声明未实现的 HttpClient5 适配。 |
 | `under-utils-ai` | 28K | 11 行 | http、core、OkHttp/Okio、Jackson、SLF4J | 独立 AI 能力模块，不放入 starter 聚合入口，避免扩大默认依赖面。 |
 | `under-utils-ai-starter` | 7.5K | 16 行 | ai module、Boot autoconfigure、Spring context | 独立 AI starter，不被兼容聚合 starter 引入。 |
+| `under-utils-security` | 待采集 | 待采集 | Jackson；MyBatis-Plus core optional | 独立安全能力模块，字段加密核心不强制业务使用 starter。 |
+| `under-utils-security-starter` | 待采集 | 待采集 | security module、Boot autoconfigure、MyBatis-Plus core | 独立 security starter，不进入聚合入口。 |
 | `under-utils-spring` | 72K | 20 行 | core、Spring context/web/webmvc、AspectJ、Validation、Jackson | Spring MVC/AOP 模块，重量和定位一致。 |
 | `under-utils-redis` | 40K | 45 行 | core、spring、Redisson/Netty、Jackson；Micrometer optional | Redisson 是主要重量；Micrometer 只服务可选观测适配。 |
 | `under-utils-mybatis` | 24K | 9 行 | core、MyBatis-Plus、JSQLParser | 依赖和安全分页/审计能力匹配。 |
+| `under-utils-mybatis-starter` | 待采集 | 待采集 | mybatis module、Boot autoconfigure | 独立 MyBatis starter，不进入聚合入口。 |
 | `under-utils-biz` | 40K | 4 行 | core、SLF4J | 当前代码未使用 Excel/POI/Jackson，基础 biz 模块保持无 Excel 栈。 |
 | `under-utils-spring-starter` | 16K | 10 行 | spring module、Boot autoconfigure、Servlet API | 符合 Spring-only starter 定位。 |
 | `under-utils-redis-starter` | 8K | 9 行 | spring starter、redis module、Boot autoconfigure | 符合 Redis starter 定位。 |
@@ -75,6 +80,18 @@
 - AI 能力只放在独立 `under-utils-ai` 坐标中，不加入 `under-utils-starter`。
 - 不引入厂商 SDK，避免为 OpenAI-compatible 基础调用和流式 SSE 带入额外重量。
 - Spring Boot 自动装配已进入独立 `under-utils-ai-starter`，不并入 Spring/Redis starter，也不并入兼容聚合 starter。
+
+### Security
+
+`under-utils-security` 提供字段级 AES-GCM 加密、响应脱敏和 MyBatis 显式加密 TypeHandler。
+
+当前策略：
+
+- 加密核心只依赖 JDK crypto 和 Jackson 脱敏序列化能力。
+- MyBatis TypeHandler 所需 `mybatis-plus-core` 在 security 模块中保持 optional。
+- `under-utils-security-starter` 为了配置 `FieldEncryptor` 并注册 `EncryptedStringTypeHandler` 默认加密器，显式依赖 `mybatis-plus-core`；该 starter 不进入聚合入口，避免无安全落库需求的用户被动引入。
+- 设置 `under.utils.security.field-encryption.enabled=false` 或未配置 key 时，不创建默认 `FieldEncryptor`，也不注册 TypeHandler 默认加密器。
+- 字段加密不使用历史 `under-utils-core` 的 `AESUtils`，避免继续扩展兼容工具类的安全语义。
 
 ### Redis
 
@@ -124,8 +141,11 @@ mvn -pl under-utils-core dependency:tree -Dscope=runtime
 mvn -pl under-utils-http dependency:tree -Dscope=runtime
 mvn -pl under-utils-ai dependency:tree -Dscope=runtime
 mvn -pl under-utils-ai-starter dependency:tree -Dscope=runtime
+mvn -pl under-utils-security dependency:tree -Dscope=runtime
+mvn -pl under-utils-security-starter dependency:tree -Dscope=runtime
 mvn -pl under-utils-spring dependency:tree -Dscope=runtime
 mvn -pl under-utils-redis dependency:tree -Dscope=runtime
 mvn -pl under-utils-mybatis dependency:tree -Dscope=runtime
+mvn -pl under-utils-mybatis-starter dependency:tree -Dscope=runtime
 mvn -pl under-utils-biz dependency:tree -Dscope=runtime
 ```

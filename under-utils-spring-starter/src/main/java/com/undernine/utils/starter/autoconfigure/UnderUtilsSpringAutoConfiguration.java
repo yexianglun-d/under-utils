@@ -12,6 +12,13 @@ import com.undernine.utils.spring.context.OperationContextFilter;
 import com.undernine.utils.spring.context.OperationContextTaskDecorator;
 import com.undernine.utils.spring.context.TraceIdProvider;
 import com.undernine.utils.spring.exception.GlobalExceptionHandler;
+import com.undernine.utils.spring.aspect.IdempotentAspect;
+import com.undernine.utils.spring.idempotent.DefaultIdempotentKeyResolver;
+import com.undernine.utils.spring.idempotent.IdempotencyStore;
+import com.undernine.utils.spring.idempotent.IdempotencyResultCodec;
+import com.undernine.utils.spring.idempotent.IdempotentKeyResolver;
+import com.undernine.utils.spring.idempotent.JacksonIdempotencyResultCodec;
+import com.undernine.utils.spring.idempotent.LocalIdempotencyStore;
 import com.undernine.utils.spring.key.DefaultOperationKeyResolver;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
@@ -68,6 +75,18 @@ public class UnderUtilsSpringAutoConfiguration {
     public OperationKeyResolver operationKeyResolver(CurrentUserProvider currentUserProvider,
                                                      CurrentTenantProvider currentTenantProvider) {
         return new DefaultOperationKeyResolver(currentUserProvider, currentTenantProvider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdempotentKeyResolver idempotentKeyResolver() {
+        return new DefaultIdempotentKeyResolver();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdempotencyResultCodec idempotencyResultCodec() {
+        return new JacksonIdempotencyResultCodec();
     }
 
     @Bean
@@ -137,6 +156,20 @@ public class UnderUtilsSpringAutoConfiguration {
         return aspect;
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "under.utils.idempotent", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public IdempotentAspect idempotentAspect(IdempotencyStore idempotencyStore,
+                                             IdempotentKeyResolver idempotentKeyResolver,
+                                             UnderUtilsProperties properties) {
+        IdempotentAspect aspect = new IdempotentAspect();
+        aspect.setIdempotencyStore(idempotencyStore);
+        aspect.setKeyResolver(idempotentKeyResolver);
+        aspect.setDefaultProcessingTtl(properties.getIdempotent().getProcessingTtl());
+        aspect.setDefaultResultTtl(properties.getIdempotent().getResultTtl());
+        return aspect;
+    }
+
     @Configuration(proxyBeanMethods = false)
     static class LocalStateConfiguration {
 
@@ -155,6 +188,18 @@ public class UnderUtilsSpringAutoConfiguration {
             UnderUtilsProperties.StoreCapability repeatSubmit = properties.getWeb().getRepeatSubmit();
             return new LocalRepeatSubmitStore(repeatSubmit.getLocalMaxEntries(),
                     repeatSubmit.getLocalCleanupInterval());
+        }
+
+        @Bean
+        @ConditionalOnMissingBean
+        @ConditionalOnProperty(prefix = "under.utils.idempotent", name = "store", havingValue = "local", matchIfMissing = true)
+        public IdempotencyStore localIdempotencyStore(UnderUtilsProperties properties) {
+            UnderUtilsProperties.Idempotent idempotent = properties.getIdempotent();
+            return new LocalIdempotencyStore(
+                    idempotent.getLocalMaxEntries(),
+                    idempotent.getLocalCleanupInterval(),
+                    idempotent.getKeyPrefix()
+            );
         }
     }
 

@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.*;
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 class CollectionUtilsTest {
 
     // ==================== isEmpty(Collection) 测试 ====================

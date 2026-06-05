@@ -1,6 +1,6 @@
 # Under-Utils Spring
 
-Spring Web 支持模块，提供请求上下文传播、限流、防重复提交、返回结果、异常处理和 JSON 字段脱敏。
+Spring Web 支持模块，提供请求上下文传播、限流、防重复提交、服务层幂等、返回结果、异常处理和 JSON 字段脱敏。
 
 如果需要自动装配，优先使用 `under-utils-spring-starter`。直接使用本模块时，建议只显式注册需要的 Bean。
 
@@ -22,6 +22,7 @@ Spring Web 支持模块，提供请求上下文传播、限流、防重复提交
 | 身份 SPI | `CurrentUserProvider`、`CurrentTenantProvider`、`TraceIdProvider`、`OperationContextCustomizer` |
 | 限流 | `@RateLimit`、`RateLimitAspect`、`RateLimitStore`、`LocalRateLimitStore` |
 | 防重复提交 | `@PreventRepeat`、`PreventRepeatAspect`、`RepeatSubmitStore`、`LocalRepeatSubmitStore` |
+| 服务层幂等 | `@Idempotent`、`IdempotentAspect`、`IdempotencyStore`、`LocalIdempotencyStore`、`IdempotencyResultCodec` |
 | Web 响应 | `Result`、`ResultCode`、`BizException`、`GlobalExceptionHandler` |
 | JSON 脱敏 | `@Sensitive`、`SensitiveJsonSerializer`、`DesensitizeUtils` |
 | 兼容 AOP | `@OperationLog`、`@Retry`、`@TimeLog` 及对应切面 |
@@ -111,6 +112,28 @@ under:
 ```
 
 直接接入时需要注册 `RateLimitAspect`、`PreventRepeatAspect`、`OperationKeyResolver` 和对应 store。普通 Spring Boot 应用使用 `under-utils-spring-starter` 更简单。
+
+## 服务层业务幂等
+
+`@Idempotent` 面向 MQ 重试、RPC 重试和跨服务回调等服务层重复执行场景，不依赖 HTTP 请求上下文。
+
+```java
+@Idempotent(namespace = "order:create", key = "#command.requestNo")
+public CreateOrderResult createOrder(CreateOrderCommand command) {
+    return orderRepository.create(command);
+}
+```
+
+运行时行为：
+
+- 首次调用获得执行业务资格。
+- 相同 key 首次执行中，重复调用会抛出 `IdempotentInProgressException`。
+- 首次调用成功完成后，相同 key 重复调用会返回第一次结果。
+- 业务方法抛异常时默认释放 key，允许后续重试重新执行业务。
+- 业务方法已成功但完成态写入失败时不会释放 key，避免重复执行业务。
+- 显式 SpEL key 解析失败会抛出 `IdempotentKeyResolveException`，不会退回到兜底 key。
+
+本地 `LocalIdempotencyStore` 只保护当前 JVM，并带容量上限和懒启动的后台过期清理。完成态结果通过 `IdempotencyResultCodec` 保存和恢复，避免重复调用直接复用同一个可变对象引用。多实例服务应使用 `under-utils-redis` 提供的 Redis store，或自行实现 `IdempotencyStore`。
 
 ## 返回结果和异常处理
 

@@ -93,12 +93,21 @@
 
         <!-- Spring Boot Starter：AI 大模型基础调用客户端自动装配 -->
         <module>under-utils-ai-starter</module>
+
+        <!-- 字段级加密与响应脱敏能力 -->
+        <module>under-utils-security</module>
+
+        <!-- Spring Boot Starter：字段级加密自动装配 -->
+        <module>under-utils-security-starter</module>
         
         <!-- Redis 操作封装：分布式锁、缓存工具等 -->
         <module>under-utils-redis</module>
         
         <!-- MyBatis/MyBatis-Plus 增强：分页、元数据填充等 -->
         <module>under-utils-mybatis</module>
+
+        <!-- Spring Boot Starter：MyBatis-Plus 默认能力自动装配 -->
+        <module>under-utils-mybatis-starter</module>
         
         <!-- Spring 通用组件：统一返回体、异常处理、工具等 -->
         <module>under-utils-spring</module>

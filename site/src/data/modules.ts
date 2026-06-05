@@ -56,6 +56,28 @@ export const modules: ModuleEntry[] = [
     apiQuery: 'ai-starter'
   },
   {
+    slug: 'security',
+    artifact: 'under-utils-security',
+    title: 'Security',
+    kind: 'library',
+    summary: '字段级 AES-GCM 加密、MyBatis 显式加密 TypeHandler 和响应脱敏。',
+    recommendedFor: '需要落库加密、响应脱敏和安全字段治理边界的企业服务。',
+    highlights: ['AES-GCM 随机 IV', 'keyId 密文 envelope', '显式 TypeHandler 接入'],
+    docsSource: 'under-utils-security/README.md',
+    apiQuery: 'security'
+  },
+  {
+    slug: 'security-starter',
+    artifact: 'under-utils-security-starter',
+    title: 'Security Starter',
+    kind: 'starter',
+    summary: '按显式配置创建 FieldEncryptor，并注册 MyBatis 加密 TypeHandler 默认加密器。',
+    recommendedFor: '希望通过 Spring Boot 配置接入字段加密的项目。',
+    highlights: ['不做隐式全局加密', '用户 Bean 自动退让', 'Base64 AES key 显式启用'],
+    docsSource: 'under-utils-security-starter/README.md',
+    apiQuery: 'security-starter'
+  },
+  {
     slug: 'http',
     artifact: 'under-utils-http',
     title: 'HTTP',
@@ -98,6 +120,17 @@ export const modules: ModuleEntry[] = [
     highlights: ['SafePageQuery', 'SortFieldMapping', 'DefaultMetaObjectHandler'],
     docsSource: 'under-utils-mybatis/README.md',
     apiQuery: 'mybatis'
+  },
+  {
+    slug: 'mybatis-starter',
+    artifact: 'under-utils-mybatis-starter',
+    title: 'MyBatis Starter',
+    kind: 'starter',
+    summary: '自动装配 MyBatis-Plus interceptor 和默认审计字段填充处理器。',
+    recommendedFor: '想零配置接入 Under-Utils MyBatis 能力的 Spring Boot 项目。',
+    highlights: ['独立 starter', 'ConditionalOnMissingBean 退让', 'under.utils.mybatis 配置'],
+    docsSource: 'under-utils-mybatis-starter/README.md',
+    apiQuery: 'mybatis-starter'
   },
   {
     slug: 'biz',

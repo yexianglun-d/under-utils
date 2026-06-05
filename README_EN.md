@@ -57,9 +57,12 @@ Dependency weight and module-splitting decisions are documented in [docs/DEPENDE
 | `under-utils-redis` | Redisson-based distributed locks, Redis stores, cache-aside, logical-expire cache templates, built-in metrics, and optional Micrometer observation. |
 | `under-utils-http` | HTTP convenience calls and OpenAPI client governance, including token refresh, signing, trace/idempotency headers, error decoding, and retry behavior. |
 | `under-utils-ai` | Basic OpenAI-compatible AI model calls, including sync/streaming chat, named client registry, provider extension, response metadata, error classification, and sensitive-data protection. |
+| `under-utils-security` | AES-GCM field encryption, explicit MyBatis encryption TypeHandler, and response masking annotations. |
 | `under-utils-mybatis` | MyBatis-Plus safe pagination, sort whitelisting, audit filling, and page result models. |
 | `under-utils-biz` | Reusable business workflow templates, currently focused on CSV import, async progress lookup, and error export. |
 | `under-utils-ai-starter` | Spring Boot AI autoconfiguration that creates a default or multiple named `AiClient` instances from configuration. |
+| `under-utils-security-starter` | Spring Boot security autoconfiguration that creates a field encryptor from explicit configuration and registers the MyBatis encryption TypeHandler default encryptor. |
+| `under-utils-mybatis-starter` | Spring Boot MyBatis autoconfiguration that creates the MyBatis-Plus interceptor and default audit fill handler. |
 | `under-utils-spring-starter` | Spring Boot starter for local Spring cross-cutting features only. |
 | `under-utils-redis-starter` | Spring Boot Redis starter that includes the Spring starter and Redis-backed distributed features. |
 | `under-utils-starter` | Compatibility aggregate starter that continues to cover Spring and Redis autoconfiguration. |
@@ -136,6 +139,24 @@ For Spring Boot projects that want a configured default `AiClient`, add the stan
 </dependency>
 ```
 
+Use the standalone MyBatis starter when you want MyBatis-Plus pagination and audit filling autoconfigured without pulling it into the aggregate starter:
+
+```xml
+<dependency>
+    <groupId>io.github.yexianglun-d</groupId>
+    <artifactId>under-utils-mybatis-starter</artifactId>
+</dependency>
+```
+
+Use the standalone security starter when you need field encryption and response masking:
+
+```xml
+<dependency>
+    <groupId>io.github.yexianglun-d</groupId>
+    <artifactId>under-utils-security-starter</artifactId>
+</dependency>
+```
+
 Local development:
 
 ```bash
@@ -161,6 +182,12 @@ under:
       repeat-submit:
         enabled: true
         store: redis
+    idempotent:
+      enabled: true
+      store: redis
+      key-prefix: "under-utils:idempotent:"
+      processing-ttl: 30s
+      result-ttl: 10m
     redis:
       lock-enabled: true
       cache:
@@ -182,6 +209,8 @@ under:
 ```
 
 Rate limiting and repeat-submit protection reject requests by throwing `BizException` by default; the error message comes from annotation configuration. Local stores only work inside the current JVM. Multi-instance deployments should use Redis or custom `RateLimitStore` / `RepeatSubmitStore` implementations.
+
+`@Idempotent` targets service-layer idempotency. Repeated calls while the first execution is still running throw `IdempotentInProgressException`; repeated calls after the first successful execution return the first result. If the business method has succeeded but the completed state cannot be persisted, the key is not released to avoid duplicate business execution. Multi-instance deployments should use Redis or a custom `IdempotencyStore`.
 
 When a `MeterRegistry` exists and no custom `CacheOperationObserver` is provided, the Redis starter automatically enables Micrometer cache observation. Set `under.utils.redis.observation.enabled=false` to disable it.
 
@@ -210,6 +239,15 @@ public void sendSms(@RequestBody SendSmsCommand command) {
 @PreventRepeat(timeout = 5, message = "duplicate request")
 @PostMapping("/orders")
 public Long createOrder(@RequestBody CreateOrderCommand command) {
+    return orderService.create(command);
+}
+```
+
+Service-layer business idempotency:
+
+```java
+@Idempotent(namespace = "order:create", key = "#command.requestNo")
+public OrderResult createOrder(CreateOrderCommand command) {
     return orderService.create(command);
 }
 ```
@@ -261,6 +299,17 @@ SortFieldMapping mapping = SortFieldMapping.builder()
 
 SafePageQuery query = SafePageQuery.of(page, size)
         .orderByDesc("createdAt");
+```
+
+Explicit field encryption with MyBatis:
+
+```java
+@TableName(value = "customer_profile", autoResultMap = true)
+public class CustomerProfile {
+
+    @TableField(typeHandler = EncryptedStringTypeHandler.class)
+    private String idCardNo;
+}
 ```
 
 ## Sample Application

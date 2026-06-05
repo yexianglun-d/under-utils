@@ -8,9 +8,11 @@ import com.undernine.utils.redis.cache.CacheValueCodec;
 import com.undernine.utils.redis.cache.LogicalExpireCacheOptions;
 import com.undernine.utils.redis.cache.LogicalExpireCacheTemplate;
 import com.undernine.utils.redis.cache.MicrometerCacheOperationObserver;
+import com.undernine.utils.redis.idempotent.RedisIdempotencyStore;
 import com.undernine.utils.redis.lock.DistributedLockTemplate;
 import com.undernine.utils.redis.ratelimit.RedisRateLimitStore;
 import com.undernine.utils.redis.repeat.RedisRepeatSubmitStore;
+import com.undernine.utils.spring.aspect.IdempotentAspect;
 import com.undernine.utils.spring.aspect.PreventRepeatAspect;
 import com.undernine.utils.spring.aspect.RateLimitAspect;
 import com.undernine.utils.spring.context.CurrentTenantProvider;
@@ -18,6 +20,8 @@ import com.undernine.utils.spring.context.CurrentUserProvider;
 import com.undernine.utils.spring.context.OperationContextFilter;
 import com.undernine.utils.spring.context.OperationContextTaskDecorator;
 import com.undernine.utils.spring.context.TraceIdProvider;
+import com.undernine.utils.spring.idempotent.IdempotencyStore;
+import com.undernine.utils.spring.idempotent.LocalIdempotencyStore;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
 import com.undernine.utils.spring.ratelimit.RateLimitStore;
@@ -68,10 +72,13 @@ class UnderUtilsRedisAutoConfigurationTest {
             assertThat(context).hasBean("underUtilsOperationContextFilterRegistration");
             assertThat(context).hasSingleBean(RateLimitStore.class);
             assertThat(context).hasSingleBean(RepeatSubmitStore.class);
+            assertThat(context).hasSingleBean(IdempotencyStore.class);
             assertThat(context).hasSingleBean(RateLimitAspect.class);
             assertThat(context).hasSingleBean(PreventRepeatAspect.class);
+            assertThat(context).hasSingleBean(IdempotentAspect.class);
             assertThat(context.getBean(RateLimitStore.class)).isInstanceOf(LocalRateLimitStore.class);
             assertThat(context.getBean(RepeatSubmitStore.class)).isInstanceOf(LocalRepeatSubmitStore.class);
+            assertThat(context.getBean(IdempotencyStore.class)).isInstanceOf(LocalIdempotencyStore.class);
         });
     }
 
@@ -123,16 +130,20 @@ class UnderUtilsRedisAutoConfigurationTest {
                 .withBean(RedissonClient.class, () -> mock(RedissonClient.class))
                 .withPropertyValues(
                         "under.utils.web.rate-limit.store=redis",
-                        "under.utils.web.repeat-submit.store=redis"
+                        "under.utils.web.repeat-submit.store=redis",
+                        "under.utils.idempotent.store=redis"
                 )
                 .run(context -> {
                     assertThat(context).hasSingleBean(RateLimitStore.class);
                     assertThat(context).hasSingleBean(RepeatSubmitStore.class);
+                    assertThat(context).hasSingleBean(IdempotencyStore.class);
                     assertThat(context.getBean(RateLimitStore.class)).isInstanceOf(RedisRateLimitStore.class);
                     assertThat(context.getBean(RepeatSubmitStore.class)).isInstanceOf(RedisRepeatSubmitStore.class);
+                    assertThat(context.getBean(IdempotencyStore.class)).isInstanceOf(RedisIdempotencyStore.class);
                     assertThat(context).hasSingleBean(DistributedLockTemplate.class);
                     assertThat(context).hasSingleBean(RateLimitAspect.class);
                     assertThat(context).hasSingleBean(PreventRepeatAspect.class);
+                    assertThat(context).hasSingleBean(IdempotentAspect.class);
                 });
     }
 
@@ -141,7 +152,8 @@ class UnderUtilsRedisAutoConfigurationTest {
         contextRunner
                 .withPropertyValues(
                         "under.utils.web.rate-limit.store=redis",
-                        "under.utils.web.repeat-submit.store=redis"
+                        "under.utils.web.repeat-submit.store=redis",
+                        "under.utils.idempotent.store=redis"
                 )
                 .run(context -> assertThat(context).hasFailed());
     }

@@ -2,10 +2,10 @@
   "meta": {
     "generatedBy": "JDK Compiler Tree API",
     "source": "src/main/java public and protected API",
-    "sourceFileCount": 142,
-    "artifactCount": 11,
-    "typeCount": 142,
-    "memberCount": 951,
+    "sourceFileCount": 171,
+    "artifactCount": 14,
+    "typeCount": 171,
+    "memberCount": 1088,
     "artifacts": [
       {"artifact": "under-utils-ai", "module": "ai", "typeCount": 19},
       {"artifact": "under-utils-ai-starter", "module": "ai-starter", "typeCount": 2},
@@ -13,9 +13,12 @@
       {"artifact": "under-utils-core", "module": "core", "typeCount": 12},
       {"artifact": "under-utils-http", "module": "http", "typeCount": 20},
       {"artifact": "under-utils-mybatis", "module": "mybatis", "typeCount": 9},
-      {"artifact": "under-utils-redis", "module": "redis", "typeCount": 19},
+      {"artifact": "under-utils-mybatis-starter", "module": "mybatis-starter", "typeCount": 2},
+      {"artifact": "under-utils-redis", "module": "redis", "typeCount": 20},
       {"artifact": "under-utils-redis-starter", "module": "redis-starter", "typeCount": 1},
-      {"artifact": "under-utils-spring", "module": "spring", "typeCount": 40},
+      {"artifact": "under-utils-security", "module": "security", "typeCount": 11},
+      {"artifact": "under-utils-security-starter", "module": "security-starter", "typeCount": 2},
+      {"artifact": "under-utils-spring", "module": "spring", "typeCount": 53},
       {"artifact": "under-utils-spring-starter", "module": "spring-starter", "typeCount": 2},
       {"artifact": "under-utils-starter", "module": "starter", "typeCount": 1}
     ]
@@ -5162,6 +5165,108 @@
       ]
     },
     {
+      "name": "UnderUtilsMybatisAutoConfiguration",
+      "qualifiedName": "com.undernine.utils.starter.autoconfigure.UnderUtilsMybatisAutoConfiguration",
+      "module": "mybatis-starter",
+      "artifact": "under-utils-mybatis-starter",
+      "packageName": "com.undernine.utils.starter.autoconfigure",
+      "type": "class",
+      "status": "stable",
+      "summary": "Under-Utils MyBatis 自动配置入口。",
+      "docsPath": "/docs/modules/mybatis-starter/",
+      "sourcePath": "under-utils-mybatis-starter/src/main/java/com/undernine/utils/starter/autoconfigure/UnderUtilsMybatisAutoConfiguration.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "defaultMetaObjectHandler",
+          "kind": "method",
+          "signature": "public DefaultMetaObjectHandler defaultMetaObjectHandler(UnderUtilsMybatisProperties properties, ObjectProvider<AuditorProvider> auditorProvider)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "mybatisPlusInterceptor",
+          "kind": "method",
+          "signature": "public MybatisPlusInterceptor mybatisPlusInterceptor(UnderUtilsMybatisProperties properties)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "UnderUtilsMybatisProperties",
+      "qualifiedName": "com.undernine.utils.starter.properties.UnderUtilsMybatisProperties",
+      "module": "mybatis-starter",
+      "artifact": "under-utils-mybatis-starter",
+      "packageName": "com.undernine.utils.starter.properties",
+      "type": "class",
+      "status": "stable",
+      "summary": "Under-Utils MyBatis 自动配置属性。",
+      "docsPath": "/docs/modules/mybatis-starter/",
+      "sourcePath": "under-utils-mybatis-starter/src/main/java/com/undernine/utils/starter/properties/UnderUtilsMybatisProperties.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "getAudit",
+          "kind": "method",
+          "signature": "public Audit getAudit()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getInterceptor",
+          "kind": "method",
+          "signature": "public Interceptor getInterceptor()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isEnabled",
+          "kind": "method",
+          "signature": "public boolean isEnabled()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setAudit",
+          "kind": "method",
+          "signature": "public void setAudit(Audit audit)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setEnabled",
+          "kind": "method",
+          "signature": "public void setEnabled(boolean enabled)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setInterceptor",
+          "kind": "method",
+          "signature": "public void setInterceptor(Interceptor interceptor)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "Audit",
+          "kind": "nested-type",
+          "signature": "public static class Audit",
+          "status": "stable",
+          "summary": "审计字段自动填充配置。"
+        },
+        {
+          "name": "Interceptor",
+          "kind": "nested-type",
+          "signature": "public static class Interceptor",
+          "status": "stable",
+          "summary": "MyBatis-Plus interceptor 自动配置。"
+        }
+      ]
+    },
+    {
       "name": "CacheAsideTemplate",
       "qualifiedName": "com.undernine.utils.redis.cache.CacheAsideTemplate",
       "module": "redis",
@@ -6333,6 +6438,64 @@
       ]
     },
     {
+      "name": "RedisIdempotencyStore",
+      "qualifiedName": "com.undernine.utils.redis.idempotent.RedisIdempotencyStore",
+      "module": "redis",
+      "artifact": "under-utils-redis",
+      "packageName": "com.undernine.utils.redis.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "基于 Redisson 的分布式业务幂等状态存储。",
+      "docsPath": "/docs/modules/redis/",
+      "sourcePath": "under-utils-redis/src/main/java/com/undernine/utils/redis/idempotent/RedisIdempotencyStore.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "RedisIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public RedisIdempotencyStore(RedissonClient redissonClient)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "RedisIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public RedisIdempotencyStore(RedissonClient redissonClient, IdempotencyResultCodec resultCodec)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "RedisIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public RedisIdempotencyStore(RedissonClient redissonClient, IdempotencyResultCodec resultCodec, String keyPrefix)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "begin",
+          "kind": "method",
+          "signature": "public IdempotencyExecution begin(String key, Duration processingTtl, Type resultType)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "complete",
+          "kind": "method",
+          "signature": "public boolean complete(String key, String executionToken, Object result, Type resultType, Duration resultTtl)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "release",
+          "kind": "method",
+          "signature": "public void release(String key, String executionToken)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
       "name": "DistributedLockException",
       "qualifiedName": "com.undernine.utils.redis.lock.DistributedLockException",
       "module": "redis",
@@ -6544,6 +6707,13 @@
           "summary": ""
         },
         {
+          "name": "redisIdempotencyStore",
+          "kind": "method",
+          "signature": "public IdempotencyStore redisIdempotencyStore(RedissonClient redissonClient, IdempotencyResultCodec resultCodec, UnderUtilsProperties properties)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "redisRateLimitStore",
           "kind": "method",
           "signature": "public RateLimitStore redisRateLimitStore(RedissonClient redissonClient)",
@@ -6563,6 +6733,720 @@
           "signature": "public ThreadPoolTaskExecutor underUtilsLogicalCacheRefreshExecutor(UnderUtilsProperties properties)",
           "status": "stable",
           "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "AesGcmFieldEncryptor",
+      "qualifiedName": "com.undernine.utils.security.crypto.AesGcmFieldEncryptor",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.crypto",
+      "type": "class",
+      "status": "stable",
+      "summary": "AES-GCM 字段加密器。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/crypto/AesGcmFieldEncryptor.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "AesGcmFieldEncryptor",
+          "kind": "constructor",
+          "signature": "public AesGcmFieldEncryptor(KeyProvider keyProvider)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "AesGcmFieldEncryptor",
+          "kind": "constructor",
+          "signature": "public AesGcmFieldEncryptor(KeyProvider keyProvider, SecureRandom secureRandom)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "decrypt",
+          "kind": "method",
+          "signature": "public String decrypt(String ciphertext)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "encrypt",
+          "kind": "method",
+          "signature": "public String encrypt(String plaintext)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "EncryptionKey",
+      "qualifiedName": "com.undernine.utils.security.crypto.EncryptionKey",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.crypto",
+      "type": "class",
+      "status": "stable",
+      "summary": "字段加密密钥。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/crypto/EncryptionKey.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "getKeyId",
+          "kind": "method",
+          "signature": "public String getKeyId()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getSecretKey",
+          "kind": "method",
+          "signature": "public SecretKey getSecretKey()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "of",
+          "kind": "method",
+          "signature": "public static EncryptionKey of(String keyId, byte[] keyBytes)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "ofBase64",
+          "kind": "method",
+          "signature": "public static EncryptionKey ofBase64(String keyId, String base64Key)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "FieldEncryptionException",
+      "qualifiedName": "com.undernine.utils.security.crypto.FieldEncryptionException",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.crypto",
+      "type": "class",
+      "status": "stable",
+      "summary": "字段加密异常。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/crypto/FieldEncryptionException.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "FieldEncryptionException",
+          "kind": "constructor",
+          "signature": "public FieldEncryptionException(String message)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "FieldEncryptionException",
+          "kind": "constructor",
+          "signature": "public FieldEncryptionException(String message, Throwable cause)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "FieldEncryptor",
+      "qualifiedName": "com.undernine.utils.security.crypto.FieldEncryptor",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.crypto",
+      "type": "interface",
+      "status": "stable",
+      "summary": "字段级加密器。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/crypto/FieldEncryptor.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "decrypt",
+          "kind": "method",
+          "signature": "String decrypt(String ciphertext)",
+          "status": "stable",
+          "summary": "解密密文 envelope。"
+        },
+        {
+          "name": "encrypt",
+          "kind": "method",
+          "signature": "String encrypt(String plaintext)",
+          "status": "stable",
+          "summary": "加密明文。"
+        }
+      ]
+    },
+    {
+      "name": "KeyProvider",
+      "qualifiedName": "com.undernine.utils.security.crypto.KeyProvider",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.crypto",
+      "type": "interface",
+      "status": "stable",
+      "summary": "字段加密密钥提供者。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/crypto/KeyProvider.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "currentKey",
+          "kind": "method",
+          "signature": "EncryptionKey currentKey()",
+          "status": "stable",
+          "summary": "当前写入使用的密钥。"
+        },
+        {
+          "name": "findKey",
+          "kind": "method",
+          "signature": "Optional<EncryptionKey> findKey(String keyId)",
+          "status": "stable",
+          "summary": "按 keyId 查找历史密钥。"
+        }
+      ]
+    },
+    {
+      "name": "StaticKeyProvider",
+      "qualifiedName": "com.undernine.utils.security.crypto.StaticKeyProvider",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.crypto",
+      "type": "class",
+      "status": "stable",
+      "summary": "静态字段加密密钥提供者。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/crypto/StaticKeyProvider.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "StaticKeyProvider",
+          "kind": "constructor",
+          "signature": "public StaticKeyProvider(EncryptionKey currentKey)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "StaticKeyProvider",
+          "kind": "constructor",
+          "signature": "public StaticKeyProvider(String currentKeyId, Map<String, EncryptionKey> keys)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "currentKey",
+          "kind": "method",
+          "signature": "public EncryptionKey currentKey()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "findKey",
+          "kind": "method",
+          "signature": "public Optional<EncryptionKey> findKey(String keyId)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "ofBase64",
+          "kind": "method",
+          "signature": "public static StaticKeyProvider ofBase64(String keyId, String base64Key)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "Mask",
+      "qualifiedName": "com.undernine.utils.security.mask.Mask",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.mask",
+      "type": "annotation",
+      "status": "stable",
+      "summary": "响应字段脱敏注解。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/mask/Mask.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "customRule",
+          "kind": "method",
+          "signature": "String customRule()",
+          "status": "stable",
+          "summary": "自定义脱敏规则，格式为 prefixLen,suffixLen 。"
+        },
+        {
+          "name": "type",
+          "kind": "method",
+          "signature": "MaskType type()",
+          "status": "stable",
+          "summary": "脱敏类型。"
+        }
+      ]
+    },
+    {
+      "name": "MaskType",
+      "qualifiedName": "com.undernine.utils.security.mask.MaskType",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.mask",
+      "type": "enum",
+      "status": "stable",
+      "summary": "响应脱敏类型。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/mask/MaskType.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "ADDRESS",
+          "kind": "field",
+          "signature": "public static final MaskType ADDRESS",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "BANK_CARD",
+          "kind": "field",
+          "signature": "public static final MaskType BANK_CARD",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "CAR_LICENSE",
+          "kind": "field",
+          "signature": "public static final MaskType CAR_LICENSE",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "CHINESE_NAME",
+          "kind": "field",
+          "signature": "public static final MaskType CHINESE_NAME",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "CUSTOM",
+          "kind": "field",
+          "signature": "public static final MaskType CUSTOM",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "EMAIL",
+          "kind": "field",
+          "signature": "public static final MaskType EMAIL",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "FIXED_PHONE",
+          "kind": "field",
+          "signature": "public static final MaskType FIXED_PHONE",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "ID_CARD",
+          "kind": "field",
+          "signature": "public static final MaskType ID_CARD",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "MOBILE_PHONE",
+          "kind": "field",
+          "signature": "public static final MaskType MOBILE_PHONE",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "PASSWORD",
+          "kind": "field",
+          "signature": "public static final MaskType PASSWORD",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "MaskingJsonSerializer",
+      "qualifiedName": "com.undernine.utils.security.mask.MaskingJsonSerializer",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.mask",
+      "type": "class",
+      "status": "stable",
+      "summary": "Jackson 响应脱敏序列化器。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/mask/MaskingJsonSerializer.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "MaskingJsonSerializer",
+          "kind": "constructor",
+          "signature": "public MaskingJsonSerializer()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "MaskingJsonSerializer",
+          "kind": "constructor",
+          "signature": "public MaskingJsonSerializer(MaskType type, String customRule)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "createContextual",
+          "kind": "method",
+          "signature": "public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "serialize",
+          "kind": "method",
+          "signature": "public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "MaskingUtils",
+      "qualifiedName": "com.undernine.utils.security.mask.MaskingUtils",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.mask",
+      "type": "class",
+      "status": "stable",
+      "summary": "响应脱敏工具。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/mask/MaskingUtils.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "address",
+          "kind": "method",
+          "signature": "public static String address(String address)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "bankCard",
+          "kind": "method",
+          "signature": "public static String bankCard(String cardNo)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "carLicense",
+          "kind": "method",
+          "signature": "public static String carLicense(String license)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "chineseName",
+          "kind": "method",
+          "signature": "public static String chineseName(String name)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "custom",
+          "kind": "method",
+          "signature": "public static String custom(String value, String customRule)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "email",
+          "kind": "method",
+          "signature": "public static String email(String email)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "fixedPhone",
+          "kind": "method",
+          "signature": "public static String fixedPhone(String phone)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "idCard",
+          "kind": "method",
+          "signature": "public static String idCard(String idCard)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "mask",
+          "kind": "method",
+          "signature": "public static String mask(String value, MaskType type)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "mobilePhone",
+          "kind": "method",
+          "signature": "public static String mobilePhone(String phone)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "password",
+          "kind": "method",
+          "signature": "public static String password(String password)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "EncryptedStringTypeHandler",
+      "qualifiedName": "com.undernine.utils.security.mybatis.EncryptedStringTypeHandler",
+      "module": "security",
+      "artifact": "under-utils-security",
+      "packageName": "com.undernine.utils.security.mybatis",
+      "type": "class",
+      "status": "stable",
+      "summary": "MyBatis 字符串字段加密 TypeHandler。",
+      "docsPath": "/docs/modules/security/",
+      "sourcePath": "under-utils-security/src/main/java/com/undernine/utils/security/mybatis/EncryptedStringTypeHandler.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "EncryptedStringTypeHandler",
+          "kind": "constructor",
+          "signature": "public EncryptedStringTypeHandler()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "EncryptedStringTypeHandler",
+          "kind": "constructor",
+          "signature": "public EncryptedStringTypeHandler(FieldEncryptor fieldEncryptor)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "clearDefaultFieldEncryptor",
+          "kind": "method",
+          "signature": "public static void clearDefaultFieldEncryptor()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "clearDefaultFieldEncryptor",
+          "kind": "method",
+          "signature": "public static void clearDefaultFieldEncryptor(Object ownerToken)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getNullableResult",
+          "kind": "method",
+          "signature": "public String getNullableResult(CallableStatement cs, int columnIndex) throws SQLException",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getNullableResult",
+          "kind": "method",
+          "signature": "public String getNullableResult(ResultSet rs, String columnName) throws SQLException",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getNullableResult",
+          "kind": "method",
+          "signature": "public String getNullableResult(ResultSet rs, int columnIndex) throws SQLException",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "registerDefaultFieldEncryptor",
+          "kind": "method",
+          "signature": "public static Object registerDefaultFieldEncryptor(FieldEncryptor fieldEncryptor)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setDefaultFieldEncryptor",
+          "kind": "method",
+          "signature": "public static void setDefaultFieldEncryptor(FieldEncryptor fieldEncryptor)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setNonNullParameter",
+          "kind": "method",
+          "signature": "public void setNonNullParameter(PreparedStatement ps, int i, String parameter, JdbcType jdbcType) throws SQLException",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "UnderUtilsSecurityAutoConfiguration",
+      "qualifiedName": "com.undernine.utils.starter.autoconfigure.UnderUtilsSecurityAutoConfiguration",
+      "module": "security-starter",
+      "artifact": "under-utils-security-starter",
+      "packageName": "com.undernine.utils.starter.autoconfigure",
+      "type": "class",
+      "status": "stable",
+      "summary": "Under-Utils Security 自动配置入口。",
+      "docsPath": "/docs/modules/security-starter/",
+      "sourcePath": "under-utils-security-starter/src/main/java/com/undernine/utils/starter/autoconfigure/UnderUtilsSecurityAutoConfiguration.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "EncryptedStringTypeHandlerRegistration",
+          "kind": "nested-type",
+          "signature": "public static final class EncryptedStringTypeHandlerRegistration",
+          "status": "stable",
+          "summary": "注册 MyBatis 加密 TypeHandler 默认加密器。"
+        }
+      ]
+    },
+    {
+      "name": "UnderUtilsSecurityProperties",
+      "qualifiedName": "com.undernine.utils.starter.properties.UnderUtilsSecurityProperties",
+      "module": "security-starter",
+      "artifact": "under-utils-security-starter",
+      "packageName": "com.undernine.utils.starter.properties",
+      "type": "class",
+      "status": "stable",
+      "summary": "Under-Utils Security 自动配置属性。",
+      "docsPath": "/docs/modules/security-starter/",
+      "sourcePath": "under-utils-security-starter/src/main/java/com/undernine/utils/starter/properties/UnderUtilsSecurityProperties.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "getFieldEncryption",
+          "kind": "method",
+          "signature": "public FieldEncryption getFieldEncryption()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isEnabled",
+          "kind": "method",
+          "signature": "public boolean isEnabled()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setEnabled",
+          "kind": "method",
+          "signature": "public void setEnabled(boolean enabled)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setFieldEncryption",
+          "kind": "method",
+          "signature": "public void setFieldEncryption(FieldEncryption fieldEncryption)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "FieldEncryption",
+          "kind": "nested-type",
+          "signature": "public static class FieldEncryption",
+          "status": "stable",
+          "summary": "字段级加密配置。"
+        }
+      ]
+    },
+    {
+      "name": "Idempotent",
+      "qualifiedName": "com.undernine.utils.spring.annotation.Idempotent",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.annotation",
+      "type": "annotation",
+      "status": "stable",
+      "summary": "服务层业务幂等注解。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/annotation/Idempotent.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "key",
+          "kind": "method",
+          "signature": "String key()",
+          "status": "stable",
+          "summary": "幂等 key 表达式。"
+        },
+        {
+          "name": "namespace",
+          "kind": "method",
+          "signature": "String namespace()",
+          "status": "stable",
+          "summary": "幂等命名空间。"
+        },
+        {
+          "name": "processingMessage",
+          "kind": "method",
+          "signature": "String processingMessage()",
+          "status": "stable",
+          "summary": "首次执行仍在处理中时抛出的异常消息。"
+        },
+        {
+          "name": "processingTimeUnit",
+          "kind": "method",
+          "signature": "TimeUnit processingTimeUnit()",
+          "status": "stable",
+          "summary": "首次执行中的状态保留时间单位。"
+        },
+        {
+          "name": "processingTtl",
+          "kind": "method",
+          "signature": "long processingTtl()",
+          "status": "stable",
+          "summary": "首次执行中的状态保留时间。小于等于 0 时使用 starter 全局配置。"
+        },
+        {
+          "name": "releaseOnFailure",
+          "kind": "method",
+          "signature": "boolean releaseOnFailure()",
+          "status": "stable",
+          "summary": "业务方法执行失败时是否释放幂等 key。"
+        },
+        {
+          "name": "resultTimeUnit",
+          "kind": "method",
+          "signature": "TimeUnit resultTimeUnit()",
+          "status": "stable",
+          "summary": "成功结果缓存时间单位。"
+        },
+        {
+          "name": "resultTtl",
+          "kind": "method",
+          "signature": "long resultTtl()",
+          "status": "stable",
+          "summary": "成功结果缓存时间。小于等于 0 时使用 starter 全局配置。"
         }
       ]
     },
@@ -6843,6 +7727,64 @@
           "signature": "public Object around(ProceedingJoinPoint joinPoint, TimeLog timeLog) throws Throwable",
           "status": "stable",
           "summary": "环绕通知：统计方法执行时间"
+        }
+      ]
+    },
+    {
+      "name": "IdempotentAspect",
+      "qualifiedName": "com.undernine.utils.spring.aspect.IdempotentAspect",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.aspect",
+      "type": "class",
+      "status": "stable",
+      "summary": "服务层业务幂等切面。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/aspect/IdempotentAspect.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "around",
+          "kind": "method",
+          "signature": "public Object around(ProceedingJoinPoint point, Idempotent idempotent) throws Throwable",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "close",
+          "kind": "method",
+          "signature": "public synchronized void close()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setDefaultProcessingTtl",
+          "kind": "method",
+          "signature": "public void setDefaultProcessingTtl(Duration defaultProcessingTtl)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setDefaultResultTtl",
+          "kind": "method",
+          "signature": "public void setDefaultResultTtl(Duration defaultResultTtl)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setIdempotencyStore",
+          "kind": "method",
+          "signature": "public synchronized void setIdempotencyStore(IdempotencyStore idempotencyStore)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setKeyResolver",
+          "kind": "method",
+          "signature": "public void setKeyResolver(IdempotentKeyResolver keyResolver)",
+          "status": "stable",
+          "summary": ""
         }
       ]
     },
@@ -8081,6 +9023,448 @@
       ]
     },
     {
+      "name": "DefaultIdempotentKeyResolver",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.DefaultIdempotentKeyResolver",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "默认服务层幂等 key 解析器。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/DefaultIdempotentKeyResolver.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "resolve",
+          "kind": "method",
+          "signature": "public String resolve(ProceedingJoinPoint point, String namespace, String expression)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyException",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyException",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "幂等能力基础异常。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyException.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "IdempotencyException",
+          "kind": "constructor",
+          "signature": "public IdempotencyException(String message)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "IdempotencyException",
+          "kind": "constructor",
+          "signature": "public IdempotencyException(String message, Throwable cause)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyExecution",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyExecution",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "幂等登记结果。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyExecution.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "acquired",
+          "kind": "method",
+          "signature": "public static IdempotencyExecution acquired()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "acquired",
+          "kind": "method",
+          "signature": "public static IdempotencyExecution acquired(String executionToken)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "completed",
+          "kind": "method",
+          "signature": "public static IdempotencyExecution completed(Object result)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getExecutionToken",
+          "kind": "method",
+          "signature": "public String getExecutionToken()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getResult",
+          "kind": "method",
+          "signature": "public Object getResult()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getStatus",
+          "kind": "method",
+          "signature": "public IdempotencyStatus getStatus()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "inProgress",
+          "kind": "method",
+          "signature": "public static IdempotencyExecution inProgress()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isAcquired",
+          "kind": "method",
+          "signature": "public boolean isAcquired()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isCompleted",
+          "kind": "method",
+          "signature": "public boolean isCompleted()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isInProgress",
+          "kind": "method",
+          "signature": "public boolean isInProgress()",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyResultCodec",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyResultCodec",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "interface",
+      "status": "stable",
+      "summary": "幂等结果编解码器。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyResultCodec.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "deserialize",
+          "kind": "method",
+          "signature": "Object deserialize(String payload, Type resultType)",
+          "status": "stable",
+          "summary": "反序列化业务结果。"
+        },
+        {
+          "name": "serialize",
+          "kind": "method",
+          "signature": "String serialize(Object result, Type resultType)",
+          "status": "stable",
+          "summary": "序列化业务结果。"
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyStatus",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyStatus",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "enum",
+      "status": "stable",
+      "summary": "幂等 key 当前状态。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyStatus.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "ACQUIRED",
+          "kind": "field",
+          "signature": "public static final IdempotencyStatus ACQUIRED",
+          "status": "stable",
+          "summary": "当前调用获得首次执行业务的资格。"
+        },
+        {
+          "name": "COMPLETED",
+          "kind": "field",
+          "signature": "public static final IdempotencyStatus COMPLETED",
+          "status": "stable",
+          "summary": "已有相同 key 的调用成功完成，并可复用第一次结果。"
+        },
+        {
+          "name": "IN_PROGRESS",
+          "kind": "field",
+          "signature": "public static final IdempotencyStatus IN_PROGRESS",
+          "status": "stable",
+          "summary": "已有相同 key 的调用正在执行。"
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyStore",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyStore",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "interface",
+      "status": "stable",
+      "summary": "业务幂等状态存储。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyStore.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "begin",
+          "kind": "method",
+          "signature": "IdempotencyExecution begin(String key, Duration processingTtl, Type resultType)",
+          "status": "stable",
+          "summary": "开始一次幂等执行。"
+        },
+        {
+          "name": "complete",
+          "kind": "method",
+          "signature": "boolean complete(String key, String executionToken, Object result, Type resultType, Duration resultTtl)",
+          "status": "stable",
+          "summary": "标记首次执行成功完成，并保存结果。"
+        },
+        {
+          "name": "release",
+          "kind": "method",
+          "signature": "default void release(String key, String executionToken)",
+          "status": "stable",
+          "summary": "释放幂等 key。"
+        }
+      ]
+    },
+    {
+      "name": "IdempotentInProgressException",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotentInProgressException",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "相同幂等 key 的首次调用仍在处理中。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotentInProgressException.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "IdempotentInProgressException",
+          "kind": "constructor",
+          "signature": "public IdempotentInProgressException(String message)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotentKeyResolveException",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotentKeyResolveException",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "幂等 key 解析失败。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotentKeyResolveException.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "IdempotentKeyResolveException",
+          "kind": "constructor",
+          "signature": "public IdempotentKeyResolveException(String message, Throwable cause)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotentKeyResolver",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotentKeyResolver",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "interface",
+      "status": "stable",
+      "summary": "幂等 key 解析器。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotentKeyResolver.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "resolve",
+          "kind": "method",
+          "signature": "String resolve(ProceedingJoinPoint point, String namespace, String expression)",
+          "status": "stable",
+          "summary": "解析幂等 key。"
+        }
+      ]
+    },
+    {
+      "name": "JacksonIdempotencyResultCodec",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.JacksonIdempotencyResultCodec",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "基于 Jackson 的幂等结果编解码器。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/JacksonIdempotencyResultCodec.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "JacksonIdempotencyResultCodec",
+          "kind": "constructor",
+          "signature": "public JacksonIdempotencyResultCodec()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "JacksonIdempotencyResultCodec",
+          "kind": "constructor",
+          "signature": "public JacksonIdempotencyResultCodec(ObjectMapper objectMapper)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "deserialize",
+          "kind": "method",
+          "signature": "public Object deserialize(String payload, Type resultType)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "serialize",
+          "kind": "method",
+          "signature": "public String serialize(Object result, Type resultType)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "LocalIdempotencyStore",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.LocalIdempotencyStore",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "JVM 本地业务幂等状态存储。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/LocalIdempotencyStore.java",
+      "since": "1.0.4",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "LocalIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public LocalIdempotencyStore()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "LocalIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public LocalIdempotencyStore(int maxEntries)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "LocalIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public LocalIdempotencyStore(int maxEntries, Duration cleanupInterval)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "LocalIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public LocalIdempotencyStore(int maxEntries, Duration cleanupInterval, String keyPrefix)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "LocalIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public LocalIdempotencyStore(int maxEntries, Duration cleanupInterval, String keyPrefix, IdempotencyResultCodec resultCodec)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "begin",
+          "kind": "method",
+          "signature": "public synchronized IdempotencyExecution begin(String key, Duration processingTtl, Type resultType)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "clear",
+          "kind": "method",
+          "signature": "public void clear()",
+          "status": "stable",
+          "summary": "清空本地状态，主要用于测试或主动重置。"
+        },
+        {
+          "name": "close",
+          "kind": "method",
+          "signature": "public void close()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "complete",
+          "kind": "method",
+          "signature": "public synchronized boolean complete(String key, String executionToken, Object result, Type resultType, Duration resultTtl)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "release",
+          "kind": "method",
+          "signature": "public synchronized void release(String key, String executionToken)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
       "name": "RequestLogInterceptor",
       "qualifiedName": "com.undernine.utils.spring.interceptor.RequestLogInterceptor",
       "module": "spring",
@@ -8782,6 +10166,27 @@
           "summary": ""
         },
         {
+          "name": "idempotencyResultCodec",
+          "kind": "method",
+          "signature": "public IdempotencyResultCodec idempotencyResultCodec()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "idempotentAspect",
+          "kind": "method",
+          "signature": "public IdempotentAspect idempotentAspect(IdempotencyStore idempotencyStore, IdempotentKeyResolver idempotentKeyResolver, UnderUtilsProperties properties)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "idempotentKeyResolver",
+          "kind": "method",
+          "signature": "public IdempotentKeyResolver idempotentKeyResolver()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "operationContextFilter",
           "kind": "method",
           "signature": "public OperationContextFilter operationContextFilter(Collection<OperationContextCustomizer> customizers, UnderUtilsProperties properties)",
@@ -8847,6 +10252,13 @@
       "deprecatedMessage": "",
       "members": [
         {
+          "name": "getIdempotent",
+          "kind": "method",
+          "signature": "public Idempotent getIdempotent()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "getRedis",
           "kind": "method",
           "signature": "public Redis getRedis()",
@@ -8857,6 +10269,13 @@
           "name": "getWeb",
           "kind": "method",
           "signature": "public Web getWeb()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setIdempotent",
+          "kind": "method",
+          "signature": "public void setIdempotent(Idempotent idempotent)",
           "status": "stable",
           "summary": ""
         },
@@ -8887,6 +10306,13 @@
           "signature": "public static class ExceptionHandling",
           "status": "stable",
           "summary": "全局异常处理配置。"
+        },
+        {
+          "name": "Idempotent",
+          "kind": "nested-type",
+          "signature": "public static class Idempotent",
+          "status": "stable",
+          "summary": "服务层业务幂等配置。"
         },
         {
           "name": "LogicalCache",

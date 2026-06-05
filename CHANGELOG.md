@@ -4,6 +4,38 @@
 
 ## [Unreleased]
 
+### 企业级能力
+
+- 新增 `under-utils-mybatis-starter`，按 `under.utils.mybatis.*` 自动装配 MyBatis-Plus interceptor 和默认审计字段填充处理器，并在用户已有同类型 Bean 时退让；该 starter 不进入旧聚合 `under-utils-starter`。
+- 新增服务层业务幂等能力：`@Idempotent`、`IdempotentAspect`、`IdempotencyStore`、`LocalIdempotencyStore`、`IdempotencyResultCodec` 和 Redis `RedisIdempotencyStore`。同 key 执行中重复调用会抛出 `IdempotentInProgressException`，首次成功完成后的重复调用返回第一次结果。
+- `under-utils-spring-starter` 新增 `under.utils.idempotent.*` 配置，支持 local/redis store、key prefix、processing TTL、result TTL、本地容量和清理周期；`under-utils-redis-starter` 在存在 `RedissonClient` 且配置 `store=redis` 时装配 Redis 幂等 store。
+- 新增 `under-utils-security` 和 `under-utils-security-starter`，提供 AES-GCM 字段级加密、MyBatis 显式 `EncryptedStringTypeHandler`、`@Mask` 响应脱敏和 `under.utils.security.*` 自动配置；security starter 不进入旧聚合 `under-utils-starter`。
+- 服务层幂等 store 使用执行 owner token 完成和释放 key，避免 processing TTL 过期后旧执行覆盖新执行；业务成功但幂等完成态写入失败时不再释放 key。
+- `under.utils.security.field-encryption.enabled=false` 会禁用默认字段加密器和 MyBatis TypeHandler 默认加密器注册；TypeHandler 默认加密器注册清理改为 owner token 保护。
+
+### 兼容增强
+
+- `OpenAiCompatibleAiClient` 的 SSE 解析支持同一个事件中的多行 `data:` 字段，忽略注释和非 data 字段，并在连接结束前处理未以空行结尾的最后一个事件。
+- `DefaultOperationKeyResolver` 在参数无法被 Jackson 序列化时改用稳定摘要兜底，避免防重复提交和限流 key 因个别参数不可序列化而退化。
+- Spring 可信代理 Header 开关相关构造器和状态读取方法为 additive public API，保留旧构造器兼容行为，不删除或修改既有签名。
+
+### 安全边界
+
+- Spring 请求上下文、请求日志和操作日志默认不再信任客户端传入的代理 IP Header；只有显式开启可信代理 Header 后才读取 `X-Forwarded-For` / `X-Real-IP`。
+- 请求日志新增常见敏感 Header 脱敏，覆盖 Authorization、Cookie、API key、访问/刷新 token 和 CSRF token 等字段。
+- 示例工程的 OpenAPI mock gateway 不再回显 Authorization 原文；兼容工具示例不再把 MD5/SHA-256 表达为生产密码存储方案，也不输出明文密码。
+
+### 测试稳定性
+
+- Spring context 相关测试在每个用例前清理 `OperationContextHolder`、`RequestContextHolder` 和 MDC，避免测试顺序导致 ThreadLocal 状态串扰。
+- Testcontainers 版本纳入 BOM 管理并升级到 `1.21.4`，MySQL 集成测试镜像升级到 `mysql:8.4`，用于修复较新 Docker 环境下的集成测试兼容性。
+- 只在刻意覆盖 deprecated 兼容 API 的测试/示例类上添加 class-level `@SuppressWarnings("deprecation")`，并限定 `RetryAspectTest` 的 unchecked 抑制范围；生产代码不新增警告抑制。
+
+### 构建验证
+
+- CI 的 `api-compat` 检查模块列表补齐 `under-utils-ai` 和 `under-utils-ai-starter`，继续以 `1.0.3` 作为 `1.0.4-SNAPSHOT` 开发周期的 public API 基线。
+- 新增 `docs/releases/v1.0.4.md` 作为下一版发布说明草稿；当前仅做 `1.0.4-SNAPSHOT` 发布候选准备，不切正式版本、不打 tag、不上传 Maven Central。
+
 ### Changed
 
 - `main` 分支 Maven 版本进入 `1.0.4-SNAPSHOT` 开发周期，`1.0.3` 保持为当前稳定版本。

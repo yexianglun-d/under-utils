@@ -301,3 +301,18 @@
 - `EncryptedStringTypeHandler` 需要实体字段显式声明 `@TableField(typeHandler = EncryptedStringTypeHandler.class)`，并要求 MyBatis-Plus 实体启用 `@TableName(autoResultMap = true)`。
 - 新增 `@Mask`、`MaskType` 和 `MaskingJsonSerializer` 作为 security 模块的响应脱敏 API；`under-utils-spring` 中已有 `@Sensitive` 继续保留兼容，不迁移包名。
 - 新增 `under.utils.security.*` 配置。未配置字段加密 key 或显式设置 `under.utils.security.field-encryption.enabled=false` 时，security starter 不创建默认 `FieldEncryptor`，也不注册 MyBatis TypeHandler 默认加密器。
+
+## 第二十八轮结论
+
+### 1.0.5 Idempotency JDBC And Observation
+
+- 新增 `under-utils-jdbc` 和 `under-utils-jdbc-starter`，作为 minor-compatible 新模块。它们不进入旧聚合 `under-utils-starter`，避免 Spring/Redis 老用户被动引入 JDBC 能力。
+- `JdbcIdempotencyStore` 实现既有 `IdempotencyStore` SPI，不修改 `@Idempotent`、`LocalIdempotencyStore` 或 `RedisIdempotencyStore` 的默认语义。
+- `under-utils-jdbc-starter` 只有在 `under.utils.idempotent.store=jdbc` 且存在 `JdbcOperations` 时装配；用户自定义 `IdempotencyStore` 继续优先，不会在未选择 JDBC store 时被动启动 JDBC 清理任务。
+- 新增配置 key：`under.utils.idempotent.jdbc.table-name`、`under.utils.idempotent.jdbc.max-begin-retries`、`under.utils.idempotent.jdbc.cleanup-enabled`、`under.utils.idempotent.jdbc.cleanup-initial-delay` 和 `under.utils.idempotent.jdbc.cleanup-interval`。JDBC starter 不自动建表，不接管数据源、事务或迁移工具。
+- `under-utils-jdbc` 随包提供 MySQL/PostgreSQL 建表脚本，包含 `expire_at` 索引；`JdbcIdempotencyCleanupScheduler` 会在 JDBC store 启用时默认定期调用 `cleanupExpired()` 删除过期记录。
+- `JdbcIdempotencyStoreOptions` 对表名做白名单校验，只允许未加引号的 `table` 或 `schema.table`；业务 key、执行 token 和结果 payload 仍全部使用参数绑定。
+- 新增 `IdempotencyObserver`、`IdempotencyEvent`、`IdempotencyOperation`、`IdempotencyOutcome` 和 `MicrometerIdempotencyObserver`，作为 additive public API。
+- `MicrometerIdempotencyObserver` 只输出低基数 tag：`idempotency.operation`、`idempotency.outcome` 和 `exception`，不把幂等 key、方法签名或业务参数写入指标。
+- 新增配置 key：`under.utils.idempotent.observation.enabled`，默认开启但只有存在 `MeterRegistry` 时才创建 observer；用户自定义 `IdempotencyObserver` 时自动退让。
+- `IdempotentAspect` 在业务异常后释放 key 失败时保留原业务异常，并将释放失败作为 suppressed exception，属于符合既有失败语义的兼容行为修复。

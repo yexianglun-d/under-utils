@@ -168,6 +168,12 @@
 
             <dependency>
                 <groupId>io.github.yexianglun-d</groupId>
+                <artifactId>under-utils-jdbc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.yexianglun-d</groupId>
                 <artifactId>under-utils-mybatis</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -193,6 +199,12 @@
             <dependency>
                 <groupId>io.github.yexianglun-d</groupId>
                 <artifactId>under-utils-redis-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.yexianglun-d</groupId>
+                <artifactId>under-utils-jdbc-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

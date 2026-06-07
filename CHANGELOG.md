@@ -4,9 +4,18 @@
 
 ## [Unreleased]
 
+### Added
+
+- 新增 `under-utils-jdbc`，提供 JDBC 版 `JdbcIdempotencyStore`，用于在不引入 Redis 的服务中通过业务数据库共享服务层幂等状态。该实现要求业务项目显式建表，表名经过白名单校验，业务 key 和结果 payload 均使用参数绑定。
+- 新增 `under-utils-jdbc-starter`，在 `under.utils.idempotent.store=jdbc` 且存在 `JdbcOperations` 时自动装配 JDBC 幂等 store；该 starter 不进入旧聚合 `under-utils-starter`。
+- `under-utils-jdbc` 提供 MySQL/PostgreSQL 建表脚本，`under-utils-jdbc-starter` 默认启动 JDBC 幂等过期记录清理任务，并支持显式关闭或调整清理间隔。
+- `under-utils-spring` 新增 `IdempotencyObserver`、`IdempotencyEvent`、`IdempotencyOperation`、`IdempotencyOutcome` 和 `MicrometerIdempotencyObserver`，可将服务层幂等 begin/business/complete/release 事件写入 Micrometer counter、duration timer 和 observation，且不记录业务 key。
+- `under-utils-spring-starter` 新增 `under.utils.idempotent.observation.enabled` 配置，存在 `MeterRegistry` 且没有用户自定义 `IdempotencyObserver` 时自动创建 Micrometer 幂等观察者。
+
 ### Changed
 
 - `main` 分支 Maven 版本进入 `1.0.5-SNAPSHOT` 开发周期，`1.0.4` 保持为当前稳定版本和 API 兼容性基线。
+- `IdempotentAspect` 在业务异常后释放幂等 key 失败时保留原业务异常，并把释放失败追加为 suppressed exception，避免 store 故障遮蔽真实业务失败。
 
 ## [1.0.4] - 2026-06-05
 

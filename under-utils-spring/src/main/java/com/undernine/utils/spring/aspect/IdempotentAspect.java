@@ -2,7 +2,11 @@ package com.undernine.utils.spring.aspect;
 
 import com.undernine.utils.spring.annotation.Idempotent;
 import com.undernine.utils.spring.idempotent.DefaultIdempotentKeyResolver;
+import com.undernine.utils.spring.idempotent.IdempotencyEvent;
 import com.undernine.utils.spring.idempotent.IdempotencyExecution;
+import com.undernine.utils.spring.idempotent.IdempotencyObserver;
+import com.undernine.utils.spring.idempotent.IdempotencyOperation;
+import com.undernine.utils.spring.idempotent.IdempotencyOutcome;
 import com.undernine.utils.spring.idempotent.IdempotencyStore;
 import com.undernine.utils.spring.idempotent.IdempotentInProgressException;
 import com.undernine.utils.spring.idempotent.IdempotentKeyResolver;
@@ -33,6 +37,7 @@ public class IdempotentAspect implements AutoCloseable {
     private volatile IdempotencyStore idempotencyStore;
     private volatile boolean defaultStoreOwned;
     private IdempotentKeyResolver keyResolver = new DefaultIdempotentKeyResolver();
+    private IdempotencyObserver idempotencyObserver = IdempotencyObserver.noop();
     private Duration defaultProcessingTtl = Duration.ofSeconds(30);
     private Duration defaultResultTtl = Duration.ofMinutes(5);
 
@@ -45,7 +50,15 @@ public class IdempotentAspect implements AutoCloseable {
         Duration resultTtl = ttl(idempotent.resultTtl(), idempotent.resultTimeUnit().toMillis(1), defaultResultTtl);
         IdempotencyStore store = getIdempotencyStore();
 
-        IdempotencyExecution execution = store.begin(key, processingTtl, returnType);
+        long beginStart = System.nanoTime();
+        IdempotencyExecution execution;
+        try {
+            execution = store.begin(key, processingTtl, returnType);
+            observe(IdempotencyEvent.of(IdempotencyOperation.BEGIN, beginOutcome(execution), elapsed(beginStart)));
+        } catch (Throwable ex) {
+            observe(IdempotencyEvent.failure(IdempotencyOperation.BEGIN, elapsed(beginStart), ex));
+            throw ex;
+        }
         if (execution.isCompleted()) {
             return execution.getResult();
         }
@@ -55,16 +68,30 @@ public class IdempotentAspect implements AutoCloseable {
         }
 
         Object result;
+        long businessStart = System.nanoTime();
         try {
             result = point.proceed();
+            observe(IdempotencyEvent.of(IdempotencyOperation.BUSINESS, IdempotencyOutcome.SUCCESS,
+                    elapsed(businessStart)));
         } catch (Throwable ex) {
+            observe(IdempotencyEvent.failure(IdempotencyOperation.BUSINESS, elapsed(businessStart), ex));
             if (idempotent.releaseOnFailure()) {
-                store.release(key, execution.getExecutionToken());
+                releaseAfterFailure(store, key, execution.getExecutionToken(), ex);
             }
             throw ex;
         }
 
-        boolean completed = store.complete(key, execution.getExecutionToken(), result, returnType, resultTtl);
+        long completeStart = System.nanoTime();
+        boolean completed;
+        try {
+            completed = store.complete(key, execution.getExecutionToken(), result, returnType, resultTtl);
+            observe(IdempotencyEvent.of(IdempotencyOperation.COMPLETE,
+                    completed ? IdempotencyOutcome.SUCCESS : IdempotencyOutcome.SKIPPED,
+                    elapsed(completeStart)));
+        } catch (Throwable ex) {
+            observe(IdempotencyEvent.failure(IdempotencyOperation.COMPLETE, elapsed(completeStart), ex));
+            throw ex;
+        }
         if (!completed) {
             log.warn("【业务幂等】首次执行结果未写入幂等完成态，key owner 已过期或被替换: {}", key);
         }
@@ -84,6 +111,13 @@ public class IdempotentAspect implements AutoCloseable {
     public void setKeyResolver(IdempotentKeyResolver keyResolver) {
         if (keyResolver != null) {
             this.keyResolver = keyResolver;
+        }
+    }
+
+    @Autowired(required = false)
+    public void setIdempotencyObserver(IdempotencyObserver idempotencyObserver) {
+        if (idempotencyObserver != null) {
+            this.idempotencyObserver = idempotencyObserver;
         }
     }
 
@@ -145,5 +179,43 @@ public class IdempotentAspect implements AutoCloseable {
             }
         }
         defaultStoreOwned = false;
+    }
+
+    private void releaseAfterFailure(IdempotencyStore store,
+                                     String key,
+                                     String executionToken,
+                                     Throwable businessError) {
+        long releaseStart = System.nanoTime();
+        try {
+            store.release(key, executionToken);
+            observe(IdempotencyEvent.of(IdempotencyOperation.RELEASE, IdempotencyOutcome.SUCCESS,
+                    elapsed(releaseStart)));
+        } catch (Throwable releaseError) {
+            observe(IdempotencyEvent.failure(IdempotencyOperation.RELEASE, elapsed(releaseStart), releaseError));
+            businessError.addSuppressed(releaseError);
+            log.warn("【业务幂等】业务异常后释放幂等 key 失败: {}", key, releaseError);
+        }
+    }
+
+    private IdempotencyOutcome beginOutcome(IdempotencyExecution execution) {
+        if (execution.isCompleted()) {
+            return IdempotencyOutcome.COMPLETED;
+        }
+        if (execution.isInProgress()) {
+            return IdempotencyOutcome.IN_PROGRESS;
+        }
+        return IdempotencyOutcome.ACQUIRED;
+    }
+
+    private long elapsed(long startNanos) {
+        return System.nanoTime() - startNanos;
+    }
+
+    private void observe(IdempotencyEvent event) {
+        try {
+            idempotencyObserver.onEvent(event);
+        } catch (RuntimeException ex) {
+            log.warn("Failed to observe idempotency event", ex);
+        }
     }
 }

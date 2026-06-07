@@ -18,7 +18,7 @@
         <dependency>
             <groupId>io.github.yexianglun-d</groupId>
             <artifactId>under-utils-bom</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.4</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -26,7 +26,7 @@
 </dependencyManagement>
 ```
 
-当前稳定版 `1.0.1` 的 Spring Boot 项目通常从兼容聚合 starter 开始：
+当前稳定版 `1.0.4` 的 Spring Boot 项目通常优先按需选择轻量 starter。旧项目如果暂时不调整依赖坐标，也可以继续使用兼容聚合 starter：
 
 ```xml
 <dependency>
@@ -50,6 +50,15 @@
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-redis-starter</artifactId>
+</dependency>
+```
+
+需要用业务数据库保存服务层幂等状态时，使用 JDBC starter：
+
+```xml
+<dependency>
+    <groupId>io.github.yexianglun-d</groupId>
+    <artifactId>under-utils-jdbc-starter</artifactId>
 </dependency>
 ```
 
@@ -86,6 +95,9 @@ under:
       repeat-submit:
         enabled: true
         store: local
+    idempotent:
+      enabled: true
+      store: local
 ```
 
 多实例服务应提供 `RedissonClient`，并切换到 Redis 存储：
@@ -98,6 +110,10 @@ under:
         store: redis
       repeat-submit:
         store: redis
+    idempotent:
+      store: redis
+      processing-ttl: 30s
+      result-ttl: 5m
     redis:
       lock-enabled: true
       cache:
@@ -117,7 +133,25 @@ under:
 
 - `@RateLimit` 超过窗口额度时抛出 `BizException`。
 - `@PreventRepeat` 在窗口内重复提交同一 key 时抛出 `BizException`。
+- `@Idempotent` 在相同 key 首次执行中重复调用时抛出 `IdempotentInProgressException`，首次成功完成后的重复调用返回第一次结果。
 - local store 只在当前 JVM 内生效，不适合作为集群级保护。
+
+如果选择 JDBC 幂等 store，需要先建表，并显式配置：
+
+```yaml
+under:
+  utils:
+    idempotent:
+      store: jdbc
+      key-prefix: "app:idempotent:"
+      jdbc:
+        table-name: under_utils_idempotency
+        max-begin-retries: 3
+        cleanup-enabled: true
+        cleanup-interval: 1m
+```
+
+JDBC starter 不自动建表；构件内置了 `META-INF/under-utils/jdbc/under_utils_idempotency_mysql.sql` 和 `META-INF/under-utils/jdbc/under_utils_idempotency_postgresql.sql`，建议通过 Flyway、Liquibase 或项目现有迁移流程执行。默认会按清理间隔删除过期幂等记录，如需由数据库任务接管，可设置 `under.utils.idempotent.jdbc.cleanup-enabled=false`。
 - Redisson 异常默认向外传播；如果业务需要降级，应提供自定义 store。
 
 ## 运行示例工程

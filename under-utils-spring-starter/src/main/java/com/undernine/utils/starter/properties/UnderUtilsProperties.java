@@ -442,6 +442,7 @@ public class UnderUtilsProperties {
         private Duration resultTtl = Duration.ofMinutes(5);
         private int localMaxEntries = 100_000;
         private Duration localCleanupInterval = Duration.ofSeconds(1);
+        private Observation observation = new Observation();
 
         public boolean isEnabled() {
             return enabled;
@@ -497,6 +498,33 @@ public class UnderUtilsProperties {
 
         public void setLocalCleanupInterval(Duration localCleanupInterval) {
             this.localCleanupInterval = localCleanupInterval;
+        }
+
+        public Observation getObservation() {
+            return observation;
+        }
+
+        public void setObservation(Observation observation) {
+            this.observation = observation;
+        }
+    }
+
+    /**
+     * 业务幂等观测配置。
+     * <p>
+     * 属性前缀：{@code under.utils.idempotent.observation}。只有在应用上下文存在
+     * {@code MeterRegistry} 时才会自动创建 Micrometer 观察者。
+     * </p>
+     */
+    public static class Observation {
+        private boolean enabled = true;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
         }
     }
 
@@ -559,6 +587,10 @@ public class UnderUtilsProperties {
         /**
          * Redis 分布式状态，依赖 RedissonClient。
          */
-        REDIS
+        REDIS,
+        /**
+         * JDBC 数据库存储。当前仅服务层 {@code under.utils.idempotent.store} 支持。
+         */
+        JDBC
     }
 }

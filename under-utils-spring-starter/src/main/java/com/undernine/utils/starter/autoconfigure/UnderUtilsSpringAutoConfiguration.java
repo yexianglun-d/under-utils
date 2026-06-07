@@ -14,11 +14,13 @@ import com.undernine.utils.spring.context.TraceIdProvider;
 import com.undernine.utils.spring.exception.GlobalExceptionHandler;
 import com.undernine.utils.spring.aspect.IdempotentAspect;
 import com.undernine.utils.spring.idempotent.DefaultIdempotentKeyResolver;
+import com.undernine.utils.spring.idempotent.IdempotencyObserver;
 import com.undernine.utils.spring.idempotent.IdempotencyStore;
 import com.undernine.utils.spring.idempotent.IdempotencyResultCodec;
 import com.undernine.utils.spring.idempotent.IdempotentKeyResolver;
 import com.undernine.utils.spring.idempotent.JacksonIdempotencyResultCodec;
 import com.undernine.utils.spring.idempotent.LocalIdempotencyStore;
+import com.undernine.utils.spring.idempotent.MicrometerIdempotencyObserver;
 import com.undernine.utils.spring.key.DefaultOperationKeyResolver;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
@@ -26,6 +28,9 @@ import com.undernine.utils.spring.ratelimit.RateLimitStore;
 import com.undernine.utils.spring.repeat.LocalRepeatSubmitStore;
 import com.undernine.utils.spring.repeat.RepeatSubmitStore;
 import com.undernine.utils.starter.properties.UnderUtilsProperties;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -161,13 +166,38 @@ public class UnderUtilsSpringAutoConfiguration {
     @ConditionalOnProperty(prefix = "under.utils.idempotent", name = "enabled", havingValue = "true", matchIfMissing = true)
     public IdempotentAspect idempotentAspect(IdempotencyStore idempotencyStore,
                                              IdempotentKeyResolver idempotentKeyResolver,
-                                             UnderUtilsProperties properties) {
+                                             UnderUtilsProperties properties,
+                                             ObjectProvider<IdempotencyObserver> idempotencyObserver) {
         IdempotentAspect aspect = new IdempotentAspect();
         aspect.setIdempotencyStore(idempotencyStore);
         aspect.setKeyResolver(idempotentKeyResolver);
+        aspect.setIdempotencyObserver(idempotencyObserver.getIfAvailable(IdempotencyObserver::noop));
         aspect.setDefaultProcessingTtl(properties.getIdempotent().getProcessingTtl());
         aspect.setDefaultResultTtl(properties.getIdempotent().getResultTtl());
         return aspect;
+    }
+
+    @Configuration(proxyBeanMethods = false)
+    @ConditionalOnClass(name = {
+            "io.micrometer.core.instrument.MeterRegistry",
+            "io.micrometer.observation.ObservationRegistry",
+            "com.undernine.utils.spring.idempotent.MicrometerIdempotencyObserver"
+    })
+    static class IdempotencyObservationConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean(IdempotencyObserver.class)
+        @ConditionalOnBean(MeterRegistry.class)
+        @ConditionalOnProperty(prefix = "under.utils.idempotent.observation", name = "enabled",
+                havingValue = "true", matchIfMissing = true)
+        public IdempotencyObserver micrometerIdempotencyObserver(
+                MeterRegistry meterRegistry,
+                ObjectProvider<ObservationRegistry> observationRegistry) {
+            return new MicrometerIdempotencyObserver(
+                    meterRegistry,
+                    observationRegistry.getIfAvailable(() -> ObservationRegistry.NOOP)
+            );
+        }
     }
 
     @Configuration(proxyBeanMethods = false)

@@ -24,6 +24,7 @@ Spring Boot 自动装配模块，只接入 `under-utils-spring` 的本地横切�
 - `OperationKeyResolver`
 - `IdempotentKeyResolver`
 - `IdempotencyResultCodec`
+- `MicrometerIdempotencyObserver`，仅在存在 `MeterRegistry` 且没有用户自定义 `IdempotencyObserver` 时创建
 - `OperationContextFilter`
 - `OperationContextTaskDecorator`
 - `RateLimitAspect`
@@ -62,6 +63,8 @@ under:
       result-ttl: 5m
       local-max-entries: 100000
       local-cleanup-interval: 1s
+      observation:
+        enabled: true
 ```
 
 `trusted-identity-headers` 只有在服务位于可信网关之后，且网关会清洗 `X-User-Id` / `X-Tenant-Id` 时才应开启。
@@ -83,5 +86,28 @@ starter 不会替换业务项目中同角色 Bean。常见退让点：
 - `RepeatSubmitStore`
 - `IdempotencyStore`
 - `IdempotencyResultCodec`
+- `IdempotencyObserver`
 
-多实例服务如果需要集群级限流、防重复提交或服务层幂等，应使用 `under-utils-redis-starter`，或自行实现对应 store。
+多实例服务如果需要集群级限流、防重复提交或服务层幂等，应使用 `under-utils-redis-starter`、`under-utils-jdbc-starter`，或自行实现对应 store。
+
+## 幂等观测
+
+当应用上下文存在 `MeterRegistry`，且没有用户自定义 `IdempotencyObserver` Bean 时，starter 会自动创建 `MicrometerIdempotencyObserver`。
+
+默认指标和 observation：
+
+- `under.utils.idempotency.operations`
+- `under.utils.idempotency.duration`
+- observation name：`under.utils.idempotency`
+
+如需关闭自动接入：
+
+```yaml
+under:
+  utils:
+    idempotent:
+      observation:
+        enabled: false
+```
+
+该 observer 不会把业务 key、方法签名或参数写入 tag。

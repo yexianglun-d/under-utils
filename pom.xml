@@ -111,9 +111,15 @@
         
         <!-- Spring 通用组件：统一返回体、异常处理、工具等 -->
         <module>under-utils-spring</module>
+
+        <!-- JDBC 基础设施实现：数据库幂等状态存储等 -->
+        <module>under-utils-jdbc</module>
         
         <!-- Spring Boot Starter：Spring 本地横切能力自动装配 -->
         <module>under-utils-spring-starter</module>
+
+        <!-- Spring Boot Starter：JDBC 基础设施能力自动装配 -->
+        <module>under-utils-jdbc-starter</module>
 
         <!-- Spring Boot Starter：Redis 分布式能力自动装配 -->
         <module>under-utils-redis-starter</module>

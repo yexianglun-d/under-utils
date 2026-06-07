@@ -133,7 +133,21 @@ public CreateOrderResult createOrder(CreateOrderCommand command) {
 - 业务方法已成功但完成态写入失败时不会释放 key，避免重复执行业务。
 - 显式 SpEL key 解析失败会抛出 `IdempotentKeyResolveException`，不会退回到兜底 key。
 
-本地 `LocalIdempotencyStore` 只保护当前 JVM，并带容量上限和懒启动的后台过期清理。完成态结果通过 `IdempotencyResultCodec` 保存和恢复，避免重复调用直接复用同一个可变对象引用。多实例服务应使用 `under-utils-redis` 提供的 Redis store，或自行实现 `IdempotencyStore`。
+本地 `LocalIdempotencyStore` 只保护当前 JVM，并带容量上限和懒启动的后台过期清理。完成态结果通过 `IdempotencyResultCodec` 保存和恢复，避免重复调用直接复用同一个可变对象引用。多实例服务应使用 `under-utils-redis` 提供的 Redis store、`under-utils-jdbc` 提供的 JDBC store，或自行实现 `IdempotencyStore`。
+
+如果项目已经引入 Micrometer，可以使用 `MicrometerIdempotencyObserver` 记录幂等事件：
+
+```java
+IdempotencyObserver observer = new MicrometerIdempotencyObserver(meterRegistry, observationRegistry);
+```
+
+默认指标和 observation：
+
+- `under.utils.idempotency.operations`
+- `under.utils.idempotency.duration`
+- observation name：`under.utils.idempotency`
+
+该 observer 只记录 `idempotency.operation`、`idempotency.outcome` 和 `exception`，不会把幂等 key 或方法参数写入 tag。
 
 ## 返回结果和异常处理
 

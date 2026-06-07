@@ -23,6 +23,7 @@ Maven coordinates use the GitHub namespace `io.github.yexianglun-d`. Java packag
 ## Typical Use Cases
 
 - Rate limiting, repeat-submit protection, and request context should not be scattered across controllers, AOP code, and task executors. Under-Utils centralizes key resolution, failure semantics, and local/Redis store switching.
+- Service-layer idempotency for MQ retries, RPC retries, and cross-service callbacks should execute the business operation once per key, return an in-progress failure while the first call is running, and reuse the first result after completion with local, Redis, or JDBC storage.
 - Redis cache-aside, logical-expire caches, distributed locks, and cache metrics are easy to rewrite inconsistently. Under-Utils templates collect TTL, null-value handling, jitter, rebuild locks, and observation boundaries.
 - Third-party OpenAPI and OpenAI-compatible model calls often need token refresh, signing, idempotency headers, error decoding, retry behavior, and sensitive-data masking behind one reusable client boundary.
 
@@ -54,6 +55,7 @@ Dependency weight and module-splitting decisions are documented in [docs/DEPENDE
 | `under-utils-bom` | Centralizes versions for Under-Utils modules and related dependencies. |
 | `under-utils-core` | Low-coupling basics such as Snowflake IDs and money helpers; historical static utilities are compatibility-only. |
 | `under-utils-spring` | Spring Web context propagation, rate-limit/repeat-submit abstractions, response models, exception handling, and JSON masking. |
+| `under-utils-jdbc` | Spring JDBC-backed idempotency store for services that already have a database but do not want Redis. |
 | `under-utils-redis` | Redisson-based distributed locks, Redis stores, cache-aside, logical-expire cache templates, built-in metrics, and optional Micrometer observation. |
 | `under-utils-http` | HTTP convenience calls and OpenAPI client governance, including token refresh, signing, trace/idempotency headers, error decoding, and retry behavior. |
 | `under-utils-ai` | Basic OpenAI-compatible AI model calls, including sync/streaming chat, named client registry, provider extension, response metadata, error classification, and sensitive-data protection. |
@@ -64,6 +66,7 @@ Dependency weight and module-splitting decisions are documented in [docs/DEPENDE
 | `under-utils-security-starter` | Spring Boot security autoconfiguration that creates a field encryptor from explicit configuration and registers the MyBatis encryption TypeHandler default encryptor. |
 | `under-utils-mybatis-starter` | Spring Boot MyBatis autoconfiguration that creates the MyBatis-Plus interceptor and default audit fill handler. |
 | `under-utils-spring-starter` | Spring Boot starter for local Spring cross-cutting features only. |
+| `under-utils-jdbc-starter` | Spring Boot JDBC starter that provides a database-backed idempotency store when `store=jdbc` is explicitly selected. |
 | `under-utils-redis-starter` | Spring Boot Redis starter that includes the Spring starter and Redis-backed distributed features. |
 | `under-utils-starter` | Compatibility aggregate starter that continues to cover Spring and Redis autoconfiguration. |
 | `under-utils-samples` | Runnable sample application, not deployed as a formal Maven library artifact. |
@@ -148,6 +151,15 @@ Use the standalone MyBatis starter when you want MyBatis-Plus pagination and aud
 </dependency>
 ```
 
+Use the standalone JDBC starter when service-layer idempotency should be stored in your business database:
+
+```xml
+<dependency>
+    <groupId>io.github.yexianglun-d</groupId>
+    <artifactId>under-utils-jdbc-starter</artifactId>
+</dependency>
+```
+
 Use the standalone security starter when you need field encryption and response masking:
 
 ```xml
@@ -188,6 +200,8 @@ under:
       key-prefix: "under-utils:idempotent:"
       processing-ttl: 30s
       result-ttl: 10m
+      observation:
+        enabled: true
     redis:
       lock-enabled: true
       cache:
@@ -210,7 +224,32 @@ under:
 
 Rate limiting and repeat-submit protection reject requests by throwing `BizException` by default; the error message comes from annotation configuration. Local stores only work inside the current JVM. Multi-instance deployments should use Redis or custom `RateLimitStore` / `RepeatSubmitStore` implementations.
 
-`@Idempotent` targets service-layer idempotency. Repeated calls while the first execution is still running throw `IdempotentInProgressException`; repeated calls after the first successful execution return the first result. If the business method has succeeded but the completed state cannot be persisted, the key is not released to avoid duplicate business execution. Multi-instance deployments should use Redis or a custom `IdempotencyStore`.
+`@Idempotent` targets service-layer idempotency. Repeated calls while the first execution is still running throw `IdempotentInProgressException`; repeated calls after the first successful execution return the first result. If the business method has succeeded but the completed state cannot be persisted, the key is not released to avoid duplicate business execution. Multi-instance deployments should use Redis, JDBC, or a custom `IdempotencyStore`.
+
+JDBC idempotency does not create tables automatically:
+
+```yaml
+under:
+  utils:
+    idempotent:
+      store: jdbc
+      key-prefix: "app:idempotent:"
+      jdbc:
+        table-name: under_utils_idempotency
+        max-begin-retries: 3
+        cleanup-enabled: true
+        cleanup-initial-delay: 1m
+        cleanup-interval: 1m
+```
+
+DDL examples are packaged in the artifact at:
+
+- `META-INF/under-utils/jdbc/under_utils_idempotency_mysql.sql`
+- `META-INF/under-utils/jdbc/under_utils_idempotency_postgresql.sql`
+
+The JDBC starter starts an expired-record cleanup scheduler by default when `store=jdbc` is selected. Disable it with `under.utils.idempotent.jdbc.cleanup-enabled=false`, or adjust `cleanup-initial-delay` and `cleanup-interval`.
+
+When a `MeterRegistry` exists and no custom `IdempotencyObserver` is provided, the Spring starter automatically enables Micrometer idempotency observation. Set `under.utils.idempotent.observation.enabled=false` to disable it.
 
 When a `MeterRegistry` exists and no custom `CacheOperationObserver` is provided, the Redis starter automatically enables Micrometer cache observation. Set `under.utils.redis.observation.enabled=false` to disable it.
 

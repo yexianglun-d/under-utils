@@ -1,8 +1,13 @@
 package com.undernine.utils.spring.aspect;
 
 import com.undernine.utils.spring.annotation.Idempotent;
+import com.undernine.utils.spring.idempotent.IdempotencyEvent;
+import com.undernine.utils.spring.idempotent.IdempotencyExecution;
 import com.undernine.utils.spring.idempotent.IdempotencyException;
+import com.undernine.utils.spring.idempotent.IdempotencyObserver;
+import com.undernine.utils.spring.idempotent.IdempotencyOutcome;
 import com.undernine.utils.spring.idempotent.IdempotencyResultCodec;
+import com.undernine.utils.spring.idempotent.IdempotencyStore;
 import com.undernine.utils.spring.idempotent.IdempotentInProgressException;
 import com.undernine.utils.spring.idempotent.LocalIdempotencyStore;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,6 +104,59 @@ class IdempotentAspectTest {
     }
 
     @Test
+    void shouldObserveIdempotentExecutionLifecycle() throws Throwable {
+        RecordingObserver observer = new RecordingObserver();
+        aspect.setIdempotencyObserver(observer);
+        when(point.proceed()).thenReturn("created");
+
+        aspect.around(point, idempotent);
+        aspect.around(point, idempotent);
+
+        assertThat(observer.events)
+                .extracting(IdempotencyEvent::getOutcome)
+                .containsExactly(
+                        IdempotencyOutcome.ACQUIRED,
+                        IdempotencyOutcome.SUCCESS,
+                        IdempotencyOutcome.SUCCESS,
+                        IdempotencyOutcome.COMPLETED
+                );
+    }
+
+    @Test
+    void shouldKeepBusinessExceptionWhenReleaseFails() throws Throwable {
+        IdempotencyStore failingReleaseStore = new IdempotencyStore() {
+            @Override
+            public IdempotencyExecution begin(String key, Duration processingTtl, Type resultType) {
+                return IdempotencyExecution.acquired("owner");
+            }
+
+            @Override
+            public boolean complete(String key,
+                                    String executionToken,
+                                    Object result,
+                                    Type resultType,
+                                    Duration resultTtl) {
+                return true;
+            }
+
+            @Override
+            public void release(String key, String executionToken) {
+                throw new IdempotencyException("release failed");
+            }
+        };
+        aspect.setIdempotencyStore(failingReleaseStore);
+        when(point.proceed()).thenThrow(new IllegalStateException("boom"));
+
+        assertThatThrownBy(() -> aspect.around(point, idempotent))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("boom")
+                .satisfies(ex -> assertThat(ex.getSuppressed())
+                        .hasSize(1))
+                .satisfies(ex -> assertThat(ex.getSuppressed()[0])
+                        .isInstanceOf(IdempotencyException.class));
+    }
+
+    @Test
     void shouldNotReleaseKeyWhenCompleteFailsAfterBusinessSucceeded() throws Throwable {
         store.close();
         store = new LocalIdempotencyStore(100, Duration.ofSeconds(1), "under-utils:idempotent:",
@@ -125,6 +185,15 @@ class IdempotentAspectTest {
     static class SampleService {
         public String createOrder() {
             return "created";
+        }
+    }
+
+    private static final class RecordingObserver implements IdempotencyObserver {
+        private final List<IdempotencyEvent> events = new ArrayList<>();
+
+        @Override
+        public void onEvent(IdempotencyEvent event) {
+            events.add(event);
         }
     }
 }

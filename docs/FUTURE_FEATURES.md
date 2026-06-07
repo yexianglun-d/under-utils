@@ -258,7 +258,7 @@ F-001 和 F-002 已经覆盖单个 OpenAI-compatible 客户端的同步与流式
 - 新增 `@Idempotent`，独立于 `@PreventRepeat`。
 - 同一 key 首次执行中，重复调用立即抛出处理中异常。
 - 首次执行成功完成后，重复调用返回第一次结果。
-- 提供本地 store 和 Redis store，支持 starter 配置切换。
+- 提供本地 store、Redis store 和 JDBC store，支持 starter 配置切换。
 
 ### 非目标
 
@@ -273,6 +273,16 @@ F-001 和 F-002 已经覆盖单个 OpenAI-compatible 客户端的同步与流式
 - 显式 SpEL key 解析失败会抛出异常，不再兜底，避免误幂等。
 - store 完成和释放 key 均带执行 owner token，避免 processing TTL 过期后旧执行覆盖新执行。
 - 单元测试覆盖本地状态机、切面行为、key 解析、结果编解码、Redis store mock；Testcontainers 集成测试放入 `under-utils-test`。
+
+### 1.0.5 增强记录
+
+- 新增 `under-utils-jdbc` 和 `under-utils-jdbc-starter`，通过业务数据库保存幂等处理中状态和完成态结果。
+- JDBC store 不自动建表，不接管数据源或事务；starter 只有在 `under.utils.idempotent.store=jdbc` 且存在 `JdbcOperations` 时装配。
+- JDBC 模块随包提供 MySQL/PostgreSQL 建表脚本，幂等表对 `expire_at` 建索引，便于过期记录清理。
+- JDBC starter 默认创建过期记录清理任务，支持 `cleanup-enabled`、`cleanup-initial-delay` 和 `cleanup-interval` 配置。
+- 新增 `IdempotencyObserver` SPI 和 `MicrometerIdempotencyObserver`，覆盖 begin、business、complete 和 release 事件。
+- Micrometer 幂等指标只使用低基数 tag，不记录幂等 key、方法签名或业务参数。
+- `IdempotentAspect` 在业务异常后释放 key 失败时保留原业务异常，把释放失败作为 suppressed exception。
 
 ## F-006 字段级加密与响应脱敏
 

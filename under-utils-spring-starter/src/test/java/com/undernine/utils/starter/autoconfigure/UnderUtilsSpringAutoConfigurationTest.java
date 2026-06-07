@@ -14,14 +14,18 @@ import com.undernine.utils.spring.exception.GlobalExceptionHandler;
 import com.undernine.utils.spring.idempotent.IdempotencyResultCodec;
 import com.undernine.utils.spring.idempotent.IdempotencyExecution;
 import com.undernine.utils.spring.idempotent.IdempotencyException;
+import com.undernine.utils.spring.idempotent.IdempotencyObserver;
 import com.undernine.utils.spring.idempotent.IdempotencyStore;
 import com.undernine.utils.spring.idempotent.IdempotentKeyResolver;
 import com.undernine.utils.spring.idempotent.LocalIdempotencyStore;
+import com.undernine.utils.spring.idempotent.MicrometerIdempotencyObserver;
 import com.undernine.utils.spring.key.OperationKeyResolver;
 import com.undernine.utils.spring.ratelimit.LocalRateLimitStore;
 import com.undernine.utils.spring.ratelimit.RateLimitStore;
 import com.undernine.utils.spring.repeat.LocalRepeatSubmitStore;
 import com.undernine.utils.spring.repeat.RepeatSubmitStore;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -238,5 +242,38 @@ class UnderUtilsSpringAutoConfigurationTest {
         contextRunner
                 .withPropertyValues("under.utils.idempotent.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(IdempotentAspect.class));
+    }
+
+    @Test
+    void shouldAutoConfigureMicrometerIdempotencyObserverWhenMeterRegistryExists() {
+        contextRunner
+                .withBean(MeterRegistry.class, SimpleMeterRegistry::new)
+                .run(context -> {
+                    assertThat(context).hasSingleBean(IdempotencyObserver.class);
+                    assertThat(context.getBean(IdempotencyObserver.class))
+                            .isInstanceOf(MicrometerIdempotencyObserver.class);
+                    assertThat(context).hasSingleBean(IdempotentAspect.class);
+                });
+    }
+
+    @Test
+    void shouldBackOffMicrometerIdempotencyObserverWhenUserObserverExists() {
+        IdempotencyObserver customObserver = IdempotencyObserver.noop();
+
+        contextRunner
+                .withBean(MeterRegistry.class, SimpleMeterRegistry::new)
+                .withBean(IdempotencyObserver.class, () -> customObserver)
+                .run(context -> {
+                    assertThat(context).hasSingleBean(IdempotencyObserver.class);
+                    assertThat(context.getBean(IdempotencyObserver.class)).isSameAs(customObserver);
+                });
+    }
+
+    @Test
+    void shouldDisableMicrometerIdempotencyObserverWhenConfigured() {
+        contextRunner
+                .withBean(MeterRegistry.class, SimpleMeterRegistry::new)
+                .withPropertyValues("under.utils.idempotent.observation.enabled=false")
+                .run(context -> assertThat(context).doesNotHaveBean(IdempotencyObserver.class));
     }
 }

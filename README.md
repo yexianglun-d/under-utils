@@ -24,7 +24,7 @@ Maven 坐标使用 GitHub namespace `io.github.yexianglun-d`。Java 包名在 `1
 ## 典型场景
 
 - 接口限流、防重复提交和操作上下文不想散落在 Controller、AOP 和线程池配置里，希望统一 key 解析、失败语义和本地/Redis 存储切换。
-- MQ 重试、RPC 重试和跨服务回调不想重复执行业务，希望服务层按业务 key 做幂等，执行中重复立即返回处理中，完成后复用第一次结果。
+- MQ 重试、RPC 重试和跨服务回调不想重复执行业务，希望服务层按业务 key 做幂等，执行中重复立即返回处理中，完成后复用第一次结果，并可按部署形态选择 local、Redis 或 JDBC 存储。
 - Redis cache-aside、逻辑过期缓存、分布式锁和缓存指标反复手写，希望以模板方式收口 TTL、空值、抖动、重建锁和观测边界。
 - 调用第三方 OpenAPI 或 OpenAI-compatible 模型服务时，希望统一 token 刷新、签名、幂等 header、错误解码、重试和敏感信息脱敏。
 - MyBatis-Plus 项目希望零配置接入分页插件、乐观锁、防全表更新删除和审计字段填充；敏感字段希望通过显式 TypeHandler 做 AES-GCM 落库加密。
@@ -59,6 +59,7 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 | `under-utils-bom` | 统一管理 Under-Utils 模块和相关依赖版本。 |
 | `under-utils-core` | 低耦合基础能力，例如雪花 ID、金额工具；历史静态工具仅做兼容维护。 |
 | `under-utils-spring` | Spring Web 上下文传播、限流/防重抽象、返回结果、异常处理和 JSON 脱敏。 |
+| `under-utils-jdbc` | 基于 Spring JDBC 的业务幂等状态存储，适合不引入 Redis 但已有业务数据库的服务。 |
 | `under-utils-redis` | 基于 Redisson 的分布式锁、限流/防重存储、cache-aside、逻辑过期缓存模板、内置指标和可选 Micrometer 观测适配。 |
 | `under-utils-http` | HTTP 便捷调用与 OpenAPI 客户端治理，包括 token 刷新、签名、trace/idempotency header、错误解码和重试。 |
 | `under-utils-ai` | OpenAI-compatible AI 大模型基础调用封装，覆盖同步/流式文本对话、原生消息和 tools 参数透传、命名客户端注册表、provider 扩展、响应元数据、基础错误分类和敏感信息脱敏。 |
@@ -69,6 +70,7 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 | `under-utils-security-starter` | Spring Boot 安全自动装配入口，按显式配置创建字段加密器并注册 MyBatis 加密 TypeHandler 默认加密器。 |
 | `under-utils-mybatis-starter` | Spring Boot MyBatis 自动装配入口，创建 MyBatis-Plus interceptor 和默认审计字段填充处理器。 |
 | `under-utils-spring-starter` | Spring Boot 自动装配入口，只包含 Spring 本地横切能力。 |
+| `under-utils-jdbc-starter` | Spring Boot JDBC 自动装配入口，在显式选择 `store=jdbc` 时提供数据库幂等 store。 |
 | `under-utils-redis-starter` | Spring Boot Redis 自动装配入口，包含 Spring starter 并接入 Redis 分布式能力。 |
 | `under-utils-starter` | 兼容聚合 starter，继续覆盖 Spring 与 Redis 自动装配。 |
 | `under-utils-samples` | 可运行示例工程，不作为正式 Maven 库构件发布。 |
@@ -135,6 +137,15 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 </dependency>
 ```
 
+如果需要用业务数据库承载服务层幂等状态，引入独立 JDBC starter：
+
+```xml
+<dependency>
+    <groupId>io.github.yexianglun-d</groupId>
+    <artifactId>under-utils-jdbc-starter</artifactId>
+</dependency>
+```
+
 如果需要字段级加密和响应脱敏，引入独立 security starter：
 
 ```xml
@@ -198,6 +209,8 @@ under:
       store: redis
       processing-ttl: 30s
       result-ttl: 5m
+      observation:
+        enabled: true
     redis:
       lock-enabled: true
       cache:
@@ -218,9 +231,44 @@ under:
         enabled: true
 ```
 
+如果服务没有 Redis，也可以使用 JDBC 幂等 store。该能力不会自动建表，业务库需要先创建幂等状态表：
+
+```yaml
+under:
+  utils:
+    idempotent:
+      store: jdbc
+      key-prefix: "app:idempotent:"
+      jdbc:
+        table-name: under_utils_idempotency
+        max-begin-retries: 3
+        cleanup-enabled: true
+        cleanup-initial-delay: 1m
+        cleanup-interval: 1m
+```
+
+可直接使用构件内置建表脚本：
+
+- `META-INF/under-utils/jdbc/under_utils_idempotency_mysql.sql`
+- `META-INF/under-utils/jdbc/under_utils_idempotency_postgresql.sql`
+
+```sql
+create table if not exists under_utils_idempotency (
+    idem_key varchar(512) primary key,
+    status varchar(32) not null,
+    execution_token varchar(128),
+    result_payload text,
+    expire_at timestamp(3) not null,
+    created_at timestamp(3) not null,
+    updated_at timestamp(3) not null,
+    index idx_under_utils_idem_expire_at (expire_at)
+);
+```
+
 限流和防重复提交默认失败语义是拒绝请求并抛出 `BizException`，异常消息来自注解配置。本地 store 只在当前 JVM 内生效，多实例部署应使用 Redis 或自定义 `RateLimitStore` / `RepeatSubmitStore`。
-`@Idempotent` 面向服务层业务幂等：执行中重复会抛出 `IdempotentInProgressException`，首次成功完成后的重复调用会返回第一次结果；业务已成功但完成态写入失败时不会释放 key，避免重复执行业务；多实例部署应使用 Redis 或自定义 `IdempotencyStore`。
+`@Idempotent` 面向服务层业务幂等：执行中重复会抛出 `IdempotentInProgressException`，首次成功完成后的重复调用会返回第一次结果；业务已成功但完成态写入失败时不会释放 key，避免重复执行业务；多实例部署应使用 Redis、JDBC 或自定义 `IdempotencyStore`。
 `trusted-identity-headers` 只有在可信网关已清洗 `X-User-Id` / `X-Tenant-Id` 时才应开启；`exception-handling.enabled=true` 后才会注册 Under-Utils 的 `GlobalExceptionHandler`。
+存在 `MeterRegistry` 且没有自定义 `IdempotencyObserver` 时，Spring starter 会自动接入 Micrometer 幂等观测；需要关闭时设置 `under.utils.idempotent.observation.enabled=false`。
 存在 `MeterRegistry` 且没有自定义 `CacheOperationObserver` 时，Redis starter 会自动接入 Micrometer 缓存观测；需要关闭时设置 `under.utils.redis.observation.enabled=false`。
 
 ## 使用示例

@@ -2,23 +2,25 @@
   "meta": {
     "generatedBy": "JDK Compiler Tree API",
     "source": "src/main/java public and protected API",
-    "sourceFileCount": 171,
-    "artifactCount": 14,
-    "typeCount": 171,
-    "memberCount": 1088,
+    "sourceFileCount": 181,
+    "artifactCount": 16,
+    "typeCount": 181,
+    "memberCount": 1147,
     "artifacts": [
       {"artifact": "under-utils-ai", "module": "ai", "typeCount": 19},
       {"artifact": "under-utils-ai-starter", "module": "ai-starter", "typeCount": 2},
       {"artifact": "under-utils-biz", "module": "biz", "typeCount": 17},
       {"artifact": "under-utils-core", "module": "core", "typeCount": 12},
       {"artifact": "under-utils-http", "module": "http", "typeCount": 20},
+      {"artifact": "under-utils-jdbc", "module": "jdbc", "typeCount": 2},
+      {"artifact": "under-utils-jdbc-starter", "module": "jdbc-starter", "typeCount": 3},
       {"artifact": "under-utils-mybatis", "module": "mybatis", "typeCount": 9},
       {"artifact": "under-utils-mybatis-starter", "module": "mybatis-starter", "typeCount": 2},
       {"artifact": "under-utils-redis", "module": "redis", "typeCount": 20},
       {"artifact": "under-utils-redis-starter", "module": "redis-starter", "typeCount": 1},
       {"artifact": "under-utils-security", "module": "security", "typeCount": 11},
       {"artifact": "under-utils-security-starter", "module": "security-starter", "typeCount": 2},
-      {"artifact": "under-utils-spring", "module": "spring", "typeCount": 53},
+      {"artifact": "under-utils-spring", "module": "spring", "typeCount": 58},
       {"artifact": "under-utils-spring-starter", "module": "spring-starter", "typeCount": 2},
       {"artifact": "under-utils-starter", "module": "starter", "typeCount": 1}
     ]
@@ -4693,6 +4695,303 @@
       ]
     },
     {
+      "name": "JdbcIdempotencyStore",
+      "qualifiedName": "com.undernine.utils.jdbc.idempotent.JdbcIdempotencyStore",
+      "module": "jdbc",
+      "artifact": "under-utils-jdbc",
+      "packageName": "com.undernine.utils.jdbc.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "基于关系型数据库的业务幂等状态存储。",
+      "docsPath": "/docs/modules/jdbc/",
+      "sourcePath": "under-utils-jdbc/src/main/java/com/undernine/utils/jdbc/idempotent/JdbcIdempotencyStore.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "JdbcIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public JdbcIdempotencyStore(JdbcOperations jdbcOperations)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "JdbcIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public JdbcIdempotencyStore(JdbcOperations jdbcOperations, IdempotencyResultCodec resultCodec)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "JdbcIdempotencyStore",
+          "kind": "constructor",
+          "signature": "public JdbcIdempotencyStore(JdbcOperations jdbcOperations, IdempotencyResultCodec resultCodec, JdbcIdempotencyStoreOptions options)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "begin",
+          "kind": "method",
+          "signature": "public IdempotencyExecution begin(String key, Duration processingTtl, Type resultType)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "cleanupExpired",
+          "kind": "method",
+          "signature": "public int cleanupExpired()",
+          "status": "stable",
+          "summary": "清理已过期的幂等记录。"
+        },
+        {
+          "name": "complete",
+          "kind": "method",
+          "signature": "public boolean complete(String key, String executionToken, Object result, Type resultType, Duration resultTtl)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "release",
+          "kind": "method",
+          "signature": "public void release(String key, String executionToken)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "JdbcIdempotencyStoreOptions",
+      "qualifiedName": "com.undernine.utils.jdbc.idempotent.JdbcIdempotencyStoreOptions",
+      "module": "jdbc",
+      "artifact": "under-utils-jdbc",
+      "packageName": "com.undernine.utils.jdbc.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "JDBC 幂等存储配置。",
+      "docsPath": "/docs/modules/jdbc/",
+      "sourcePath": "under-utils-jdbc/src/main/java/com/undernine/utils/jdbc/idempotent/JdbcIdempotencyStoreOptions.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "DEFAULT_KEY_PREFIX",
+          "kind": "field",
+          "signature": "public static final String DEFAULT_KEY_PREFIX",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DEFAULT_MAX_BEGIN_RETRIES",
+          "kind": "field",
+          "signature": "public static final int DEFAULT_MAX_BEGIN_RETRIES",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DEFAULT_TABLE_NAME",
+          "kind": "field",
+          "signature": "public static final String DEFAULT_TABLE_NAME",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "builder",
+          "kind": "method",
+          "signature": "public static Builder builder()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "defaults",
+          "kind": "method",
+          "signature": "public static JdbcIdempotencyStoreOptions defaults()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getKeyPrefix",
+          "kind": "method",
+          "signature": "public String getKeyPrefix()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getMaxBeginRetries",
+          "kind": "method",
+          "signature": "public int getMaxBeginRetries()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getTableName",
+          "kind": "method",
+          "signature": "public String getTableName()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "Builder",
+          "kind": "nested-type",
+          "signature": "public static final class Builder",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "JdbcIdempotencyCleanupScheduler",
+      "qualifiedName": "com.undernine.utils.starter.autoconfigure.JdbcIdempotencyCleanupScheduler",
+      "module": "jdbc-starter",
+      "artifact": "under-utils-jdbc-starter",
+      "packageName": "com.undernine.utils.starter.autoconfigure",
+      "type": "class",
+      "status": "stable",
+      "summary": "JDBC 幂等过期记录清理任务。",
+      "docsPath": "/docs/modules/jdbc-starter/",
+      "sourcePath": "under-utils-jdbc-starter/src/main/java/com/undernine/utils/starter/autoconfigure/JdbcIdempotencyCleanupScheduler.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "JdbcIdempotencyCleanupScheduler",
+          "kind": "constructor",
+          "signature": "public JdbcIdempotencyCleanupScheduler(JdbcIdempotencyStore idempotencyStore, Duration initialDelay, Duration interval)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "cleanupOnce",
+          "kind": "method",
+          "signature": "public int cleanupOnce()",
+          "status": "stable",
+          "summary": "立即执行一次过期记录清理。"
+        },
+        {
+          "name": "close",
+          "kind": "method",
+          "signature": "public void close()",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "UnderUtilsJdbcAutoConfiguration",
+      "qualifiedName": "com.undernine.utils.starter.autoconfigure.UnderUtilsJdbcAutoConfiguration",
+      "module": "jdbc-starter",
+      "artifact": "under-utils-jdbc-starter",
+      "packageName": "com.undernine.utils.starter.autoconfigure",
+      "type": "class",
+      "status": "stable",
+      "summary": "Under-Utils JDBC 自动配置入口。",
+      "docsPath": "/docs/modules/jdbc-starter/",
+      "sourcePath": "under-utils-jdbc-starter/src/main/java/com/undernine/utils/starter/autoconfigure/UnderUtilsJdbcAutoConfiguration.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "jdbcIdempotencyCleanupScheduler",
+          "kind": "method",
+          "signature": "public JdbcIdempotencyCleanupScheduler jdbcIdempotencyCleanupScheduler(JdbcIdempotencyStore idempotencyStore, UnderUtilsJdbcProperties properties)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "jdbcIdempotencyStore",
+          "kind": "method",
+          "signature": "public JdbcIdempotencyStore jdbcIdempotencyStore(JdbcOperations jdbcOperations, IdempotencyResultCodec resultCodec, UnderUtilsProperties properties, UnderUtilsJdbcProperties jdbcProperties)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "UnderUtilsJdbcProperties",
+      "qualifiedName": "com.undernine.utils.starter.properties.UnderUtilsJdbcProperties",
+      "module": "jdbc-starter",
+      "artifact": "under-utils-jdbc-starter",
+      "packageName": "com.undernine.utils.starter.properties",
+      "type": "class",
+      "status": "stable",
+      "summary": "Under-Utils JDBC 自动配置属性。",
+      "docsPath": "/docs/modules/jdbc-starter/",
+      "sourcePath": "under-utils-jdbc-starter/src/main/java/com/undernine/utils/starter/properties/UnderUtilsJdbcProperties.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "getCleanupInitialDelay",
+          "kind": "method",
+          "signature": "public Duration getCleanupInitialDelay()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getCleanupInterval",
+          "kind": "method",
+          "signature": "public Duration getCleanupInterval()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getMaxBeginRetries",
+          "kind": "method",
+          "signature": "public int getMaxBeginRetries()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getTableName",
+          "kind": "method",
+          "signature": "public String getTableName()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "isCleanupEnabled",
+          "kind": "method",
+          "signature": "public boolean isCleanupEnabled()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setCleanupEnabled",
+          "kind": "method",
+          "signature": "public void setCleanupEnabled(boolean cleanupEnabled)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setCleanupInitialDelay",
+          "kind": "method",
+          "signature": "public void setCleanupInitialDelay(Duration cleanupInitialDelay)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setCleanupInterval",
+          "kind": "method",
+          "signature": "public void setCleanupInterval(Duration cleanupInterval)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setMaxBeginRetries",
+          "kind": "method",
+          "signature": "public void setMaxBeginRetries(int maxBeginRetries)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "setTableName",
+          "kind": "method",
+          "signature": "public void setTableName(String tableName)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
       "name": "MybatisPlusConfig",
       "qualifiedName": "com.undernine.utils.mybatis.config.MybatisPlusConfig",
       "module": "mybatis",
@@ -7773,6 +8072,13 @@
           "summary": ""
         },
         {
+          "name": "setIdempotencyObserver",
+          "kind": "method",
+          "signature": "public void setIdempotencyObserver(IdempotencyObserver idempotencyObserver)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
           "name": "setIdempotencyStore",
           "kind": "method",
           "signature": "public synchronized void setIdempotencyStore(IdempotencyStore idempotencyStore)",
@@ -9046,6 +9352,64 @@
       ]
     },
     {
+      "name": "IdempotencyEvent",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyEvent",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "业务幂等观察事件。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyEvent.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "failure",
+          "kind": "method",
+          "signature": "public static IdempotencyEvent failure(IdempotencyOperation operation, long durationNanos, Throwable error)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getDurationNanos",
+          "kind": "method",
+          "signature": "public long getDurationNanos()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getError",
+          "kind": "method",
+          "signature": "public Throwable getError()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getOperation",
+          "kind": "method",
+          "signature": "public IdempotencyOperation getOperation()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "getOutcome",
+          "kind": "method",
+          "signature": "public IdempotencyOutcome getOutcome()",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "of",
+          "kind": "method",
+          "signature": "public static IdempotencyEvent of(IdempotencyOperation operation, IdempotencyOutcome outcome, long durationNanos)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
       "name": "IdempotencyException",
       "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyException",
       "module": "spring",
@@ -9158,6 +9522,145 @@
           "signature": "public boolean isInProgress()",
           "status": "stable",
           "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyObserver",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyObserver",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "interface",
+      "status": "stable",
+      "summary": "业务幂等观察者 SPI。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyObserver.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "noop",
+          "kind": "method",
+          "signature": "static IdempotencyObserver noop()",
+          "status": "stable",
+          "summary": "返回空观察者。"
+        },
+        {
+          "name": "onEvent",
+          "kind": "method",
+          "signature": "void onEvent(IdempotencyEvent event)",
+          "status": "stable",
+          "summary": "接收一次幂等事件。"
+        },
+        {
+          "name": "NoopIdempotencyObserver",
+          "kind": "nested-type",
+          "signature": "final class NoopIdempotencyObserver",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyOperation",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyOperation",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "enum",
+      "status": "stable",
+      "summary": "业务幂等内部操作类型。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyOperation.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "BEGIN",
+          "kind": "field",
+          "signature": "public static final IdempotencyOperation BEGIN",
+          "status": "stable",
+          "summary": "登记或读取幂等 key。"
+        },
+        {
+          "name": "BUSINESS",
+          "kind": "field",
+          "signature": "public static final IdempotencyOperation BUSINESS",
+          "status": "stable",
+          "summary": "执行业务方法。"
+        },
+        {
+          "name": "COMPLETE",
+          "kind": "field",
+          "signature": "public static final IdempotencyOperation COMPLETE",
+          "status": "stable",
+          "summary": "写入完成态结果。"
+        },
+        {
+          "name": "RELEASE",
+          "kind": "field",
+          "signature": "public static final IdempotencyOperation RELEASE",
+          "status": "stable",
+          "summary": "业务异常后的 owner 释放。"
+        }
+      ]
+    },
+    {
+      "name": "IdempotencyOutcome",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.IdempotencyOutcome",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "enum",
+      "status": "stable",
+      "summary": "业务幂等操作结果。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/IdempotencyOutcome.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "ACQUIRED",
+          "kind": "field",
+          "signature": "public static final IdempotencyOutcome ACQUIRED",
+          "status": "stable",
+          "summary": "当前调用获得首次执行资格。"
+        },
+        {
+          "name": "COMPLETED",
+          "kind": "field",
+          "signature": "public static final IdempotencyOutcome COMPLETED",
+          "status": "stable",
+          "summary": "复用已完成的首次执行结果。"
+        },
+        {
+          "name": "FAILURE",
+          "kind": "field",
+          "signature": "public static final IdempotencyOutcome FAILURE",
+          "status": "stable",
+          "summary": "操作失败。"
+        },
+        {
+          "name": "IN_PROGRESS",
+          "kind": "field",
+          "signature": "public static final IdempotencyOutcome IN_PROGRESS",
+          "status": "stable",
+          "summary": "相同 key 已有调用正在执行。"
+        },
+        {
+          "name": "SKIPPED",
+          "kind": "field",
+          "signature": "public static final IdempotencyOutcome SKIPPED",
+          "status": "stable",
+          "summary": "owner 已过期或被替换，操作未生效。"
+        },
+        {
+          "name": "SUCCESS",
+          "kind": "field",
+          "signature": "public static final IdempotencyOutcome SUCCESS",
+          "status": "stable",
+          "summary": "操作成功。"
         }
       ]
     },
@@ -9459,6 +9962,71 @@
           "name": "release",
           "kind": "method",
           "signature": "public synchronized void release(String key, String executionToken)",
+          "status": "stable",
+          "summary": ""
+        }
+      ]
+    },
+    {
+      "name": "MicrometerIdempotencyObserver",
+      "qualifiedName": "com.undernine.utils.spring.idempotent.MicrometerIdempotencyObserver",
+      "module": "spring",
+      "artifact": "under-utils-spring",
+      "packageName": "com.undernine.utils.spring.idempotent",
+      "type": "class",
+      "status": "stable",
+      "summary": "将业务幂等事件桥接到 Micrometer 的观察者。",
+      "docsPath": "/docs/modules/spring/",
+      "sourcePath": "under-utils-spring/src/main/java/com/undernine/utils/spring/idempotent/MicrometerIdempotencyObserver.java",
+      "since": "1.0.5",
+      "deprecatedMessage": "",
+      "members": [
+        {
+          "name": "MicrometerIdempotencyObserver",
+          "kind": "constructor",
+          "signature": "public MicrometerIdempotencyObserver(MeterRegistry meterRegistry)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "MicrometerIdempotencyObserver",
+          "kind": "constructor",
+          "signature": "public MicrometerIdempotencyObserver(MeterRegistry meterRegistry, ObservationRegistry observationRegistry)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "MicrometerIdempotencyObserver",
+          "kind": "constructor",
+          "signature": "public MicrometerIdempotencyObserver(MeterRegistry meterRegistry, ObservationRegistry observationRegistry, String counterName, String timerName, String observationName)",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DEFAULT_COUNTER_NAME",
+          "kind": "field",
+          "signature": "public static final String DEFAULT_COUNTER_NAME",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DEFAULT_OBSERVATION_NAME",
+          "kind": "field",
+          "signature": "public static final String DEFAULT_OBSERVATION_NAME",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "DEFAULT_TIMER_NAME",
+          "kind": "field",
+          "signature": "public static final String DEFAULT_TIMER_NAME",
+          "status": "stable",
+          "summary": ""
+        },
+        {
+          "name": "onEvent",
+          "kind": "method",
+          "signature": "public void onEvent(IdempotencyEvent event)",
           "status": "stable",
           "summary": ""
         }
@@ -10175,7 +10743,7 @@
         {
           "name": "idempotentAspect",
           "kind": "method",
-          "signature": "public IdempotentAspect idempotentAspect(IdempotencyStore idempotencyStore, IdempotentKeyResolver idempotentKeyResolver, UnderUtilsProperties properties)",
+          "signature": "public IdempotentAspect idempotentAspect(IdempotencyStore idempotencyStore, IdempotentKeyResolver idempotentKeyResolver, UnderUtilsProperties properties, ObjectProvider<IdempotencyObserver> idempotencyObserver)",
           "status": "stable",
           "summary": ""
         },
@@ -10320,6 +10888,13 @@
           "signature": "public static class LogicalCache",
           "status": "stable",
           "summary": "Redis 逻辑过期缓存配置。"
+        },
+        {
+          "name": "Observation",
+          "kind": "nested-type",
+          "signature": "public static class Observation",
+          "status": "stable",
+          "summary": "业务幂等观测配置。"
         },
         {
           "name": "OperationContext",

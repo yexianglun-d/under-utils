@@ -78,6 +78,28 @@ export const modules: ModuleEntry[] = [
     apiQuery: 'security-starter'
   },
   {
+    slug: 'jdbc',
+    artifact: 'under-utils-jdbc',
+    title: 'JDBC',
+    kind: 'library',
+    summary: '基于 Spring JDBC 的服务层幂等状态存储，支持处理中状态、完成结果复用和过期清理。',
+    recommendedFor: '已有业务数据库、不想额外引入 Redis 的多实例幂等场景。',
+    highlights: ['显式建表', '表名白名单校验', 'MySQL/PostgreSQL 脚本'],
+    docsSource: 'under-utils-jdbc/README.md',
+    apiQuery: 'jdbc'
+  },
+  {
+    slug: 'jdbc-starter',
+    artifact: 'under-utils-jdbc-starter',
+    title: 'JDBC Starter',
+    kind: 'starter',
+    summary: '显式选择 store=jdbc 时自动装配数据库幂等 store 和过期记录清理任务。',
+    recommendedFor: '希望用业务库承载 @Idempotent 状态的 Spring Boot 服务。',
+    highlights: ['独立 starter', '用户 IdempotencyStore 退让', '清理任务可关闭'],
+    docsSource: 'under-utils-jdbc-starter/README.md',
+    apiQuery: 'jdbc-starter'
+  },
+  {
     slug: 'http',
     artifact: 'under-utils-http',
     title: 'HTTP',

@@ -18,6 +18,7 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <mockito.agent.argLine>-Xshare:off -javaagent:${net.bytebuddy:byte-buddy-agent:jar}</mockito.agent.argLine>
     </properties>
 
     <dependencies>

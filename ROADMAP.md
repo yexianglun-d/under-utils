@@ -27,18 +27,20 @@
 - Redis 缓存观测补齐内置计数指标和可选 Micrometer observer，starter 可在存在 `MeterRegistry` 时自动接入。
 - Redis cache-aside 和 logical-cache 模板补齐链式单次调用入口，降低常见缓存读取调用样板代码。
 - Crypto 重新建模和 core JSON 迁移均已形成独立设计备忘，避免长期停留在一句占位说明。
+- 新增模块选择指南，明确独立 starter、兼容聚合 starter、library 模块和 1.0.6 轻量化治理口径。
 
 ## 近期计划
 
+- `1.0.6` 优先做轻量化治理：收敛模块选择矩阵、依赖重量审计、官网入口和 starter 边界，不急于新增大模块。
 - 持续维护 API Review，配置 key、异常语义和 starter 默认行为发生变化时同步记录。
 - 继续收缩 `under-utils-core` 历史工具方法的扩张倾向。
 - 维护 GitHub Discussions、`good first issue`、`help wanted` 和 `roadmap` 入口，把使用问题、功能孵化和确定任务分开。
-- 为 `1.0.3` 准备 AI 命名客户端、文档索引和 GitHub Release Notes。
 - 为 `2.0.0` 记录 Redis/Spring SPI 拆分方案，并按 [JSON_MODULE_MIGRATION.md](docs/JSON_MODULE_MIGRATION.md) 评估 core JSON 迁移。
 
 ## 后续方向
 
 - 评估 AI 后续能力：工具调用、结构化输出、模型私有参数边界和更完整的错误元数据。
+- 评估 HTTP/OpenAPI starter 是否有足够真实需求；在模块治理完成前，不急于新增。
 - 评估 `under-utils-crypto` 是否有真实业务需求；没有明确需求时继续保持暂缓。
 - 评估 Redis/Spring SPI 拆分，降低 cache/lock 用户对 Spring 横切接口的被动依赖。
 

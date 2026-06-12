@@ -16,6 +16,10 @@
     <name>Under-Utils Spring Starter</name>
     <description>Spring Boot 自动装配模块：操作上下文、限流、防重提交和本地状态存储</description>
 
+    <properties>
+        <mockito.agent.argLine>-Xshare:off -javaagent:${net.bytebuddy:byte-buddy-agent:jar}</mockito.agent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.yexianglun-d</groupId>
@@ -26,12 +30,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>

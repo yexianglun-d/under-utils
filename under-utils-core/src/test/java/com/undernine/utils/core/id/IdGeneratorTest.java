@@ -271,9 +271,6 @@ class IdGeneratorTest {
         }
         long duration = System.currentTimeMillis() - start;
 
-        System.out.println("生成 " + count + " 个 ID 耗时: " + duration + "ms");
-        System.out.println("平均每秒生成: " + (count * 1000 / duration) + " 个 ID");
-
         // 性能应该很好
         assertThat(duration).isLessThan(5000);
     }

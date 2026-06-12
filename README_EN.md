@@ -46,7 +46,7 @@ Poor fits:
 
 `under-utils-core` keeps several historical static utility classes for compatibility. They are not the main direction for new features.
 
-Dependency weight and module-splitting decisions are documented in [docs/DEPENDENCY_REVIEW.md](docs/DEPENDENCY_REVIEW.md). Engineering maturity work is tracked in [docs/ENGINEERING_MATURITY.md](docs/ENGINEERING_MATURITY.md), and future feature incubation is tracked in [docs/FUTURE_FEATURES.md](docs/FUTURE_FEATURES.md). Crypto redesign and core JSON migration notes are available in [docs/CRYPTO_REDESIGN.md](docs/CRYPTO_REDESIGN.md) and [docs/JSON_MODULE_MIGRATION.md](docs/JSON_MODULE_MIGRATION.md).
+Module selection guidance is documented in [docs/MODULE_SELECTION.md](docs/MODULE_SELECTION.md). Dependency weight and module-splitting decisions are documented in [docs/DEPENDENCY_REVIEW.md](docs/DEPENDENCY_REVIEW.md). Engineering maturity work is tracked in [docs/ENGINEERING_MATURITY.md](docs/ENGINEERING_MATURITY.md), and future feature incubation is tracked in [docs/FUTURE_FEATURES.md](docs/FUTURE_FEATURES.md). Crypto redesign and core JSON migration notes are available in [docs/CRYPTO_REDESIGN.md](docs/CRYPTO_REDESIGN.md) and [docs/JSON_MODULE_MIGRATION.md](docs/JSON_MODULE_MIGRATION.md).
 
 ## Modules
 
@@ -81,7 +81,7 @@ Dependency weight and module-splitting decisions are documented in [docs/DEPENDE
 
 ## Installation
 
-Import the BOM first, then add the starter or module you need. Starting from `1.0.2`, Spring Boot services should prefer lighter starters by need:
+Import the BOM first, then add the starter or module you need. Starting from `1.0.2`, Spring Boot services should prefer lighter starters by need. See [Module Selection](docs/MODULE_SELECTION.md) for the full decision matrix:
 
 ```xml
 <dependencyManagement>
@@ -103,6 +103,17 @@ Import the BOM first, then add the starter or module you need. Starting from `1.
     </dependency>
 </dependencies>
 ```
+
+Common choices:
+
+| Scenario | Preferred dependency | Notes |
+|------|----------|------|
+| Basic Spring Boot cross-cutting features | `under-utils-spring-starter` | Request context, rate limit, repeat-submit protection, and local idempotency. |
+| Redis distributed features | `under-utils-redis-starter` | Includes Spring starter and requires an application-provided `RedissonClient`. |
+| Database-backed service idempotency | `under-utils-jdbc-starter` | Includes Spring starter and does not create tables automatically. |
+| MyBatis-Plus defaults | `under-utils-mybatis-starter` | Does not manage multi-datasource routing or mapper scanning. |
+| Field encryption and response masking | `under-utils-security-starter` | Requires explicit keys and does not enable global implicit encryption. |
+| AI client autoconfiguration | `under-utils-ai-starter` | Standalone entrypoint, not included in the compatibility aggregate starter. |
 
 Use the Spring starter when you only need local Spring cross-cutting features:
 

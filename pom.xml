@@ -60,13 +60,18 @@
         <!-- Maven插件版本 -->
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+        <maven-dependency-plugin.version>3.7.0</maven-dependency-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
-        <spring-boot-maven-plugin.version>3.1.11</spring-boot-maven-plugin.version>
+        <spring-boot.version>3.1.11</spring-boot.version>
+        <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
         <japicmp-maven-plugin.version>0.26.0</japicmp-maven-plugin.version>
+        <lombok.version>1.18.30</lombok.version>
+        <argLine></argLine>
+        <mockito.agent.argLine></mockito.agent.argLine>
 
         <!-- Maven Central Portal 发布配置：默认跳过上传，避免误发布。 -->
         <central.publishing.server.id>central</central.publishing.server.id>
@@ -148,6 +153,15 @@
     </dependencyManagement>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>${maven.multiModuleProjectDirectory}/src/test/resources</directory>
+            </testResource>
+        </testResources>
+
         <pluginManagement>
             <plugins>
                 <!-- 编译插件 -->
@@ -160,6 +174,18 @@
                         <target>${java.version}</target>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <parameters>${maven.compiler.parameters}</parameters>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-configuration-processor</artifactId>
+                                <version>${spring-boot.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
 
@@ -168,6 +194,16 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <argLine>@{argLine} ${mockito.agent.argLine}</argLine>
+                    </configuration>
+                </plugin>
+
+                <!-- 解析测试依赖路径，供 Mockito Java agent 显式挂载使用。 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${maven-dependency-plugin.version}</version>
                 </plugin>
 
                 <!-- 发布插件 -->
@@ -232,6 +268,21 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>resolve-test-dependency-paths</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>

@@ -24,6 +24,13 @@ const curatedDocLinks: DocLink[] = [
     group: 'start'
   },
   {
+    title: '模块选择',
+    description: '按场景选择最少 starter，明确兼容聚合入口和独立模块边界。',
+    href: '/docs/source/module-selection/',
+    source: 'docs/MODULE_SELECTION.md',
+    group: 'start'
+  },
+  {
     title: '兼容性策略',
     description: '1.0.x、1.x.0、2.0.0 的版本语义、public API 范围和弃用流程。',
     href: '/docs/source/compatibility/',

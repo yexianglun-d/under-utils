@@ -1,6 +1,11 @@
 package com.undernine.utils.biz.importtask;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -217,17 +222,9 @@ class ImportTaskTemplateTest {
 
     @Test
     void asyncTemplateStoresTaskFailure() {
-        try (AsyncImportTaskTemplate template = new AsyncImportTaskTemplate(Runnable::run)) {
-            ImportRowHandler<String, String> handler = new ImportRowHandler<>() {
-                @Override
-                public String parse(String rawRow, ImportRowContext context) {
-                    throw new ImportTaskException("reader configuration missing");
-                }
-
-                @Override
-                public void process(String row, ImportRowContext context) {
-                }
-            };
+        LogCapture logCapture = captureLogs(AsyncImportTaskTemplate.class);
+        try (logCapture; AsyncImportTaskTemplate template = new AsyncImportTaskTemplate(Runnable::run)) {
+            ImportRowHandler<String, String> handler = failingTaskHandler("reader configuration missing");
 
             template.submit("failed-task", List.of("row"), handler);
 
@@ -238,6 +235,14 @@ class ImportTaskTemplateTest {
             assertThat(template.findResult("failed-task")).isEmpty();
             assertThat(template.findFailure("failed-task")).hasValueSatisfying(error ->
                     assertThat(error).isInstanceOf(ImportTaskException.class));
+            assertThat(logCapture.events())
+                    .anySatisfy(event -> {
+                        assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                        assertThat(event.getFormattedMessage())
+                                .isEqualTo("Async import task failed: failed-task");
+                        assertThat(event.getThrowableProxy().getMessage())
+                                .isEqualTo("reader configuration missing");
+                    });
         }
     }
 
@@ -310,7 +315,16 @@ class ImportTaskTemplateTest {
                 })
                 .build());
 
-        ImportResult result = template.execute(List.of("apple,10"), new CsvItemHandler(new ArrayList<>()));
+        ImportResult result;
+        try (LogCapture logCapture = captureLogs(ImportTaskTemplate.class)) {
+            result = template.execute(List.of("apple,10"), new CsvItemHandler(new ArrayList<>()));
+            assertThat(logCapture.events())
+                    .anySatisfy(event -> {
+                        assertThat(event.getLevel()).isEqualTo(Level.WARN);
+                        assertThat(event.getFormattedMessage()).isEqualTo("Import progress listener failed");
+                        assertThat(event.getThrowableProxy().getMessage()).isEqualTo("metrics down");
+                    });
+        }
 
         assertThat(result.isAllSuccess()).isTrue();
         assertThat(callbackCount).hasPositiveValue();
@@ -321,6 +335,24 @@ class ImportTaskTemplateTest {
         while (!condition.getAsBoolean() && System.currentTimeMillis() < deadline) {
             Thread.sleep(10L);
         }
+    }
+
+    private static ImportRowHandler<String, String> failingTaskHandler(String message) {
+        return new ImportRowHandler<>() {
+            @Override
+            public String parse(String rawRow, ImportRowContext context) {
+                throw new ImportTaskException(message);
+            }
+
+            @Override
+            public void process(String row, ImportRowContext context) {
+            }
+        };
+    }
+
+    private static LogCapture captureLogs(Class<?> loggerClass) {
+        Logger logger = (Logger) LoggerFactory.getLogger(loggerClass);
+        return new LogCapture(logger);
     }
 
     private record Item(String name, int quantity) {
@@ -363,6 +395,35 @@ class ImportTaskTemplateTest {
                 throw new IllegalStateException("boom item cannot be processed");
             }
             processedRows.add(row);
+        }
+    }
+
+    private static final class LogCapture implements AutoCloseable {
+
+        private final Logger logger;
+        private final boolean additive;
+        private final Level level;
+        private final ListAppender<ILoggingEvent> appender = new ListAppender<>();
+
+        private LogCapture(Logger logger) {
+            this.logger = logger;
+            this.additive = logger.isAdditive();
+            this.level = logger.getLevel();
+            appender.start();
+            logger.addAppender(appender);
+            logger.setAdditive(false);
+        }
+
+        private List<ILoggingEvent> events() {
+            return appender.list;
+        }
+
+        @Override
+        public void close() {
+            logger.detachAppender(appender);
+            logger.setAdditive(additive);
+            logger.setLevel(level);
+            appender.stop();
         }
     }
 }

@@ -23,18 +23,27 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class OpenAiCompatibleAiClientTest {
 
     private static final String API_KEY = "sk-test-secret";
+    private static final java.util.logging.Logger MOCK_WEB_SERVER_LOGGER =
+            java.util.logging.Logger.getLogger("okhttp3.mockwebserver");
 
     private MockWebServer server;
+    private java.util.logging.Level previousMockWebServerLogLevel;
 
     @BeforeEach
     void setUp() throws IOException {
+        previousMockWebServerLogLevel = MOCK_WEB_SERVER_LOGGER.getLevel();
+        MOCK_WEB_SERVER_LOGGER.setLevel(java.util.logging.Level.OFF);
         server = new MockWebServer();
         server.start();
     }
 
     @AfterEach
     void tearDown() throws IOException {
-        server.shutdown();
+        try {
+            server.shutdown();
+        } finally {
+            MOCK_WEB_SERVER_LOGGER.setLevel(previousMockWebServerLogLevel);
+        }
     }
 
     @Test

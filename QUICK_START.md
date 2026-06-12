@@ -26,7 +26,7 @@
 </dependencyManagement>
 ```
 
-当前稳定版 `1.0.4` 的 Spring Boot 项目通常优先按需选择轻量 starter。旧项目如果暂时不调整依赖坐标，也可以继续使用兼容聚合 starter：
+当前稳定版 `1.0.4` 的 Spring Boot 项目通常优先按需选择轻量 starter。完整选择口径见 [模块选择指南](docs/MODULE_SELECTION.md)。旧项目如果暂时不调整依赖坐标，也可以继续使用兼容聚合 starter：
 
 ```xml
 <dependency>
@@ -36,6 +36,15 @@
 ```
 
 从 `1.0.2` 起，可以按需选择轻量 starter。只需要 Spring 本地横切能力时使用：
+
+| 场景 | 推荐依赖 |
+|------|----------|
+| 单实例 Spring 横切能力 | `under-utils-spring-starter` |
+| Redis 分布式锁、Redis store 或缓存模板 | `under-utils-redis-starter` |
+| 业务数据库保存服务层幂等状态 | `under-utils-jdbc-starter` |
+| MyBatis-Plus 分页插件和审计填充 | `under-utils-mybatis-starter` |
+| 字段加密和响应脱敏 | `under-utils-security-starter` |
+| AI 客户端自动装配 | `under-utils-ai-starter` |
 
 ```xml
 <dependency>

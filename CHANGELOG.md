@@ -11,11 +11,15 @@
 - `under-utils-jdbc` 提供 MySQL/PostgreSQL 建表脚本，`under-utils-jdbc-starter` 默认启动 JDBC 幂等过期记录清理任务，并支持显式关闭或调整清理间隔。
 - `under-utils-spring` 新增 `IdempotencyObserver`、`IdempotencyEvent`、`IdempotencyOperation`、`IdempotencyOutcome` 和 `MicrometerIdempotencyObserver`，可将服务层幂等 begin/business/complete/release 事件写入 Micrometer counter、duration timer 和 observation，且不记录业务 key。
 - `under-utils-spring-starter` 新增 `under.utils.idempotent.observation.enabled` 配置，存在 `MeterRegistry` 且没有用户自定义 `IdempotencyObserver` 时自动创建 Micrometer 幂等观察者。
+- 新增 `docs/MODULE_SELECTION.md`，收敛模块选择矩阵、starter 入口策略和 `1.0.6` 轻量化治理目标，降低多模块带来的认知重量。
 
 ### Changed
 
 - `main` 分支 Maven 版本进入 `1.0.5-SNAPSHOT` 开发周期，`1.0.4` 保持为当前稳定版本和 API 兼容性基线。
 - `IdempotentAspect` 在业务异常后释放幂等 key 失败时保留原业务异常，并把释放失败追加为 suppressed exception，避免 store 故障遮蔽真实业务失败。
+- `docs/DEPENDENCY_REVIEW.md` 使用当前 `1.0.5-SNAPSHOT` 构建产物重新采集各 module/starter 的主 jar 大小和 runtime 依赖树规模，补齐此前 `待采集` 项。
+- 父 POM 显式声明 Lombok 和 Spring Boot configuration processor 的 `annotationProcessorPaths`，starter POM 不再把 `spring-boot-configuration-processor` 作为普通 optional 依赖，减少编译日志噪音和依赖树干扰。
+- 测试构建显式预加载 Byte Buddy agent，并收敛预期异常、MockWebServer、MyBatis 集成测试、Redisson 关闭阶段和性能样例输出，避免 Java 21 动态 agent 警告和预期失败堆栈污染 CI 日志。
 
 ## [1.0.4] - 2026-06-05
 

@@ -16,6 +16,10 @@
     <name>Under-Utils Security</name>
     <description>字段级加密与响应脱敏能力</description>
 
+    <properties>
+        <mockito.agent.argLine>-Xshare:off -javaagent:${net.bytebuddy:byte-buddy-agent:jar}</mockito.agent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

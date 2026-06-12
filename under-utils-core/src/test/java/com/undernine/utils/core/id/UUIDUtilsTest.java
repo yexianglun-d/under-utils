@@ -262,7 +262,6 @@ class UUIDUtilsTest {
         }
         long duration = System.currentTimeMillis() - start;
 
-        System.out.println("生成 10000 个 UUID 耗时: " + duration + "ms");
         assertThat(duration).isLessThan(1000); // 应该在 1 秒内完成
     }
 }

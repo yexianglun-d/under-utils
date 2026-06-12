@@ -1,6 +1,9 @@
 spring:
   application:
     name: under-utils-test
+  main:
+    banner-mode: off
+    log-startup-info: false
 
   # MyBatis 集成测试通过 Testcontainers 动态注入 datasource。
   sql:
@@ -11,8 +14,9 @@ spring:
 # MyBatis-Plus 配置
 mybatis-plus:
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
   global-config:
+    banner: false
     db-config:
       logic-delete-field: deleted
       logic-delete-value: 1
@@ -23,7 +27,8 @@ server:
 
 logging:
   level:
-    root: INFO
-    com.undernine.utils: DEBUG
+    root: WARN
+    com.undernine.utils: WARN
+    io.netty.util.concurrent.DefaultPromise.rejectedExecution: OFF
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'

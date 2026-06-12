@@ -19,6 +19,7 @@
     <properties>
         <!-- 新增模块没有 1.0.1 基线构件，发布后再纳入 public API 兼容检查。 -->
         <japicmp.skip>false</japicmp.skip>
+        <mockito.agent.argLine>-Xshare:off -javaagent:${net.bytebuddy:byte-buddy-agent:jar}</mockito.agent.argLine>
     </properties>
 
     <dependencies>
@@ -31,12 +32,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- ==================== 测试依赖 ==================== -->

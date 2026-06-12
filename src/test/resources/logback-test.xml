@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework.context.annotation.AnnotationConfigApplicationContext" level="ERROR"/>
+    <logger name="com.undernine.utils.redis.cache.LogicalExpireCacheTemplate" level="ERROR"/>
+    <logger name="com.undernine.utils.spring.aop.TimeLogAspect" level="ERROR"/>
+    <logger name="com.undernine.utils.spring.aspect.IdempotentAspect" level="ERROR"/>
+    <logger name="com.undernine.utils.spring.aspect.OperationLogAspect" level="OFF"/>
+    <logger name="com.undernine.utils.spring.aspect.PreventRepeatAspect" level="OFF"/>
+    <logger name="com.undernine.utils.spring.aspect.RateLimitAspect" level="OFF"/>
+    <logger name="com.undernine.utils.spring.aspect.RetryAspect" level="OFF"/>
+    <logger name="com.undernine.utils.spring.exception.GlobalExceptionHandler" level="OFF"/>
+    <logger name="com.undernine.utils.spring.interceptor.RequestLogInterceptor" level="OFF"/>
+    <logger name="io.netty.util.concurrent.DefaultPromise.rejectedExecution" level="OFF"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

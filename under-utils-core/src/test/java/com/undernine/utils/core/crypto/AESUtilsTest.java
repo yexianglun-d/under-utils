@@ -272,7 +272,6 @@ class AESUtilsTest {
         }
 
         long duration = System.currentTimeMillis() - start;
-        System.out.println("AES 加解密 " + count + " 次耗时: " + duration + "ms");
 
         assertThat(duration).isLessThan(5000);
     }

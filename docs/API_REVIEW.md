@@ -316,3 +316,15 @@
 - `MicrometerIdempotencyObserver` 只输出低基数 tag：`idempotency.operation`、`idempotency.outcome` 和 `exception`，不把幂等 key、方法签名或业务参数写入指标。
 - 新增配置 key：`under.utils.idempotent.observation.enabled`，默认开启但只有存在 `MeterRegistry` 时才创建 observer；用户自定义 `IdempotencyObserver` 时自动退让。
 - `IdempotentAspect` 在业务异常后释放 key 失败时保留原业务异常，并将释放失败作为 suppressed exception，属于符合既有失败语义的兼容行为修复。
+
+## 第二十九轮结论
+
+### 1.0.6 Lightweight Module Governance
+
+- `1.0.6` 优先解决模块认知重量，不新增运行时 public API、配置 key、默认 Bean 或 Maven artifact。
+- 新增 `docs/MODULE_SELECTION.md` 作为模块选择入口，README、Quick Start、依赖审计和官网生成索引应统一引用该口径。
+- `under-utils-starter` 继续作为兼容聚合入口，只覆盖 Spring 与 Redis 自动装配；AI、Security、MyBatis、JDBC 以及未来新能力默认不加入旧聚合入口。
+- 新项目推荐从一个独立 starter 开始：Spring-only 使用 `under-utils-spring-starter`，Redis 使用 `under-utils-redis-starter`，数据库幂等使用 `under-utils-jdbc-starter`，MyBatis/Security/AI 按真实技术栈单独引入。
+- starter 不创建数据库表、Redis 连接、数据源、事务管理器或 mapper 扫描；这些仍由业务项目或基础设施层负责。
+- 已按当前 `1.0.5-SNAPSHOT` 构建产物重新采集 module/starter 依赖重量，并将 Spring Boot configuration processor 从 starter 普通 optional 依赖移到父 POM annotation processor path。
+- 本轮属于文档、构建和治理增强，不改变已发布 API 的默认语义；发版前仍需要 site build 和 release 验证。

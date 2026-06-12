@@ -16,6 +16,10 @@
     <name>Under-Utils Integration Test</name>
     <description>集成验证模块 - 通过 Testcontainers 验证跨模块能力，不进入默认构建与发布链路</description>
 
+    <properties>
+        <mockito.agent.argLine>-Xshare:off -javaagent:${net.bytebuddy:byte-buddy-agent:jar}</mockito.agent.argLine>
+    </properties>
+
     <dependencies>
         <!-- 核心模块 -->
         <dependency>

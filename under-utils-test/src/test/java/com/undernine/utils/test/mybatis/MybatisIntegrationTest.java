@@ -87,11 +87,6 @@ class MybatisIntegrationTest {
         assertThat(user.getCreateBy()).isEqualTo(1001L); // 测试环境固定用户ID
         assertThat(user.getUpdateBy()).isEqualTo(1001L);
         assertThat(user.getDeleted()).isEqualTo(0);
-
-        System.out.println("✅ 自动填充测试通过");
-        System.out.println("   用户ID: " + user.getId());
-        System.out.println("   创建时间: " + user.getCreateTime());
-        System.out.println("   创建人: " + user.getCreateBy());
     }
 
     @Test
@@ -127,12 +122,6 @@ class MybatisIntegrationTest {
         assertThat(pageResult.getCurrent()).isEqualTo(1L);
         assertThat(pageResult.getSize()).isEqualTo(10L);
         assertThat(pageResult.getPages()).isGreaterThanOrEqualTo(3L);
-
-        System.out.println("✅ 分页查询测试通过");
-        System.out.println("   总记录数: " + pageResult.getTotal());
-        System.out.println("   当前页: " + pageResult.getCurrent());
-        System.out.println("   每页大小: " + pageResult.getSize());
-        System.out.println("   总页数: " + pageResult.getPages());
     }
 
     @Test
@@ -160,11 +149,6 @@ class MybatisIntegrationTest {
         List<User> activeUsers = userMapper.selectList(new LambdaQueryWrapper<User>());
         // 确保返回的列表中不包含已删除的记录
         assertThat(activeUsers.stream().noneMatch(u -> u.getId().equals(userId))).isTrue();
-
-        System.out.println("✅ 逻辑删除测试通过");
-        System.out.println("   删除的用户ID: " + userId);
-        System.out.println("   正常查询结果: null（已被逻辑删除过滤）");
-        System.out.println("   当前活跃用户数: " + activeUsers.size());
     }
 
     @Test
@@ -202,12 +186,6 @@ class MybatisIntegrationTest {
         assertThat(updatedUser.getUpdateBy()).isEqualTo(1001L);
         assertThat(updatedUser.getAge()).isEqualTo(30);
         assertThat(updatedUser.getEmail()).isEqualTo("updated@example.com");
-
-        System.out.println("✅ 更新自动填充测试通过");
-        System.out.println("   创建时间: " + updatedUser.getCreateTime() + " (未变化)");
-        System.out.println("   更新时间: " + updatedUser.getUpdateTime() + " (已更新)");
-        System.out.println("   创建人: " + updatedUser.getCreateBy() + " (未变化)");
-        System.out.println("   更新人: " + updatedUser.getUpdateBy());
     }
 
     @Test
@@ -237,11 +215,5 @@ class MybatisIntegrationTest {
             assertThat(u.getStatus()).isEqualTo(1);
             assertThat(u.getAge()).isGreaterThan(25);
         });
-
-        System.out.println("✅ 条件查询测试通过");
-        System.out.println("   符合条件的用户数: " + activeUsers.size());
-        activeUsers.forEach(u -> 
-            System.out.println("   - " + u.getUsername() + ", 年龄: " + u.getAge() + ", 状态: " + u.getStatus())
-        );
     }
 }

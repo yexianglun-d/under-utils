@@ -16,6 +16,10 @@
     <name>Under-Utils Redis Starter</name>
     <description>Spring Boot 自动装配模块：Redis 分布式锁、限流/防重存储和缓存模板</description>
 
+    <properties>
+        <mockito.agent.argLine>-Xshare:off -javaagent:${net.bytebuddy:byte-buddy-agent:jar}</mockito.agent.argLine>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.yexianglun-d</groupId>

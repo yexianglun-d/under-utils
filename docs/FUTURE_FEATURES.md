@@ -313,6 +313,38 @@ F-001 和 F-002 已经覆盖单个 OpenAI-compatible 客户端的同步与流式
 - 新增 `@Mask`、`MaskType`、`MaskingJsonSerializer` 和 `MaskingUtils`。
 - security starter 只有显式配置 Base64 AES key 且未关闭 `field-encryption.enabled` 时才创建默认 `FieldEncryptor` 并注册 TypeHandler 默认加密器。
 
+## F-007 模块选择与轻量化治理
+
+状态：`已实现`
+
+### 背景
+
+`1.0.4` 和 `1.0.5` 后，项目已经覆盖 Spring、Redis、HTTP、AI、Security、MyBatis、JDBC 和 Biz 等多个方向。依赖拆分仍然可控，但用户的认知重量开始上升：新用户需要知道该引哪个 starter、哪些能力会自动装配、哪些模块不会进入旧聚合入口。
+
+### 目标
+
+- 明确新项目优先按需选择独立 starter。
+- 明确 `under-utils-starter` 只保留为兼容聚合入口。
+- 提供模块选择矩阵和常见组合。
+- 把 README、Quick Start、依赖审计和官网索引统一到同一套选择口径。
+- 为后续功能评估增加“是否增加认知重量”的准入检查。
+
+### 非目标
+
+- 不新增运行时 public API。
+- 不新增配置 key。
+- 不新增 Maven artifact。
+- 不修改 starter 的默认自动装配语义。
+
+### 实现记录
+
+- 新增 `docs/MODULE_SELECTION.md`，记录独立 starter、library 模块、旧聚合 starter 和不推荐组合。
+- README 和 Quick Start 增加模块选择表，减少用户在多个 starter 之间猜测。
+- 依赖审计增加 `1.0.6` 轻量化治理口径，明确后续新增能力默认不进入 `under-utils-starter`。
+- 依赖审计已按当前 `1.0.5-SNAPSHOT` 构建产物重新采集主 jar 大小和 runtime 依赖树，量化各 module/starter 的重量。
+- starter 的 Spring Boot configuration processor 改为编译期 annotation processor path，不再作为普通 optional 依赖出现在 starter POM 中。
+- API Review 记录本轮为文档和治理增强，不改变已发布 API 的默认语义。
+
 ## 新功能记录模板
 
 ```markdown

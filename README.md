@@ -48,7 +48,7 @@ Maven 坐标使用 GitHub namespace `io.github.yexianglun-d`。Java 包名在 `1
 
 `under-utils-core` 中保留了一些历史静态工具类，用于兼容已有调用；它们不是后续新增能力的主线。
 
-模块依赖重量和拆分判断见 [docs/DEPENDENCY_REVIEW.md](docs/DEPENDENCY_REVIEW.md)。
+模块选择建议见 [docs/MODULE_SELECTION.md](docs/MODULE_SELECTION.md)，依赖重量和拆分判断见 [docs/DEPENDENCY_REVIEW.md](docs/DEPENDENCY_REVIEW.md)。
 工程成熟度推进见 [docs/ENGINEERING_MATURITY.md](docs/ENGINEERING_MATURITY.md)，后续功能孵化见 [docs/FUTURE_FEATURES.md](docs/FUTURE_FEATURES.md)。
 Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/CRYPTO_REDESIGN.md) 与 [docs/JSON_MODULE_MIGRATION.md](docs/JSON_MODULE_MIGRATION.md)。
 
@@ -87,7 +87,7 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
 
 ## 安装
 
-建议先引入 BOM，再按需引入 starter 或单模块。`1.0.2` 起普通 Spring Boot 服务优先按需选择轻量 starter：
+建议先引入 BOM，再按需引入 starter 或单模块。`1.0.2` 起普通 Spring Boot 服务优先按需选择轻量 starter；完整决策表见 [模块选择指南](docs/MODULE_SELECTION.md)。
 
 ```xml
 <dependencyManagement>
@@ -109,6 +109,17 @@ Crypto 重新建模和 core JSON 迁移分别见 [docs/CRYPTO_REDESIGN.md](docs/
     </dependency>
 </dependencies>
 ```
+
+常见选择：
+
+| 场景 | 首选依赖 | 说明 |
+|------|----------|------|
+| 普通 Spring Boot 横切能力 | `under-utils-spring-starter` | 请求上下文、限流、防重、本地幂等。 |
+| Redis 分布式能力 | `under-utils-redis-starter` | 已包含 Spring starter，要求业务提供 `RedissonClient`。 |
+| 数据库服务层幂等 | `under-utils-jdbc-starter` | 已包含 Spring starter，不自动建表。 |
+| MyBatis-Plus 默认插件 | `under-utils-mybatis-starter` | 不接管多数据源和 mapper 扫描。 |
+| 字段加密和响应脱敏 | `under-utils-security-starter` | 显式配置 key，不做隐式全局加密。 |
+| AI 客户端自动装配 | `under-utils-ai-starter` | 独立入口，不进入兼容聚合 starter。 |
 
 只需要 Spring 本地横切能力时使用：
 

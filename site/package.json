@@ -13,11 +13,11 @@
     "generate:data": "node scripts/generate-version.mjs && node scripts/generate-api-index.mjs && node scripts/generate-docs-index.mjs"
   },
   "dependencies": {
-    "astro": "^6.4.2",
-    "gsap": "^3.15.0",
-    "marked": "^16.4.0"
+    "gsap": "^3.15.0"
   },
   "devDependencies": {
+    "astro": "^6.4.2",
+    "marked": "^16.4.0",
     "typescript": "^5.8.3"
   }
 }

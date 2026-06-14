@@ -341,7 +341,7 @@ F-001 和 F-002 已经覆盖单个 OpenAI-compatible 客户端的同步与流式
 - 新增 `docs/MODULE_SELECTION.md`，记录独立 starter、library 模块、旧聚合 starter 和不推荐组合。
 - README 和 Quick Start 增加模块选择表，减少用户在多个 starter 之间猜测。
 - 依赖审计增加 `1.0.6` 轻量化治理口径，明确后续新增能力默认不进入 `under-utils-starter`。
-- 依赖审计已按当前 `1.0.5-SNAPSHOT` 构建产物重新采集主 jar 大小和 runtime 依赖树，量化各 module/starter 的重量。
+- 依赖审计已按当前 `1.0.5` 构建产物重新采集主 jar 大小和 runtime 依赖树，量化各 module/starter 的重量。
 - starter 的 Spring Boot configuration processor 改为编译期 annotation processor path，不再作为普通 optional 依赖出现在 starter POM 中。
 - API Review 记录本轮为文档和治理增强，不改变已发布 API 的默认语义。
 

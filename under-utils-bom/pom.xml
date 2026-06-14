@@ -7,7 +7,7 @@
 
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-bom</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5</version>
     <packaging>pom</packaging>
 
     <name>Under-Utils BOM</name>

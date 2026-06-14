@@ -20,7 +20,7 @@
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-core</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 

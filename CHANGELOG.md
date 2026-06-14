@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+暂无。
+
+## [1.0.5] - 2026-06-14
+
 ### Added
 
 - 新增 `under-utils-jdbc`，提供 JDBC 版 `JdbcIdempotencyStore`，用于在不引入 Redis 的服务中通过业务数据库共享服务层幂等状态。该实现要求业务项目显式建表，表名经过白名单校验，业务 key 和结果 payload 均使用参数绑定。
@@ -15,9 +19,9 @@
 
 ### Changed
 
-- `main` 分支 Maven 版本进入 `1.0.5-SNAPSHOT` 开发周期，`1.0.4` 保持为当前稳定版本和 API 兼容性基线。
+- 本轮 `1.0.5` 发布以 `1.0.4` 作为 API 兼容性基线，新增 JDBC 模块和幂等观测能力均为 additive 变更。
 - `IdempotentAspect` 在业务异常后释放幂等 key 失败时保留原业务异常，并把释放失败追加为 suppressed exception，避免 store 故障遮蔽真实业务失败。
-- `docs/DEPENDENCY_REVIEW.md` 使用当前 `1.0.5-SNAPSHOT` 构建产物重新采集各 module/starter 的主 jar 大小和 runtime 依赖树规模，补齐此前 `待采集` 项。
+- `docs/DEPENDENCY_REVIEW.md` 使用当前 `1.0.5` 构建产物重新采集各 module/starter 的主 jar 大小和 runtime 依赖树规模，补齐此前 `待采集` 项。
 - 父 POM 显式声明 Lombok 和 Spring Boot configuration processor 的 `annotationProcessorPaths`，starter POM 不再把 `spring-boot-configuration-processor` 作为普通 optional 依赖，减少编译日志噪音和依赖树干扰。
 - 测试构建显式预加载 Byte Buddy agent，并收敛预期异常、MockWebServer、MyBatis 集成测试、Redisson 关闭阶段和性能样例输出，避免 Java 21 动态 agent 警告和预期失败堆栈污染 CI 日志。
 

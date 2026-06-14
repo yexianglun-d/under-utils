@@ -25,11 +25,11 @@
 
 ## 模块快照
 
-数据基于 `1.0.5-SNAPSHOT` 本地 `mvn -B -ntp -Prelease -DskipTests package` 构建产物和 `runtime` 依赖树。
+数据基于 `1.0.5` 本地 `mvn -B -ntp -Prelease -DskipTests package` 构建产物和 `runtime` 依赖树。
 
 统计口径：
 
-- 主 jar 大小使用各模块 `target/*-1.0.5-SNAPSHOT.jar`。
+- 主 jar 大小使用各模块 `target/*-1.0.5.jar`。
 - runtime 树规模使用 `target/dependency-tree-runtime.txt` 行数，包含根坐标行。
 - Maven dependency tree 会列出本模块声明的 optional 依赖；optional 不会作为普通传递依赖强制带给下游消费者。
 
@@ -65,7 +65,7 @@
 | 自动建表/建连接 | starter 不创建数据库表、Redis 连接、数据源、事务或 mapper 扫描。 |
 | 新 public API | 非必要不新增；优先通过文档、测试和配置边界降低使用复杂度。 |
 
-当前已补齐 `1.0.5-SNAPSHOT` 的 jar 大小和 runtime 依赖树。发版前如果 POM 或模块边界继续变化，需要按同一命令重采。
+当前已补齐 `1.0.5` 的 jar 大小和 runtime 依赖树。发版前如果 POM 或模块边界继续变化，需要按同一命令重采。
 
 ## 重点模块判断
 

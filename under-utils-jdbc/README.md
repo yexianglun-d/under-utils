@@ -10,7 +10,7 @@ Spring JDBC 基础设施模块，目前提供数据库版服务层幂等状态�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-jdbc</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 

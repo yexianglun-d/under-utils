@@ -10,7 +10,7 @@ AI 大模型基础调用封装模块，提供 OpenAI-compatible 文本对话客�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-ai</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 

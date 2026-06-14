@@ -10,7 +10,7 @@ MyBatis-Plus 支持模块，提供审计字段、逻辑删除约定、安全分�
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-mybatis</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -20,7 +20,7 @@ Spring Boot 项目希望自动装配 MyBatis-Plus interceptor 和默认审计字
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-mybatis-starter</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 

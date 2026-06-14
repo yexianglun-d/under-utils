@@ -19,6 +19,9 @@ const springConfig = `under:
       repeat-submit:
         enabled: true
         store: local`;
+const versionText = version.snapshot === version.stable
+  ? `当前稳定版本为 ${version.stable}。`
+  : `当前稳定版本为 ${version.stable}，主分支处于 ${version.snapshot} 开发周期。`;
 ---
 
 <SiteShell title="文档" current="docs">
@@ -44,7 +47,7 @@ const springConfig = `under:
 
       <h2 id="quick-start">快速开始</h2>
       <p>
-        当前稳定版本为 <strong>{version.stable}</strong>，主分支处于 <strong>{version.snapshot}</strong> 开发周期。普通 Spring Boot 服务优先从轻量 starter 开始。
+        <strong>{versionText}</strong> 普通 Spring Boot 服务优先从轻量 starter 开始。
       </p>
       <CodeBlock label="Spring 本地横切能力配置" language="yaml" code={springConfig} />
 

@@ -326,5 +326,5 @@
 - `under-utils-starter` 继续作为兼容聚合入口，只覆盖 Spring 与 Redis 自动装配；AI、Security、MyBatis、JDBC 以及未来新能力默认不加入旧聚合入口。
 - 新项目推荐从一个独立 starter 开始：Spring-only 使用 `under-utils-spring-starter`，Redis 使用 `under-utils-redis-starter`，数据库幂等使用 `under-utils-jdbc-starter`，MyBatis/Security/AI 按真实技术栈单独引入。
 - starter 不创建数据库表、Redis 连接、数据源、事务管理器或 mapper 扫描；这些仍由业务项目或基础设施层负责。
-- 已按当前 `1.0.5-SNAPSHOT` 构建产物重新采集 module/starter 依赖重量，并将 Spring Boot configuration processor 从 starter 普通 optional 依赖移到父 POM annotation processor path。
+- 已按当前 `1.0.5` 构建产物重新采集 module/starter 依赖重量，并将 Spring Boot configuration processor 从 starter 普通 optional 依赖移到父 POM annotation processor path。
 - 本轮属于文档、构建和治理增强，不改变已发布 API 的默认语义；发版前仍需要 site build 和 release 验证。

@@ -18,7 +18,7 @@
         <dependency>
             <groupId>io.github.yexianglun-d</groupId>
             <artifactId>under-utils-bom</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -26,7 +26,7 @@
 </dependencyManagement>
 ```
 
-当前稳定版 `1.0.4` 的 Spring Boot 项目通常优先按需选择轻量 starter。完整选择口径见 [模块选择指南](docs/MODULE_SELECTION.md)。旧项目如果暂时不调整依赖坐标，也可以继续使用兼容聚合 starter：
+当前稳定版 `1.0.5` 的 Spring Boot 项目通常优先按需选择轻量 starter。完整选择口径见 [模块选择指南](docs/MODULE_SELECTION.md)。旧项目如果暂时不调整依赖坐标，也可以继续使用兼容聚合 starter：
 
 ```xml
 <dependency>

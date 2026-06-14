@@ -10,7 +10,7 @@ Spring Boot 自动装配模块，用于把 `under-utils-jdbc` 的数据库幂等
 <dependency>
     <groupId>io.github.yexianglun-d</groupId>
     <artifactId>under-utils-jdbc-starter</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 

@@ -8,6 +8,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -262,7 +263,8 @@ class IdGeneratorTest {
 
     @Test
     void testPerformance() {
-        IdGenerator generator = new IdGenerator();
+        AtomicLong timestamp = new AtomicLong(System.currentTimeMillis());
+        IdGenerator generator = new IdGenerator(1, 1, timestamp::getAndIncrement);
         int count = 100000;
 
         long start = System.currentTimeMillis();
@@ -273,6 +275,19 @@ class IdGeneratorTest {
 
         // 性能应该很好
         assertThat(duration).isLessThan(5000);
+    }
+
+    @Test
+    void testNextId_rejectsClockBackwards() {
+        AtomicLong timestamp = new AtomicLong(System.currentTimeMillis());
+        IdGenerator generator = new IdGenerator(1, 1, timestamp::get);
+
+        generator.nextId();
+        timestamp.decrementAndGet();
+
+        assertThatThrownBy(generator::nextId)
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Clock moved backwards");
     }
 
     // ==================== 边界测试 ====================

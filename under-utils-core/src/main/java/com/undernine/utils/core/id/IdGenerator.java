@@ -1,6 +1,8 @@
 package com.undernine.utils.core.id;
 
 import java.net.InetAddress;
+import java.util.Objects;
+import java.util.function.LongSupplier;
 
 /**
  * 分布式 ID 生成器（雪花算法 Snowflake）
@@ -118,6 +120,11 @@ public class IdGenerator {
     private final boolean workerIdConfigured;
 
     /**
+     * 时间源。
+     */
+    private final LongSupplier timestampSupplier;
+
+    /**
      * 序列号
      */
     private long sequence = 0L;
@@ -157,6 +164,18 @@ public class IdGenerator {
                         long workerId,
                         boolean datacenterIdConfigured,
                         boolean workerIdConfigured) {
+        this(datacenterId, workerId, datacenterIdConfigured, workerIdConfigured, System::currentTimeMillis);
+    }
+
+    IdGenerator(long datacenterId, long workerId, LongSupplier timestampSupplier) {
+        this(datacenterId, workerId, true, true, timestampSupplier);
+    }
+
+    private IdGenerator(long datacenterId,
+                        long workerId,
+                        boolean datacenterIdConfigured,
+                        boolean workerIdConfigured,
+                        LongSupplier timestampSupplier) {
         if (datacenterId > MAX_DATACENTER_ID || datacenterId < 0) {
             throw new IllegalArgumentException(
                     String.format("Datacenter ID must be between 0 and %d", MAX_DATACENTER_ID));
@@ -169,6 +188,7 @@ public class IdGenerator {
         this.workerId = workerId;
         this.datacenterIdConfigured = datacenterIdConfigured;
         this.workerIdConfigured = workerIdConfigured;
+        this.timestampSupplier = Objects.requireNonNull(timestampSupplier, "timestampSupplier");
     }
 
     /**
@@ -280,7 +300,7 @@ public class IdGenerator {
      * @return 当前时间戳
      */
     private long getCurrentTimestamp() {
-        return System.currentTimeMillis();
+        return timestampSupplier.getAsLong();
     }
 
     /**

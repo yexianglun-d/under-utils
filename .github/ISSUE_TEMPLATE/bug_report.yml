@@ -1,0 +1,88 @@
+name: Bug 反馈
+description: 反馈 Under-Utils 中可复现的问题
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈。请尽量提供最小复现，避免粘贴密钥、token、真实用户数据或内部地址。
+
+  - type: input
+    id: module
+    attributes:
+      label: 受影响模块
+      description: 哪个模块或 starter 出现问题？
+      placeholder: under-utils-spring-starter
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本或分支
+      description: 使用的稳定版本、SNAPSHOT、分支名或 commit hash。
+      placeholder: 1.0.5 / 1.0.6-SNAPSHOT / main
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 简洁说明你遇到了什么问题。
+      placeholder: 调用 @Idempotent 标记的方法时，重复请求没有返回第一次执行结果。
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现方式
+      description: 提供最小复现步骤、测试代码或配置片段。
+      value: |
+        1.
+        2.
+        3.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 你认为正确的行为是什么？
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 实际发生了什么？如果有异常堆栈，请粘贴关键部分。
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 填写和问题相关的环境即可。
+      value: |
+        - Java:
+        - Maven:
+        - Spring Boot:
+        - OS:
+    validations:
+      required: false
+
+  - type: textarea
+    id: regression-test
+    attributes:
+      label: 建议的回归测试
+      description: 可选。说明修复后应覆盖什么断言或场景。
+    validations:
+      required: false

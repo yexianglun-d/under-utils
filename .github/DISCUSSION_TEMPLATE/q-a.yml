@@ -5,36 +5,36 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this form for installation, configuration, examples, or module usage questions.
-        If you found a reproducible bug, please open a Bug issue instead.
+        这里适合安装、配置、示例工程或模块用法问题。
+        如果已经有稳定复现方式，请改用 Bug issue。
   - type: input
     id: module
     attributes:
-      label: Module
-      description: Which module or starter is involved?
+      label: 相关模块
+      description: 涉及哪个模块或 starter？
       placeholder: under-utils-spring-starter
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version
-      description: Stable version, snapshot branch, or commit hash.
-      placeholder: 1.0.2
+      label: 版本
+      description: 稳定版本、SNAPSHOT 分支或 commit hash。
+      placeholder: 1.0.5
     validations:
       required: true
   - type: textarea
     id: question
     attributes:
-      label: Question
-      description: Describe what you want to do, what you tried, and where you are blocked.
-      placeholder: I want to enable Redis-backed repeat-submit protection...
+      label: 问题
+      description: 说明你想做什么、试过什么、卡在哪里。
+      placeholder: 我想启用 Redis 版防重复提交，但不确定应该引入哪个 starter...
     validations:
       required: true
   - type: textarea
     id: context
     attributes:
-      label: Context
-      description: Add minimal configuration, code, logs, or links. Do not include secrets.
+      label: 补充上下文
+      description: 可粘贴最小配置、代码、日志或链接。不要包含密钥。
     validations:
       required: false

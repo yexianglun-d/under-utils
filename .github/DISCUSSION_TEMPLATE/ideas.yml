@@ -5,34 +5,34 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this form to incubate reusable engineering-pattern ideas before opening a feature issue.
-        Under-Utils does not accept one-off application workflows or small helpers already covered by mature libraries.
+        这里适合先讨论还不确定是否应该进入 public API 的想法。
+        已经明确要做的能力，可以直接打开 Feature issue。
   - type: textarea
     id: scenario
     attributes:
-      label: Repeated Scenario
-      description: What repeated infrastructure or workflow problem should be extracted?
-      placeholder: Multiple services keep rewriting the same cache rebuild behavior...
+      label: 重复场景
+      description: 哪类工程问题在多个项目里反复出现？
+      placeholder: 多个服务都在重复写相同的缓存重建逻辑...
     validations:
       required: true
   - type: textarea
     id: fit
     attributes:
-      label: Why It Fits Under-Utils
-      description: Explain why JDK, Spring, Hutool, Apache Commons, Guava, or existing Under-Utils modules do not already cover it.
+      label: 为什么适合 Under-Utils
+      description: 简单说明为什么 JDK、Spring、Hutool、Apache Commons、Guava 或现有模块不能直接覆盖。
     validations:
       required: true
   - type: textarea
     id: boundary
     attributes:
-      label: Boundary
-      description: What should be included, and what must stay in the business application?
+      label: 边界
+      description: 哪些应该放进工具包，哪些应该留在业务项目里？
     validations:
       required: true
   - type: textarea
     id: api
     attributes:
-      label: Possible API
-      description: Sketch the smallest readable API, configuration key, or sample usage.
+      label: 可能的用法
+      description: 可选。简单写一下最小 API、配置项或示例用法。
     validations:
       required: false

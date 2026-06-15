@@ -1,0 +1,44 @@
+name: 文档问题
+description: 反馈 README、模块文档、示例或官网内容问题
+title: "[Docs] "
+labels:
+  - documentation
+body:
+  - type: input
+    id: page
+    attributes:
+      label: 文档位置
+      description: 文件路径、官网页面或 README 章节。
+      placeholder: README.md / docs/MODULE_SELECTION.md / under-utils-redis/README.md
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 问题类型
+      options:
+        - 内容错误
+        - 示例不可运行
+        - 版本信息过期
+        - 描述不清楚
+        - 缺少说明
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题描述
+      description: 哪句话、哪段示例或哪个链接有问题？
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 建议修改
+      description: 可选。可以直接贴你认为更合适的表述。
+    validations:
+      required: false

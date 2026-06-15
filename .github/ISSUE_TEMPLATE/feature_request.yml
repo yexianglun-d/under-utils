@@ -1,0 +1,70 @@
+name: 功能建议
+description: 提出一个适合 Under-Utils 的复用能力
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        这个仓库是个人维护的 Java 工具包。请优先描述真实重复场景，不需要写成完整方案。
+
+  - type: textarea
+    id: scenario
+    attributes:
+      label: 使用场景
+      description: 这个能力要解决什么重复问题？
+      placeholder: 多个服务都需要相同的请求签名、幂等、缓存重建或字段处理逻辑。
+    validations:
+      required: true
+
+  - type: textarea
+    id: pain-point
+    attributes:
+      label: 当前痛点
+      description: 现在没有这个能力时，你需要怎么绕？哪里重复、容易错或不好维护？
+    validations:
+      required: true
+
+  - type: input
+    id: module
+    attributes:
+      label: 可能归属模块
+      description: 不确定可以写 unsure。
+      placeholder: under-utils-spring / under-utils-redis / unsure
+    validations:
+      required: false
+
+  - type: textarea
+    id: api
+    attributes:
+      label: 期望用法
+      description: 可选。简单写一下你希望怎么调用或配置。
+      placeholder: |
+        @Example
+        public void method() {}
+      render: java
+    validations:
+      required: false
+
+  - type: dropdown
+    id: compatibility
+    attributes:
+      label: 兼容性预期
+      description: 你觉得这个建议对现有用户的影响是什么？
+      options:
+        - 只新增能力，不影响现有用户
+        - 需要新增配置项
+        - 可能调整现有行为
+        - 不确定
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 已考虑的替代方案
+      description: 可选。比如 JDK、Spring、Hutool、Apache Commons、Guava 或项目已有模块是否已经能覆盖。
+    validations:
+      required: false
